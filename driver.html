@@ -3,14 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>بوابة الموزع - استلام المهام</title>
+    <title>بوابة الموزع - استلام وتأكيد الطرود</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- مكتبة المزامنة السحابية الفورية -->
-    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
 
     <style>
         :root {
@@ -48,8 +45,8 @@
         header {
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 16px;
+            border-radius: 16px;
+            padding: 16px 20px;
             margin-bottom: 16px;
             display: flex;
             justify-content: space-between;
@@ -57,7 +54,7 @@
         }
 
         .status-dot {
-            font-size: 12px;
+            font-size: 13px;
             color: var(--success);
             font-weight: 700;
             display: flex;
@@ -68,8 +65,8 @@
         .filter-card {
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 14px;
+            border-radius: 16px;
+            padding: 16px;
             margin-bottom: 16px;
         }
 
@@ -80,7 +77,7 @@
             background: var(--card-bg);
             border: 1px solid var(--border);
             color: #fff;
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 700;
             outline: none;
         }
@@ -92,31 +89,33 @@
             padding: 18px;
             margin-bottom: 14px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            transition: border-color 0.2s;
+            transition: all 0.2s ease;
         }
 
         .order-card.delivered {
             border-color: var(--success);
-            opacity: 0.8;
+            opacity: 0.85;
         }
 
         .order-header {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 8px;
+            align-items: center;
+            margin-bottom: 10px;
             font-size: 13px;
         }
 
-        .order-id {
+        .order-code {
             color: #60a5fa;
             font-weight: 800;
+            font-size: 15px;
         }
 
         .badge {
             padding: 4px 10px;
             border-radius: 20px;
             font-size: 11px;
-            font-weight: 800;
+            font-weight: 700;
         }
         .badge-pending { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
         .badge-done { background: rgba(16, 185, 129, 0.2); color: #34d399; }
@@ -131,7 +130,8 @@
             font-weight: 800;
             font-size: 14px;
             cursor: pointer;
-            margin-top: 12px;
+            margin-top: 14px;
+            transition: opacity 0.2s;
         }
 
         .btn-deliver:disabled {
@@ -146,64 +146,66 @@
 <div class="container">
     <header>
         <div>
-            <h3 style="font-size: 17px;">بوابة الموزعين الميدانية</h3>
-            <span style="font-size: 12px; color: var(--text-muted);">استقبال فوري للطرود</span>
+            <h3 style="font-size: 17px;">بوابة الموزع الميدانية</h3>
+            <span style="font-size: 12px; color: var(--text-muted);">مزامنة حية مع Firebase</span>
         </div>
-        <div class="status-dot">
-            <span>●</span> سحابي متصل
+        <div id="conn-status" class="status-dot">
+            <span>●</span> متصل بالخادم
         </div>
     </header>
 
     <div class="filter-card">
-        <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 6px;">اختر اسمك لعرض مهامك:</label>
+        <label style="font-size: 13px; color: var(--text-muted); display: block; margin-bottom: 8px; font-weight: 600;">حدد اسمك لعرض طلبياتك:</label>
         <select id="driver-filter" onchange="renderOrders()">
-            <option value="الكل">كل السائقين</option>
-            <option value="سامر">سامر</option>
-            <option value="أحمد">أحمد</option>
-            <option value="عمر">عمر</option>
+            <option value="الكل">عرض كافة الطلبيات</option>
+            <option value="سامر">الموزع: سامر</option>
+            <option value="أحمد">الموزع: أحمد</option>
+            <option value="عمر">الموزع: عمر</option>
         </select>
     </div>
 
     <div id="orders-list">
-        <div style="text-align: center; color: var(--text-muted); padding: 40px 0;">بانتظار وصول طرود جديدة من الإدارة...</div>
+        <div style="text-align: center; color: var(--text-muted); padding: 40px 0;">جاري تحميل المهام من السحابة...</div>
     </div>
 </div>
 
+<!-- مكتبات Firebase Compat -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
 <script>
-    // ذاكرة الطرود الواردة سحابياً
-    let liveOrders = JSON.parse(localStorage.getItem('cloud_orders') || '[]');
+    // إعدادات Firebase الخاصة بمشروعك
+    const firebaseConfig = {
+        apiKey: "AIzaSyCmgHOmOuuAcgcMBLupnf39OeR45Spf8Mo",
+        authDomain: "wake-wake-6fb98.firebaseapp.com",
+        projectId: "wake-wake-6fb98",
+        storageBucket: "wake-wake-6fb98.firebasestorage.app",
+        messagingSenderId: "677970870264",
+        appId: "1:677970870264:web:36fc86c91d479c03fda00d",
+        measurementId: "G-LNFEM4MMTR"
+    };
 
-    // الاتصال بمحطة البث السحابي
-    const pusher = new Pusher('app-key-shared', {
-        wsHost: 'socketi.fly.dev',
-        wsPort: 443,
-        forceTLS: true,
-        disableStats: true,
-        enabledTransports: ['ws', 'wss']
-    });
+    // تهيئة Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-    // الاستماع لقناة التوصيل السحابية المشتركة
-    const channel = pusher.subscribe('delivery-network-wake');
+    let allOrders = [];
 
-    channel.bind('new-order', function(data) {
-        // التأكد من عدم التكرار
-        if (!liveOrders.some(o => o.id === data.id)) {
-            liveOrders.unshift(data);
-            localStorage.setItem('cloud_orders', JSON.stringify(liveOrders));
-            renderOrders();
-            if (Notification.permission === "granted") {
-                new Notification("طرد جديد وارد: " + data.customer);
-            }
-        }
-    });
-
-    channel.bind('status-updated', function(data) {
-        const item = liveOrders.find(o => o.id === data.id);
-        if(item) {
-            item.status = data.status;
-            localStorage.setItem('cloud_orders', JSON.stringify(liveOrders));
-            renderOrders();
-        }
+    // استماع لحظي لجدول الطلبات من Firestore
+    db.collection("orders").orderBy("createdAt", "desc").onSnapshot((snapshot) => {
+        allOrders = [];
+        snapshot.forEach((doc) => {
+            allOrders.push({
+                docId: doc.id,
+                ...doc.data()
+            });
+        });
+        renderOrders();
+    }, (error) => {
+        console.error("خطأ في الاتصال:", error);
+        const status = document.getElementById("conn-status");
+        status.innerText = "⚠️ انقطع الاتصال بالخادم";
+        status.style.color = "#ef4444";
     });
 
     function renderOrders() {
@@ -211,28 +213,31 @@
         const container = document.getElementById("orders-list");
         container.innerHTML = "";
 
-        const filtered = (selectedDriver === "الكل") 
-            ? liveOrders 
-            : liveOrders.filter(o => o.driver === selectedDriver);
+        const filtered = (selectedDriver === "الكل")
+            ? allOrders
+            : allOrders.filter(o => o.driver === selectedDriver);
 
-        if(filtered.length === 0) {
-            container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 40px 0;">لا توجد مهام حالياً لهذا الموزع</div>`;
+        if (filtered.length === 0) {
+            container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 40px 0;">لا توجد أي مهام مسندة حالياً</div>`;
             return;
         }
 
         filtered.forEach(order => {
-            const isDone = order.status === "delivered";
+            const isDelivered = order.status === "delivered";
             const card = `
-                <div class="order-card ${isDone ? 'delivered' : ''}">
+                <div class="order-card ${isDelivered ? 'delivered' : ''}">
                     <div class="order-header">
-                        <span class="order-id">${order.id}</span>
-                        <span class="badge ${isDone ? 'badge-done' : 'badge-pending'}">${isDone ? 'تم التسليم' : 'قيد التوصيل'}</span>
+                        <span class="order-code">${order.orderCode || order.docId.substring(0, 6)}</span>
+                        <span class="badge ${isDelivered ? 'badge-done' : 'badge-pending'}">
+                            ${isDelivered ? 'تم التسليم' : 'قيد التوصيل'}
+                        </span>
                     </div>
-                    <div style="font-size: 16px; font-weight: 800; margin-bottom: 4px;">${order.customer}</div>
+                    <div style="font-size: 16px; font-weight: 800; margin-bottom: 4px;">👤 ${order.customer}</div>
                     <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 6px;">📍 ${order.address}</div>
-                    <div style="font-size: 13px; color: #fbbf24; margin-bottom: 10px;">المبلغ المطلوب: ${order.price || 'مدفوع'}</div>
-                    <button class="btn-deliver" onclick="markAsDelivered('${order.id}')" ${isDone ? 'disabled' : ''}>
-                        ${isDone ? '✓ تم التوصيل' : 'تأكيد تسليم الطرد للمستلم'}
+                    <div style="font-size: 13px; color: #fbbf24; font-weight: 700; margin-bottom: 8px;">💰 المبلغ: ${order.price || 'مدفوع'}</div>
+                    <div style="font-size: 12px; color: var(--text-muted);">الموزع المسؤول: ${order.driver}</div>
+                    <button class="btn-deliver" onclick="confirmDelivery('${order.docId}')" ${isDelivered ? 'disabled' : ''}>
+                        ${isDelivered ? '✓ تم توصيل هذا الطرد' : 'تأكيد تسليم الطلب للمستلم'}
                     </button>
                 </div>
             `;
@@ -240,18 +245,17 @@
         });
     }
 
-    function markAsDelivered(orderId) {
-        const order = liveOrders.find(o => o.id === orderId);
-        if(order) {
-            order.status = "delivered";
-            localStorage.setItem('cloud_orders', JSON.stringify(liveOrders));
-            renderOrders();
-            // إرسال إشعار التوصيل للسحابة
-            fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent('https://httpbin.org/get')); // Trigger ping
+    // تحديث حالة الطلب في Firestore مباشرة
+    async function confirmDelivery(docId) {
+        try {
+            await db.collection("orders").doc(docId).update({
+                status: "delivered",
+                deliveredAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        } catch (err) {
+            alert("تعذر تحديث الحالة: " + err.message);
         }
     }
-
-    renderOrders();
 </script>
 </body>
 </html>
