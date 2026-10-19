@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>تطبيق الموزع - استلام المهام</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --success: #10b981;
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 16px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .mobile-container {
+            width: 100%;
+            max-width: 480px;
+        }
+
+        header {
+            background: var(--card-bg);
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .driver-select-box {
+            background: var(--card-bg);
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            font-size: 14px;
+            font-weight: 600;
+            outline: none;
+            background: #fff;
+        }
+
+        .order-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .order-id {
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .order-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .order-address {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .btn-deliver {
+            width: 100%;
+            padding: 10px;
+            background: var(--success);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-deliver:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+        }
+
+        .badge {
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .badge-pending { background: #fef3c7; color: #b45309; }
+        .badge-done { background: #d1fae5; color: #065f46; }
+    </style>
+</head>
+<body>
+
+<div class="mobile-container">
+    <header>
+        <div>
+            <h3 style="font-size: 16px;">بوابة الموزع</h3>
+            <span style="font-size: 12px; color: var(--text-muted);">عرض وتأكيد التسليم</span>
+        </div>
+        <span style="font-size: 12px; color: var(--success); font-weight: 600;">● متصل</span>
+    </header>
+
+    <div class="driver-select-box">
+        <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 6px;">اختر اسمك لعرض مهامك:</label>
+        <select id="driverSelect" onchange="filterOrders()">
+            <option value="الكل">عرض كل المهام</option>
+            <option value="سامر">سامر</option>
+            <option value="أحمد">أحمد</option>
+        </select>
+    </div>
+
+    <div id="ordersList">
+        <!-- يتم عرض بطاقات الطلبيات هنا -->
+    </div>
+</div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+    // إعدادات Firebase المشتركة
+    const firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_PROJECT_ID.appspot.com",
+        messagingSenderId: "YOUR_SENDER_ID",
+        appId: "YOUR_APP_ID"
+    };
+
+    // مصفوفة تجريبية مبدئية
+    let driverOrders = [
+        { id: "ORD-101", customer: "شركة النور", address: "دمشق - الميدان", driver: "سامر", status: "pending" },
+        { id: "ORD-102", customer: "مؤسسة الأمل", address: "دمشق - الشعلان", driver: "أحمد", status: "delivered" }
+    ];
+
+    function filterOrders() {
+        const selectedDriver = document.getElementById("driverSelect").value;
+        const container = document.getElementById("ordersList");
+        container.innerHTML = "";
+
+        const filtered = (selectedDriver === "الكل") 
+            ? driverOrders 
+            : driverOrders.filter(o => o.driver === selectedDriver);
+
+        if(filtered.length === 0) {
+            container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 30px 0;">لا توجد مهام حالياً</div>`;
+            return;
+        }
+
+        filtered.forEach(order => {
+            const isDone = order.status === "delivered";
+            const badgeClass = isDone ? "badge-done" : "badge-pending";
+            const badgeText = isDone ? "تم التسليم" : "قيد التوصيل";
+
+            const card = `
+                <div class="order-card">
+                    <div class="order-header">
+                        <span class="order-id">${order.id}</span>
+                        <span class="badge ${badgeClass}">${badgeText}</span>
+                    </div>
+                    <div class="order-title">${order.customer}</div>
+                    <div class="order-address">📍 ${order.address}</div>
+                    <button class="btn-deliver" onclick="markDelivered('${order.id}')" ${isDone ? 'disabled' : ''}>
+                        ${isDone ? 'تم التوصيل بنجاح' : 'تأكيد تسليم الطلب'}
+                    </button>
+                </div>
+            `;
+            container.innerHTML += card;
+        });
+    }
+
+    function markDelivered(orderId) {
+        const target = driverOrders.find(o => o.id === orderId);
+        if(target) {
+            target.status = "delivered";
+            filterOrders();
+        }
+    }
+
+    // تشغيل العرض الأولي
+    filterOrders();
+</script>
+</body>
+</html>
