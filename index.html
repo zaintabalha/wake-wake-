@@ -2,25 +2,29 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة تحكم الإدارة - نظام التوزيع</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>منظومة إدارة وتوزيع الشحنات المتقدمة</title>
     
-    <!-- خط وتنسيقات التصميم -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --primary: #2563eb;
-            --primary-dark: #1d4ed8;
-            --bg-color: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
+            --primary: #4f46e5;
+            --primary-dark: #3730a3;
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --surface-card: #243247;
+            --border: #334155;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
             --success: #10b981;
             --warning: #f59e0b;
+            --danger: #ef4444;
+            --gold: #f59e0b;
+            --silver: #cbd5e1;
+            --bronze: #d97706;
         }
 
         * {
@@ -28,262 +32,555 @@
             margin: 0;
             padding: 0;
             font-family: 'Cairo', sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            padding: 20px;
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px;
         }
 
         .container {
-            max-width: 1100px;
-            margin: 0 auto;
+            width: 100%;
+            max-width: 900px;
         }
 
-        header {
+        /* شريط التنقل العلوي */
+        .top-nav {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 14px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
             margin-bottom: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .user-tag {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            background: var(--surface-card);
+            padding: 6px 14px;
+            border-radius: 20px;
             border: 1px solid var(--border);
         }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .stat-card {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 12px;
+        /* كروت العرض العامة */
+        .card {
+            background: var(--surface);
             border: 1px solid var(--border);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-
-        .stat-card h3 {
-            font-size: 14px;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-        }
-
-        .stat-card .value {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--primary);
-        }
-
-        .main-card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            border: 1px solid var(--border);
+            border-radius: 20px;
             padding: 24px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-
-        .form-section {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 12px;
             margin-bottom: 20px;
-            background: #f1f5f9;
-            padding: 16px;
-            border-radius: 8px;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.2);
         }
 
-        input, select, button {
-            padding: 10px 14px;
-            border-radius: 6px;
+        /* شاشة تسجيل الدخول وجوجل */
+        .auth-box {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .google-btn {
+            background: #ffffff;
+            color: #1e293b;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 15px rgba(255,255,255,0.1);
+            transition: transform 0.2s, background 0.2s;
+            margin-top: 24px;
+        }
+
+        .google-btn:hover {
+            transform: translateY(-2px);
+            background: #f1f5f9;
+        }
+
+        /* الحقول والأزرار */
+        .input-group {
+            margin-bottom: 16px;
+            text-align: right;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 12px;
             border: 1px solid var(--border);
+            background: var(--surface-card);
+            color: #fff;
             font-size: 14px;
             outline: none;
+            transition: border 0.2s;
         }
 
-        button {
-            background: var(--primary);
-            color: white;
+        input:focus, select:focus {
+            border-color: var(--primary);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
             border: none;
+            font-weight: 700;
+            font-size: 15px;
             cursor: pointer;
-            font-weight: 600;
-            transition: background 0.2s;
+            transition: 0.2s;
         }
 
-        button:hover {
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
             background: var(--primary-dark);
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-
-        th, td {
-            padding: 12px;
-            text-align: right;
-            border-bottom: 1px solid var(--border);
-        }
-
-        th {
-            background-color: #f8fafc;
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
             color: var(--text-muted);
-            font-weight: 600;
         }
 
-        .status-badge {
-            display: inline-block;
+        /* نظام الرانكات والبطاقات العلوية */
+        .rank-banner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #1e1b4b, #312e81);
+            border: 1px solid #4338ca;
+            border-radius: 18px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-weight: 800;
+            font-size: 14px;
+        }
+
+        .rank-gold { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+        .rank-silver { background: rgba(203, 213, 225, 0.2); color: #e2e8f0; border: 1px solid #cbd5e1; }
+        .rank-bronze { background: rgba(217, 119, 6, 0.2); color: #f97316; border: 1px solid #ea580c; }
+
+        /* حالة المقابلة والانتظار */
+        .status-alert {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .status-icon {
+            font-size: 54px;
+            margin-bottom: 16px;
+        }
+
+        /* قائمة الطلبات وجدول المدير */
+        .order-card {
+            background: var(--surface-card);
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .badge {
             padding: 4px 10px;
-            border-radius: 20px;
+            border-radius: 8px;
             font-size: 12px;
-            font-weight: 600;
+            font-weight: 700;
         }
 
-        .status-pending { background: #fef3c7; color: #b45309; }
-        .status-delivered { background: #d1fae5; color: #065f46; }
+        .badge-pending { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+        .badge-approved { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+        .badge-rejected { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <header>
-        <div>
-            <h2>لوحة تحكم الإدارة العامة</h2>
-            <p style="color: var(--text-muted); font-size: 13px;">متابعة التوزيع والطلبيات عبر الويب والموبايل</p>
+
+    <!-- شريط علوي موحد -->
+    <header class="top-nav">
+        <div class="logo-area">
+            <span>📦</span>
+            <span>نظام إدارة التوزيع والعملاء</span>
         </div>
-        <div id="connection-status" style="font-size: 13px; color: var(--success); font-weight: 600;">
-            ● متصل بالنظام
+        <div class="user-tag">
+            <span id="role-indicator">وضع: العميل</span>
+            <button onclick="toggleAdminPanel()" style="background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 12px; text-decoration: underline;">(لوحة الإدارة)</button>
         </div>
     </header>
 
-    <div class="stats-grid">
-        <div class="stat-card">
-            <h3>إجمالي الطلبيات</h3>
-            <div class="value" id="total-orders">0</div>
+    <!-- 1. شاشة تسجيل الدخول بحساب Google -->
+    <div id="step-login" class="card auth-box">
+        <h2 style="font-size: 26px; margin-bottom: 8px;">مرحباً بك في المنظومة</h2>
+        <p style="color: var(--text-muted); font-size: 14px;">سجل دخولك لبدء توثيق حسابك وتقديم طلب المقابلة</p>
+        
+        <button class="google-btn" onclick="loginWithGoogle()">
+            <svg width="20" height="20" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.15z"/>
+                <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.15C3.27 21.36 7.35 24 12 24z"/>
+                <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.26C.46 8.16 0 9.94 0 12s.46 3.84 1.26 5.42l4.02-3.15z"/>
+                <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.35 0 3.27 2.64 1.26 6.58l4.02 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+            </svg>
+            تسجيل الدخول باستخدام Google
+        </button>
+    </div>
+
+    <!-- 2. شاشة استكمال بيانات الحساب الجديد وطلب المقابلة -->
+    <div id="step-profile" class="card hidden">
+        <h3 style="margin-bottom: 6px;">إكمال بيانات التاجر / العميل</h3>
+        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">يرجى تزويدنا بالمعلومات لنتمكن من تحديد موعد المقابلة</p>
+
+        <div class="input-group">
+            <label>الاسم الكامل</label>
+            <input type="text" id="reg-name" placeholder="مثال: زين العابدين">
         </div>
-        <div class="stat-card">
-            <h3>قيد التوصيل</h3>
-            <div class="value" id="pending-orders">0</div>
+        <div class="input-group">
+            <label>اسم المتجر / النشاط التجاري</label>
+            <input type="text" id="reg-business" placeholder="مثال: متجر الأناقة">
         </div>
-        <div class="stat-card">
-            <h3>تم التسليم</h3>
-            <div class="value" id="delivered-orders">0</div>
+        <div class="input-group">
+            <label>رقم الهاتف للتواصل</label>
+            <input type="tel" id="reg-phone" placeholder="09xxxxxxxx">
+        </div>
+        <div class="input-group">
+            <label>طبيعة المنتجات وحجم الشحنات المتوقع أسبوعياً</label>
+            <input type="text" id="reg-notes" placeholder="ملابس، إلكترونيات، تقريباً 50 طرد">
+        </div>
+
+        <button class="btn btn-primary" onclick="submitInterviewRequest()">إرسال طلب المقابلة</button>
+    </div>
+
+    <!-- 3. شاشة حالة الانتظار (قيد المراجعة أو الرفض) -->
+    <div id="step-status" class="card status-alert hidden">
+        <div id="status-icon" class="status-icon">⏳</div>
+        <h3 id="status-title" style="margin-bottom: 8px;">طلبك قيد المراجعة والمقابلة</h3>
+        <p id="status-desc" style="color: var(--text-muted); font-size: 14px; max-width: 480px; margin: 0 auto 20px;">
+            شكراً لتسجيلك معنا! تم استلام بياناتك وسيقوم المدير بمراجعتها وتحديد موعد المقابلة معك قريباً.
+        </p>
+        <div id="reapply-area" class="hidden">
+            <button class="btn btn-outline" onclick="goToStep('step-profile')">إعادة تقديم الطلب</button>
         </div>
     </div>
 
-    <div class="main-card">
-        <h3 style="margin-bottom: 16px;">إضافة طلبية جديدة للموزع</h3>
-        <div class="form-section">
-            <input type="text" id="cust-name" placeholder="اسم العميل">
-            <input type="text" id="cust-address" placeholder="العنوان">
-            <input type="text" id="driver-name" placeholder="اسم الموزع">
-            <button onclick="addOrder()">إرسال الطلب</button>
+    <!-- 4. واجهة العميل الكاملة بعد القبول (إنشاء طلبات + رانكات) -->
+    <div id="step-dashboard" class="hidden">
+        
+        <!-- بطاقة الرانك والرصيد -->
+        <div class="rank-banner">
+            <div>
+                <span style="font-size: 13px; color: #a5b4fc;">مستوى حسابك الحالي</span>
+                <h3 id="client-business-name" style="font-size: 20px; margin-top: 2px;">متجر الأناقة</h3>
+                <div style="font-size: 12px; color: #c7d2fe; margin-top: 4px;">إجمالي الشحنات المنجزة: <span id="orders-count">12</span> شحنة</div>
+            </div>
+            <div>
+                <div id="client-rank-badge" class="rank-badge rank-silver">
+                    <span>🥈</span>
+                    <span id="rank-text">المستوى الفضي</span>
+                </div>
+            </div>
         </div>
 
-        <h3 style="margin-bottom: 12px;">قائمة الطلبات النشطة</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>معرّف الطلب</th>
-                    <th>العميل</th>
-                    <th>العنوان</th>
-                    <th>الموزع</th>
-                    <th>الحالة</th>
-                </tr>
-            </thead>
-            <tbody id="orders-table">
-                <!-- تعبئة البيانات تلقائياً -->
-            </tbody>
-        </table>
+        <!-- إنشاء طلب جديد -->
+        <div class="card">
+            <h3 style="margin-bottom: 14px;">➕ إنشاء طلب توصيل جديد</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                <input type="text" id="ord-cust" placeholder="اسم المستلم">
+                <input type="text" id="ord-phone" placeholder="هاتف المستلم">
+                <input type="text" id="ord-addr" placeholder="عنوان التوصيل التفصيلي">
+                <input type="number" id="ord-price" placeholder="المبلغ المطلوب تحصيله">
+            </div>
+            <button class="btn btn-primary" style="margin-top: 14px;" onclick="clientCreateOrder()">تأكيد وإرسال الطلب للموزعين</button>
+        </div>
+
+        <!-- قائمة الشحنات الخاصة بالعميل -->
+        <div class="card">
+            <h3 style="margin-bottom: 14px;">📦 شحناتي الحالية</h3>
+            <div id="client-orders-list">
+                <!-- تعبئة الشحنات -->
+            </div>
+        </div>
     </div>
+
+    <!-- 5. لوحة تحكم الإدارة (فحص المقابلات والقبول/الرفض) -->
+    <div id="admin-panel" class="card hidden" style="border-color: var(--primary);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3>🛠 لوحة تحكم المدير (إدارة طلبات المقابلة)</h3>
+            <button onclick="toggleAdminPanel()" style="background: none; border: none; color: var(--danger); font-weight: 700; cursor: pointer;">إغلاق ✕</button>
+        </div>
+
+        <div id="applications-list">
+            <!-- طلبات العملاء الجدد -->
+        </div>
+    </div>
+
 </div>
 
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
 <script>
-    // إعدادات مشروع Firebase (سنضع المفاتيح الحقيقية عند الربط)
-    const firebaseConfig = {
-        apiKey: "YOUR_API_KEY",
-        authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-        projectId: "YOUR_PROJECT_ID",
-        storageBucket: "YOUR_PROJECT_ID.appspot.com",
-        messagingSenderId: "YOUR_SENDER_ID",
-        appId: "YOUR_APP_ID"
+    // حالة العميل الحالية
+    let currentUser = {
+        email: "",
+        name: "",
+        business: "",
+        status: "guest", // guest, pending, approved, rejected
+        completedOrders: 14
     };
 
-    // مصفوفة تجريبية مبدئية لعرض البيانات على الواجهة مباشرة
-    let localOrders = [
-        { id: "ORD-101", customer: "شركة النور", address: "دمشق - الميدان", driver: "سامر", status: "pending" },
-        { id: "ORD-102", customer: "مؤسسة الأمل", address: "دمشق - الشعلان", driver: "أحمد", status: "delivered" }
+    let clientOrders = [
+        { id: "SH-901", receiver: "رامي خليل", phone: "0933112233", address: "دمشق - الميدان", price: "45,000 ل.س", status: "pending" },
+        { id: "SH-902", receiver: "سارة العلي", phone: "0944556677", address: "دمشق - المزة", price: "80,000 ل.س", status: "delivered" }
     ];
 
-    function renderOrders() {
-        const table = document.getElementById("orders-table");
-        table.innerHTML = "";
-        
-        let pending = 0;
-        let delivered = 0;
+    // طلبات المقابلة المعلقة لدى المدير
+    let pendingApplications = [
+        { id: "APP-1", name: "زين العابدين", business: "أزياء ستايل", phone: "0999887766", notes: "توزيع ملابس بمعدل 40 طرد أسبوعياً" }
+    ];
 
-        localOrders.forEach(order => {
-            if(order.status === "pending") pending++;
-            if(order.status === "delivered") delivered++;
-
-            const statusClass = order.status === "delivered" ? "status-delivered" : "status-pending";
-            const statusText = order.status === "delivered" ? "تم التسليم" : "قيد التوصيل";
-
-            const row = `
-                <tr>
-                    <td><strong>${order.id}</strong></td>
-                    <td>${order.customer}</td>
-                    <td>${order.address}</td>
-                    <td>${order.driver}</td>
-                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-                </tr>
-            `;
-            table.innerHTML += row;
+    function goToStep(stepId) {
+        ['step-login', 'step-profile', 'step-status', 'step-dashboard'].forEach(id => {
+            document.getElementById(id).classList.add('hidden');
         });
-
-        document.getElementById("total-orders").innerText = localOrders.length;
-        document.getElementById("pending-orders").innerText = pending;
-        document.getElementById("delivered-orders").innerText = delivered;
+        document.getElementById(stepId).classList.remove('hidden');
     }
 
-    function addOrder() {
-        const name = document.getElementById("cust-name").value.trim();
-        const address = document.getElementById("cust-address").value.trim();
-        const driver = document.getElementById("driver-name").value.trim();
+    // 1. تسجيل الدخول بجوجل
+    function loginWithGoogle() {
+        currentUser.email = "client@gmail.com";
+        // التحقق إن كان مسجلاً سابقاً أم أول مرة
+        if(currentUser.status === "approved") {
+            goToStep('step-dashboard');
+            refreshRank();
+            renderClientOrders();
+        } else if(currentUser.status === "pending") {
+            showStatusScreen("pending");
+        } else {
+            goToStep('step-profile');
+        }
+    }
 
-        if(!name || !address || !driver) {
-            alert("يرجى ملء جميع الحقول المطلوبة.");
+    // 2. إرسال طلب المقابلة
+    function submitInterviewRequest() {
+        const name = document.getElementById('reg-name').value.trim();
+        const business = document.getElementById('reg-business').value.trim();
+        const phone = document.getElementById('reg-phone').value.trim();
+        const notes = document.getElementById('reg-notes').value.trim();
+
+        if(!name || !business || !phone) {
+            alert("يرجى ملء الاسم، اسم النشاط، ورقم الهاتف.");
             return;
         }
 
-        const newOrder = {
-            id: "ORD-" + Math.floor(100 + Math.random() * 900),
-            customer: name,
-            address: address,
-            driver: driver,
+        currentUser.name = name;
+        currentUser.business = business;
+        currentUser.status = "pending";
+
+        pendingApplications.push({
+            id: "APP-" + Math.floor(100 + Math.random() * 900),
+            name: name,
+            business: business,
+            phone: phone,
+            notes: notes
+        });
+
+        showStatusScreen("pending");
+        renderAdminApplications();
+    }
+
+    // 3. شاشة الحالة للمقابلة
+    function showStatusScreen(status) {
+        goToStep('step-status');
+        const icon = document.getElementById('status-icon');
+        const title = document.getElementById('status-title');
+        const desc = document.getElementById('status-desc');
+        const reapply = document.getElementById('reapply-area');
+
+        if(status === 'pending') {
+            icon.innerText = "⏳";
+            title.innerText = "طلبك قيد المراجعة وتحديد المقابلة";
+            desc.innerText = "تم استلام طلبك يا " + (currentUser.name || "عزيزنا") + ". سنقوم بالتواصل معك عبر الهاتف لمقابلتك واعتماد الحساب.";
+            reapply.classList.add('hidden');
+        } else if(status === 'rejected') {
+            icon.innerText = "❌";
+            title.innerText = "تم رفض طلب الانضمام";
+            desc.innerText = "نعتذر منك، لم يتم قبول الطلب في الوقت الحالي. يمكنك التواصل مع الإدارة أو المحاولة لاحقاً.";
+            reapply.classList.remove('hidden');
+        }
+    }
+
+    // 4. نظام الرانكات
+    function refreshRank() {
+        const count = currentUser.completedOrders;
+        document.getElementById('orders-count').innerText = count;
+        document.getElementById('client-business-name').innerText = currentUser.business || "متجر العميل";
+
+        const badge = document.getElementById('client-rank-badge');
+        const text = document.getElementById('rank-text');
+
+        badge.className = "rank-badge";
+        if(count >= 30) {
+            badge.classList.add('rank-gold');
+            badge.innerHTML = "<span>🥇</span> المستوى الذهبي (خصم 20%)";
+        } else if(count >= 10) {
+            badge.classList.add('rank-silver');
+            badge.innerHTML = "<span>🥈</span> المستوى الفضي (خصم 10%)";
+        } else {
+            badge.classList.add('rank-bronze');
+            badge.innerHTML = "<span>🥉</span> المستوى البرونزي";
+        }
+    }
+
+    // إنشاء طلب بواسطة العميل
+    function clientCreateOrder() {
+        const cust = document.getElementById('ord-cust').value.trim();
+        const phone = document.getElementById('ord-phone').value.trim();
+        const addr = document.getElementById('ord-addr').value.trim();
+        const price = document.getElementById('ord-price').value.trim();
+
+        if(!cust || !addr) {
+            alert("يرجى ملء اسم المستلم والعنوان");
+            return;
+        }
+
+        const newOrd = {
+            id: "SH-" + Math.floor(100 + Math.random() * 900),
+            receiver: cust,
+            phone: phone || "غير محدد",
+            address: addr,
+            price: price ? price + " ل.س" : "مدفوع مسبقاً",
             status: "pending"
         };
 
-        localOrders.push(newOrder);
-        renderOrders();
+        clientOrders.unshift(newOrd);
+        currentUser.completedOrders++;
+        refreshRank();
+        renderClientOrders();
 
-        document.getElementById("cust-name").value = "";
-        document.getElementById("cust-address").value = "";
-        document.getElementById("driver-name").value = "";
+        document.getElementById('ord-cust').value = "";
+        document.getElementById('ord-phone').value = "";
+        document.getElementById('ord-addr').value = "";
+        document.getElementById('ord-price').value = "";
     }
 
-    // تشغيل العرض عند فتح الصفحة
-    renderOrders();
+    function renderClientOrders() {
+        const list = document.getElementById('client-orders-list');
+        list.innerHTML = "";
+
+        clientOrders.forEach(o => {
+            const statusClass = o.status === 'delivered' ? 'badge-approved' : 'badge-pending';
+            const statusText = o.status === 'delivered' ? 'تم التسليم' : 'قيد الشحن';
+
+            list.innerHTML += `
+                <div class="order-card">
+                    <div>
+                        <div style="font-weight: 700;">${o.receiver} (${o.id})</div>
+                        <div style="font-size: 13px; color: var(--text-muted);">📍 ${o.address} | 📞 ${o.phone}</div>
+                        <div style="font-size: 12px; color: var(--gold); margin-top: 4px;">المبلغ: ${o.price}</div>
+                    </div>
+                    <span class="badge ${statusClass}">${statusText}</span>
+                </div>
+            `;
+        });
+    }
+
+    // 5. أدوات المدير (القبول / الرفض)
+    function toggleAdminPanel() {
+        const panel = document.getElementById('admin-panel');
+        panel.classList.toggle('hidden');
+        renderAdminApplications();
+    }
+
+    function renderAdminApplications() {
+        const container = document.getElementById('applications-list');
+        container.innerHTML = "";
+
+        if(pendingApplications.length === 0) {
+            container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 20px;">لا توجد طلبات مقابلة جديدة حالياً</div>`;
+            return;
+        }
+
+        pendingApplications.forEach((app, index) => {
+            container.innerHTML += `
+                <div class="order-card" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+                    <div style="display: flex; justify-content: space-between; width: 100%;">
+                        <strong>${app.business} - ${app.name}</strong>
+                        <span style="font-size: 12px; color: var(--text-muted);">${app.phone}</span>
+                    </div>
+                    <p style="font-size: 13px; color: var(--text-muted);">📝 ${app.notes}</p>
+                    <div style="display: flex; gap: 10px; width: 100%; margin-top: 8px;">
+                        <button onclick="reviewApplication(${index}, true)" class="btn btn-primary" style="padding: 8px; font-size: 13px; background: var(--success);">قبول بعد المقابلة ✓</button>
+                        <button onclick="reviewApplication(${index}, false)" class="btn btn-outline" style="padding: 8px; font-size: 13px; color: var(--danger); border-color: var(--danger);">رفض ✕</button>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    function reviewApplication(index, isApproved) {
+        const app = pendingApplications[index];
+        pendingApplications.splice(index, 1);
+
+        if(isApproved) {
+            currentUser.status = "approved";
+            currentUser.business = app.business;
+            currentUser.name = app.name;
+            alert("تم قبول العميل بنجاح! تم فتح الواجهة الرئيسية والرانكات له.");
+            toggleAdminPanel();
+            goToStep('step-dashboard');
+            refreshRank();
+            renderClientOrders();
+        } else {
+            currentUser.status = "rejected";
+            alert("تم رفض طلب المقابلة.");
+            toggleAdminPanel();
+            showStatusScreen("rejected");
+        }
+    }
 </script>
 </body>
 </html>
