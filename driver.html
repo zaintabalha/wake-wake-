@@ -2,8 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>بوابة الكباتن والتوصيل</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم العامة - الإدارة المركزية</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,8 +11,8 @@
 
     <style>
         :root {
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
             --bg: #0b0f19;
             --surface: #111827;
             --card: #1f2937;
@@ -23,9 +23,7 @@
             --warning: #f59e0b;
             --danger: #ef4444;
             --gold: #fbbf24;
-            --silver: #cbd5e1;
-            --bronze: #fb923c;
-            --diamond: #38bdf8;
+            --cyan: #06b6d4;
         }
 
         * {
@@ -40,30 +38,173 @@
             background-color: var(--bg);
             color: var(--text);
             min-height: 100vh;
+            padding: 20px;
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            padding: 16px;
+            justify-content: center;
         }
 
-        .main-wrapper {
+        .container {
             width: 100%;
-            max-width: 650px;
+            max-width: 1100px;
+        }
+
+        .hidden { display: none !important; }
+
+        /* شريط التنقل العلوي */
+        .top-nav {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .user-tag {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+        }
+
+        /* كروت الإحصائيات المالية والتشغيلية */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .stat-card span {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .stat-card h3 {
+            font-size: 24px;
+            font-weight: 800;
+            margin-top: 6px;
+        }
+
+        /* التبويبات الرئيسية */
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            background: var(--surface);
+            padding: 8px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            margin-bottom: 24px;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: 0.2s;
+        }
+
+        .tab-btn.active {
+            background: var(--card);
+            color: #fff;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
 
         .card {
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 24px 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-            margin-bottom: 16px;
+            border-radius: 18px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
 
-        .hidden { display: none !important; }
+        /* الجداول والقوائم */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: right;
+            margin-top: 12px;
+        }
 
-        /* الأزرار والحقول */
+        th, td {
+            padding: 14px 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        th {
+            color: var(--text-muted);
+            font-weight: 700;
+            background: var(--surface);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .badge-pending { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+        .badge-delivered { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+        .badge-accepted { background: rgba(6, 182, 212, 0.2); color: #22d3ee; }
+
+        /* الأزرار والإدخال */
+        input, select {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: #fff;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 13px;
+        }
+
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-success { background: var(--success); color: #fff; }
+        .btn-danger { background: var(--danger); color: #fff; }
+
         .btn-google {
             width: 100%;
             background: #ffffff;
@@ -78,369 +219,154 @@
             align-items: center;
             justify-content: center;
             gap: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
-            transition: transform 0.2s, background 0.2s;
+            box-shadow: 0 4px 15px rgba(255,255,255,0.1);
             margin-top: 20px;
-        }
-
-        .btn-google:hover {
-            background: #f3f4f6;
-            transform: translateY(-2px);
-        }
-
-        .btn-primary {
-            width: 100%;
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 13px;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 14px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .btn-primary:hover { background: var(--primary-hover); }
-
-        .btn-secondary {
-            background: #374151;
-            color: #d1d5db;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 13px;
-            cursor: pointer;
-        }
-
-        .form-group {
-            margin-bottom: 14px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 6px;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-muted);
-        }
-
-        input, select {
-            width: 100%;
-            padding: 12px 14px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            background: var(--card);
-            color: #fff;
-            font-size: 14px;
-            outline: none;
-        }
-
-        input:focus, select:focus {
-            border-color: var(--primary);
-        }
-
-        /* الرانك والبروفايل */
-        .driver-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: var(--card);
-            padding: 14px 16px;
-            border-radius: 16px;
-            border: 1px solid var(--border);
-            margin-bottom: 16px;
-        }
-
-        .driver-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .driver-avatar {
-            width: 46px;
-            height: 46px;
-            border-radius: 50%;
-            border: 2px solid var(--primary);
-        }
-
-        .rank-banner {
-            background: linear-gradient(135deg, #1e3a8a, #0f172a);
-            border: 1px solid #3b82f6;
-            border-radius: 16px;
-            padding: 18px;
-            margin-bottom: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .rank-tag {
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-weight: 800;
-            font-size: 13px;
-        }
-
-        .rank-diamond { background: rgba(56, 189, 248, 0.2); color: var(--diamond); border: 1px solid var(--diamond); }
-        .rank-gold { background: rgba(251, 191, 36, 0.2); color: var(--gold); border: 1px solid var(--gold); }
-        .rank-silver { background: rgba(203, 213, 225, 0.2); color: var(--silver); border: 1px solid var(--silver); }
-        .rank-bronze { background: rgba(251, 146, 60, 0.2); color: var(--bronze); border: 1px solid var(--bronze); }
-
-        /* التبويبات الداخلية */
-        .nav-tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
-            background: var(--surface);
-            padding: 6px;
-            border-radius: 14px;
-            border: 1px solid var(--border);
-        }
-
-        .nav-tab {
-            flex: 1;
-            text-align: center;
-            padding: 10px 4px;
-            border-radius: 10px;
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--text-muted);
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .nav-tab.active {
-            background: var(--card);
-            color: #fff;
-            border: 1px solid var(--border);
-        }
-
-        /* كروت الطلبات */
-        .order-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 16px;
-            margin-bottom: 12px;
-        }
-
-        .order-actions {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-top: 12px;
-        }
-
-        /* المحفظة المالية */
-        .wallet-stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-
-        .stat-box {
-            background: var(--card);
-            padding: 16px;
-            border-radius: 14px;
-            border: 1px solid var(--border);
-            text-align: center;
-        }
-
-        /* استراحة الكابتن */
-        .break-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .break-item {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 16px;
-            text-align: center;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .break-item:hover {
-            transform: translateY(-2px);
-            border-color: var(--primary);
         }
     </style>
 </head>
 <body>
 
-<div class="main-wrapper">
+<div class="container">
 
-    <!-- 1. شاشة تسجيل الدخول الإلزامية عبر Google -->
-    <div id="view-login" class="card">
-        <div style="text-align: center; margin-bottom: 16px;">
-            <div style="font-size: 44px; margin-bottom: 8px;">🛵</div>
-            <h1 style="font-size: 22px; font-weight: 800;">بوابة انضمام الكباتن</h1>
-            <p style="color: var(--text-muted); font-size: 14px; margin-top: 4px;">سجل دخولك بحساب Google لمتابعة استمارة المقابلة وتحديد موعدك</p>
-        </div>
+    <!-- 1. شاشة تسجيل دخول الإدارة عبر Google -->
+    <div id="admin-auth" class="card" style="max-width: 460px; margin: 80px auto; text-align: center;">
+        <div style="font-size: 48px; margin-bottom: 12px;">🛡️</div>
+        <h2 style="font-size: 22px; font-weight: 800;">بوابة الإدارة المركزية</h2>
+        <p style="color: var(--text-muted); font-size: 13px; margin-top: 6px;">سجل دخولك بحساب الإدارة المعتمد للوصول للوحة التحكم</p>
 
-        <button class="btn-google" onclick="driverSignIn()">
+        <button class="btn-google" onclick="adminLogin()">
             <svg width="20" height="20" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.15z"/>
                 <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.15C3.27 21.36 7.35 24 12 24z"/>
                 <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.26C.46 8.16 0 9.94 0 12s.46 3.84 1.26 5.42l4.02-3.15z"/>
                 <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.35 0 3.27 2.64 1.26 6.58l4.02 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
             </svg>
-            المتابعة باستخدام Google
+            تسجيل دخول المدير
         </button>
     </div>
 
-    <!-- 2. استمارة طلب المقابلة وإدخال كود الدعوة -->
-    <div id="view-profile" class="card hidden">
-        <div class="driver-header">
-            <div class="driver-info">
-                <img id="d-photo" class="driver-avatar" src="" alt="avatar">
-                <div>
-                    <strong id="d-name" style="font-size: 14px;">-</strong>
-                    <div id="d-email" style="font-size: 12px; color: var(--text-muted);">-</div>
-                </div>
-            </div>
-            <button onclick="driverSignOut()" style="background: none; border: none; color: var(--danger); font-size: 12px; font-weight: 700; cursor: pointer;">خروج</button>
-        </div>
-
-        <h3 style="font-size: 17px; margin-bottom: 6px;">طلب المقابلة وتحديد موعد الانضمام</h3>
-        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 18px;">أدخل بياناتك وسيتم التواصل معك مباشرة لتحديد موعد المقابلة</p>
-
-        <div class="form-group">
-            <label>رقم هاتف الاتصال والواتساب</label>
-            <input type="tel" id="d-phone" placeholder="09xxxxxxxx">
-        </div>
-        <div class="form-group">
-            <label>نوع وسيلة النقل</label>
-            <select id="d-vehicle">
-                <option value="دراجة نارية">دراجة نارية (موتور)</option>
-                <option value="سيارة شحن / فان">سيارة شحن / فان</option>
-                <option value="سيارة سياحية">سيارة سياحية</option>
-                <option value="بسكليت كهربائي">دراجة هوائية / كهربائية</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>المنطقة المفضلة للتغطية</label>
-            <input type="text" id="d-area" placeholder="مثال: دمشق - المزة / الشعلان / الميدان">
-        </div>
-
-        <!-- كود الدعوة وزر التخطي -->
-        <div class="form-group" style="background: rgba(37, 99, 235, 0.1); border: 1px dashed var(--primary); padding: 12px; border-radius: 12px;">
-            <label style="color: #93c5fd;">كود الدعوة الترويجي (إن وجد)</label>
-            <div style="display: flex; gap: 8px;">
-                <input type="text" id="d-invite" placeholder="INVITE-2026" style="flex: 1;">
-                <button type="button" class="btn-secondary" onclick="skipInvite()">تخطي (Skip)</button>
-            </div>
-            <small style="color: var(--text-muted); font-size: 11px; margin-top: 4px; display: block;">إذا تمت دعوتك من كابتن آخر، يمنحك الكود نقاط إضافية عند التفعيل.</small>
-        </div>
-
-        <button class="btn-primary" onclick="submitDriverApplication()">إرسال طلب المقابلة</button>
-    </div>
-
-    <!-- 3. شاشة حالة الانتظار بعد التقديم -->
-    <div id="view-pending" class="card hidden" style="text-align: center; padding: 30px 20px;">
-        <div style="font-size: 50px; margin-bottom: 12px;">⏳</div>
-        <h2 style="font-size: 19px; margin-bottom: 8px;">طلبك بانتظار المقابلة والتفعيل</h2>
-        <p style="color: var(--text-muted); font-size: 13px; line-height: 1.6; margin-bottom: 20px;">
-            تم استلام تفاصيلك بنجاح! سيقوم فريق التشغيل بالتواصل معك هاتفياً لتحديد وقت المقابلة وتزويدك بالحقيبة والزي الرسمي وتفعيل دخولك للمهام.
-        </p>
-        <button onclick="driverSignOut()" class="btn-secondary" style="width: 150px;">تسجيل الخروج</button>
-    </div>
-
-    <!-- 4. واجهة الكابتن المعتمد بالكامل -->
-    <div id="view-dashboard" class="hidden">
+    <!-- 2. لوحة التحكم المركزية بالكامل -->
+    <div id="admin-panel" class="hidden">
         
-        <!-- الهيدر والرانك -->
-        <div class="driver-header">
-            <div class="driver-info">
-                <img id="dash-photo" class="driver-avatar" src="" alt="avatar">
-                <div>
-                    <strong id="dash-name" style="font-size: 14px;">-</strong>
-                    <div id="dash-phone-val" style="font-size: 12px; color: var(--text-muted);">-</div>
-                </div>
-            </div>
-            <button onclick="driverSignOut()" style="background: none; border: none; color: var(--danger); font-size: 12px; font-weight: 700; cursor: pointer;">خروج</button>
-        </div>
-
-        <div class="rank-banner">
+        <!-- الشريط العلوي -->
+        <header class="top-nav">
             <div>
-                <span style="font-size: 12px; color: #93c5fd;">رتبة الكابتن</span>
-                <h3 id="dash-rank-title" style="font-size: 18px; margin-top: 2px;">🥉 المستوى البرونزي</h3>
-                <div style="font-size: 12px; color: #bfdbfe; margin-top: 4px;">المهام المكتملة: <span id="dash-completed-count">0</span></div>
+                <h2 style="font-size: 20px; font-weight: 800;">لوحة المدير العام</h2>
+                <div style="font-size: 12px; color: var(--text-muted);">متابعة المقابلات، العمليات اليومية، والمحفظة المالية</div>
             </div>
-            <div id="dash-rank-badge" class="rank-tag rank-bronze">
-                عمولة إضافية 0%
+            <div class="user-tag">
+                <img id="admin-photo" class="user-avatar" src="" alt="Admin">
+                <div>
+                    <strong id="admin-name" style="font-size: 13px;">-</strong>
+                    <div id="admin-email" style="font-size: 11px; color: var(--text-muted);">-</div>
+                </div>
+                <button class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;" onclick="adminLogout()">خروج</button>
+            </div>
+        </header>
+
+        <!-- الإحصائيات العامة -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span>إجمالي الطلبيات</span>
+                <h3 id="stat-orders" style="color: #60a5fa;">0</h3>
+            </div>
+            <div class="stat-card">
+                <span>طلبات مقابلة معلقة</span>
+                <h3 id="stat-interviews" style="color: var(--warning);">0</h3>
+            </div>
+            <div class="stat-card">
+                <span>المبالغ المحصلة (كاش)</span>
+                <h3 id="stat-cash" style="color: var(--gold);">0 ل.س</h3>
+            </div>
+            <div class="stat-card">
+                <span>عمولات الكباتن المستحقة</span>
+                <h3 id="stat-commission" style="color: var(--success);">0 ل.س</h3>
             </div>
         </div>
 
-        <!-- التبويبات -->
+        <!-- أزرار التبويبات -->
         <div class="nav-tabs">
-            <div class="nav-tab active" onclick="switchDriverTab('orders')">📦 المهام الحالية</div>
-            <div class="nav-tab" onclick="switchDriverTab('wallet')">💰 المحفظة والأرباح</div>
-            <div class="nav-tab" onclick="switchDriverTab('break')">☕ استراحة الكابتن</div>
+            <button class="tab-btn active" onclick="switchTab('orders')">📦 إدارة الطلبات والشحن</button>
+            <button class="tab-btn" onclick="switchTab('interviews')">👥 طلبات المقابلة والتوظيف</button>
+            <button class="tab-btn" onclick="switchTab('finance')">💰 الإدارة المالية والمحاسبة</button>
+            <button class="tab-btn" onclick="switchTab('breaks')">☕ استراحة الكباتن والخدمات</button>
         </div>
 
-        <!-- تبويب الطلبات -->
+        <!-- تبويب الطلبيات والشحن -->
         <div id="tab-orders">
             <div class="card">
-                <h3 style="font-size: 16px; margin-bottom: 12px;">الطلبات المتاحة للتوصيل</h3>
-                <div id="orders-list"></div>
+                <h3 style="font-size: 16px; margin-bottom: 14px;">إرسال طلبية جديدة للكباتن</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
+                    <input type="text" id="ord-cust" placeholder="اسم المستلم">
+                    <input type="text" id="ord-addr" placeholder="العنوان">
+                    <input type="number" id="ord-price" placeholder="المبلغ المطلوب (ل.س)">
+                    <select id="ord-driver-select">
+                        <option value="">متاح لجميع الكباتن المعتمدين</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" style="margin-top: 12px; width: 100%;" onclick="createOrder()">نشر الطلب مباشرة 🛵</button>
+            </div>
+
+            <div class="card">
+                <h3 style="font-size: 16px; margin-bottom: 12px;">سجل الشحنات المباشر</h3>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>رقم الشحنة</th>
+                                <th>المستلم</th>
+                                <th>العنوان</th>
+                                <th>المبلغ</th>
+                                <th>الكابتن المسؤول</th>
+                                <th>الحالة</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orders-tbody"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
-        <!-- تبويب المحفظة المالية -->
-        <div id="tab-wallet" class="hidden">
-            <div class="wallet-stats">
-                <div class="stat-box">
-                    <span style="font-size: 12px; color: var(--text-muted);">أرباحي المستحقة</span>
-                    <h3 id="driver-earnings" style="color: var(--success); font-size: 20px; margin-top: 6px;">0 ل.س</h3>
-                </div>
-                <div class="stat-box">
-                    <span style="font-size: 12px; color: var(--text-muted);">المبالغ المحصلة للإدارة</span>
-                    <h3 id="driver-collected" style="color: var(--gold); font-size: 20px; margin-top: 6px;">0 ل.س</h3>
-                </div>
-            </div>
+        <!-- تبويب المقابلات -->
+        <div id="tab-interviews" class="hidden">
             <div class="card">
-                <h4 style="font-size: 14px; margin-bottom: 8px;">سجل تسليم العُهدة المالية</h4>
-                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">يتم توريد المبالغ المحصلة إلى مكتب المحاسبة المركزي يومياً.</p>
-                <button class="btn-primary" onclick="alert('تم إشعار قسم المحاسبة لتأكيد استلام العهدة!')">إشعار المحاسب بتسليم العهدة</button>
+                <h3 style="font-size: 16px; margin-bottom: 6px;">طلبات المقابلة للكباتن الجدد</h3>
+                <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 16px;">مراجعة الطلبات الواردة واتخاذ قرار الاعتماد بعد المقابلة</p>
+                <div id="captains-applications-list"></div>
+            </div>
+
+            <div class="card">
+                <h3 style="font-size: 16px; margin-bottom: 6px;">طلبات اعتماد المتاجر والعملاء</h3>
+                <div id="clients-applications-list"></div>
             </div>
         </div>
 
-        <!-- تبويب استراحة الكابتن -->
-        <div id="tab-break" class="hidden">
+        <!-- تبويب المحاسبة والمالية -->
+        <div id="tab-finance" class="hidden">
             <div class="card">
-                <h3 style="font-size: 16px; margin-bottom: 6px;">خدمات واستراحة الكباتن ☕</h3>
-                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">اطلب احتياجاتك مجاناً أو بخصم مخصص من أقرب نقطة توزيع معتمدة:</p>
-                
-                <div class="break-grid">
-                    <div class="break-item" onclick="orderBreakItem('قهوة سريعة / إسبريسو')">
-                        <div style="font-size: 30px; margin-bottom: 6px;">☕</div>
-                        <strong>طلب قهوة</strong>
-                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">مجاني للكباتن</div>
-                    </div>
-                    <div class="break-item" onclick="orderBreakItem('مياه معدنية باردة')">
-                        <div style="font-size: 30px; margin-bottom: 6px;">💧</div>
-                        <strong>مياه معدنية</strong>
-                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">مجاني للكباتن</div>
-                    </div>
-                    <div class="break-item" onclick="orderBreakItem('ساندويش خفيف')">
-                        <div style="font-size: 30px; margin-bottom: 6px;">🥪</div>
-                        <strong>ساندويش خفيف</strong>
-                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">خصم 50% للكابتن</div>
-                    </div>
-                    <div class="break-item" onclick="orderBreakItem('شحن هاتف سريع')">
-                        <div style="font-size: 30px; margin-bottom: 6px;">🔋</div>
-                        <strong>شحن بطارية هاتف</strong>
-                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">متوفر في النقاط</div>
-                    </div>
+                <h3 style="font-size: 16px; margin-bottom: 12px;">حسابات عُهدة الكباتن</h3>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>اسم الكابتن</th>
+                                <th>رقم الهاتف</th>
+                                <th>المبالغ المحصلة للإدارة</th>
+                                <th>أرباح الكابتن</th>
+                                <th>الإجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody id="finance-tbody"></tbody>
+                    </table>
                 </div>
+            </div>
+        </div>
+
+        <!-- تبويب استراحة الكباتن -->
+        <div id="tab-breaks" class="hidden">
+            <div class="card">
+                <h3 style="font-size: 16px; margin-bottom: 12px;">طلبات الاستراحة والضيافة من الميدان</h3>
+                <div id="break-orders-list"></div>
             </div>
         </div>
 
@@ -448,7 +374,7 @@
 
 </div>
 
-<!-- Firebase SDKs -->
+<!-- مكتبات Firebase Compat -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -468,241 +394,222 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    let currentDriver = null;
-    let driverData = null;
-
-    function showView(viewId) {
-        ['view-login', 'view-profile', 'view-pending', 'view-dashboard'].forEach(id => {
-            document.getElementById(id).classList.add('hidden');
-        });
-        document.getElementById(viewId).classList.remove('hidden');
-    }
-
-    // 1. تسجيل الدخول باستخدام Google
-    function driverSignIn() {
+    // 1. تسجيل الدخول بجوجل
+    function adminLogin() {
         const provider = new firebase.auth.GoogleAuthProvider();
-        auth.signInWithPopup(provider).catch(err => {
-            alert("خطأ أثناء تسجيل الدخول: " + err.message);
-        });
+        auth.signInWithPopup(provider).catch(err => alert("تعذر الدخول: " + err.message));
     }
 
-    function driverSignOut() {
+    function adminLogout() {
         auth.signOut();
     }
 
-    // مراقبة جلسة الدخول
-    auth.onAuthStateChanged(async user => {
+    // مراقبة الجلسة
+    auth.onAuthStateChanged(user => {
         if (user) {
-            currentDriver = user;
-            const doc = await db.collection("drivers").doc(user.uid).get();
+            document.getElementById('admin-auth').classList.add('hidden');
+            document.getElementById('admin-panel').classList.remove('hidden');
+            
+            document.getElementById('admin-photo').src = user.photoURL || "https://via.placeholder.com/40";
+            document.getElementById('admin-name').innerText = user.displayName || "مدير النظام";
+            document.getElementById('admin-email').innerText = user.email;
 
-            if (doc.exists) {
-                driverData = doc.data();
-                handleDriverStatus(driverData);
-            } else {
-                // تسجيل جديد -> إظهار استمارة المقابلة
-                document.getElementById('d-photo').src = user.photoURL || "https://via.placeholder.com/46";
-                document.getElementById('d-name').innerText = user.displayName || "كابتن جديد";
-                document.getElementById('d-email').innerText = user.email;
-                showView('view-profile');
-            }
+            initDashboardListeners();
         } else {
-            currentDriver = null;
-            driverData = null;
-            showView('view-login');
+            document.getElementById('admin-auth').classList.remove('hidden');
+            document.getElementById('admin-panel').classList.add('hidden');
         }
     });
 
-    function handleDriverStatus(data) {
-        if (data.status === "approved") {
-            showView('view-dashboard');
-            initDashboard(data);
-        } else {
-            showView('view-pending');
-        }
+    // التنقل بين التبويبات
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        ['orders', 'interviews', 'finance', 'breaks'].forEach(id => {
+            document.getElementById('tab-' + id).classList.add('hidden');
+        });
+
+        event.target.classList.add('active');
+        document.getElementById('tab-' + tabId).classList.remove('hidden');
     }
 
-    function skipInvite() {
-        document.getElementById('d-invite').value = "NONE";
-        alert("تم تخطي إدخال الكود، يمكنك المتابعة بشكل طبيعي.");
-    }
-
-    // 2. إرسال طلب المقابلة وتثبيته في النظام
-    async function submitDriverApplication() {
-        const phone = document.getElementById('d-phone').value.trim();
-        const vehicle = document.getElementById('d-vehicle').value;
-        const area = document.getElementById('d-area').value.trim();
-        const inviteCode = document.getElementById('d-invite').value.trim() || "NONE";
-
-        if (!phone || !area) {
-            alert("يرجى إدخال رقم الهاتف والمنطقة لتحديد موعد المقابلة.");
-            return;
-        }
-
-        const newCaptainData = {
-            uid: currentDriver.uid,
-            name: currentDriver.displayName,
-            email: currentDriver.email,
-            photo: currentDriver.photoURL,
-            phone: phone,
-            vehicle: vehicle,
-            coverageArea: area,
-            inviteCode: inviteCode,
-            status: "pending", // pending, approved, suspended
-            deliveredCount: 0,
-            earnings: 0,
-            collectedCash: 0,
-            appliedAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
-
-        try {
-            await db.collection("drivers").doc(currentDriver.uid).set(newCaptainData);
-            showView('view-pending');
-        } catch (e) {
-            alert("حدث خطأ أثناء الحفظ: " + e.message);
-        }
-    }
-
-    // 3. تهيئة لوحة تحكم الكابتن والرانكات
-    function initDashboard(data) {
-        document.getElementById('dash-photo').src = data.photo || "https://via.placeholder.com/46";
-        document.getElementById('dash-name').innerText = data.name;
-        document.getElementById('dash-phone-val').innerText = data.phone;
-        
-        const count = data.deliveredCount || 0;
-        document.getElementById('dash-completed-count').innerText = count + " شحنة";
-        
-        // حساب الرانك التلقائي
-        const rankTitle = document.getElementById('dash-rank-title');
-        const rankBadge = document.getElementById('dash-rank-badge');
-        rankBadge.className = "rank-tag";
-
-        if (count >= 100) {
-            rankTitle.innerText = "💎 كابتن ألماسي";
-            rankBadge.classList.add('rank-diamond');
-            rankBadge.innerText = "+20% عمولة إضافية";
-        } else if (count >= 50) {
-            rankTitle.innerText = "🥇 كابتن ذهبي";
-            rankBadge.classList.add('rank-gold');
-            rankBadge.innerText = "+15% عمولة إضافية";
-        } else if (count >= 20) {
-            rankTitle.innerText = "🥈 كابتن فضي";
-            rankBadge.classList.add('rank-silver');
-            rankBadge.innerText = "+10% عمولة إضافية";
-        } else {
-            rankTitle.innerText = "🥉 كابتن برونزي";
-            rankBadge.classList.add('rank-bronze');
-            rankBadge.innerText = "المستوى الأساسي";
-        }
-
-        document.getElementById('driver-earnings').innerText = (data.earnings || 0) + " ل.س";
-        document.getElementById('driver-collected').innerText = (data.collectedCash || 0) + " ل.س";
-
-        listenToOrders();
-    }
-
-    // التبديل بين التبويبات
-    function switchDriverTab(tab) {
-        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-        ['orders', 'wallet', 'break'].forEach(t => document.getElementById('tab-' + t).classList.add('hidden'));
-
-        if (tab === 'orders') {
-            document.querySelectorAll('.nav-tab')[0].classList.add('active');
-            document.getElementById('tab-orders').classList.remove('hidden');
-        } else if (tab === 'wallet') {
-            document.querySelectorAll('.nav-tab')[1].classList.add('active');
-            document.getElementById('tab-wallet').classList.remove('hidden');
-        } else if (tab === 'break') {
-            document.querySelectorAll('.nav-tab')[2].classList.add('active');
-            document.getElementById('tab-break').classList.remove('hidden');
-        }
-    }
-
-    // الاستماع للطلبات
-    function listenToOrders() {
-        db.collection("orders").onSnapshot(snap => {
-            const list = document.getElementById('orders-list');
-            list.innerHTML = "";
-
-            if (snap.empty) {
-                list.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 20px;">لا توجد مهام جديدة حالياً</div>`;
-                return;
-            }
+    // الاستماع المباشر لكافة جداول البيانات
+    function initDashboardListeners() {
+        // أ. الطلبيات
+        db.collection("orders").orderBy("createdAt", "desc").onSnapshot(snap => {
+            const tbody = document.getElementById("orders-tbody");
+            tbody.innerHTML = "";
+            let totalCash = 0;
+            let totalComm = 0;
 
             snap.forEach(doc => {
                 const o = doc.data();
-                // يظهر الطلب إذا كان شاغراً أو مسنداً لهذا الكابتن
-                if (!o.driverId || o.driverId === currentDriver.uid) {
-                    list.innerHTML += `
-                        <div class="order-card">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <strong>${o.customer}</strong>
-                                <span style="color: var(--gold); font-weight: 700;">${o.price}</span>
+                const isDelivered = o.status === "delivered";
+                const isAccepted = o.status === "accepted" || o.status === "delivering";
+
+                if (isDelivered) {
+                    totalCash += parseInt(o.price) || 0;
+                    totalComm += 5000;
+                }
+
+                let badge = '<span class="badge badge-pending">قيد الانتظار</span>';
+                if (isDelivered) badge = '<span class="badge badge-delivered">تم التسليم ✓</span>';
+                else if (isAccepted) badge = '<span class="badge badge-accepted">جاري التوصيل 🛵</span>';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${o.orderCode || doc.id.substring(0, 6)}</strong></td>
+                        <td>${o.customer}</td>
+                        <td>${o.address}</td>
+                        <td style="color: var(--gold); font-weight: 700;">${o.price || 'مدفوع'}</td>
+                        <td>${o.driverName || 'بانتظار كابتن'}</td>
+                        <td>${badge}</td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('stat-orders').innerText = snap.size;
+            document.getElementById('stat-cash').innerText = totalCash.toLocaleString() + " ل.س";
+            document.getElementById('stat-commission').innerText = totalComm.toLocaleString() + " ل.س";
+        });
+
+        // ب. طلبات مقابلة الكباتن
+        db.collection("drivers").onSnapshot(snap => {
+            const capList = document.getElementById("captains-applications-list");
+            const financeTbody = document.getElementById("finance-tbody");
+            const select = document.getElementById("ord-driver-select");
+            
+            capList.innerHTML = "";
+            financeTbody.innerHTML = "";
+            select.innerHTML = '<option value="">متاح لجميع الكباتن المعتمدين</option>';
+
+            let pendingCount = 0;
+
+            snap.forEach(doc => {
+                const d = doc.data();
+                if (d.status === "pending") {
+                    pendingCount++;
+                    capList.innerHTML += `
+                        <div style="background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 10px;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <strong>🛵 ${d.name}</strong>
+                                <span style="font-size: 12px; color: var(--gold);">كود الدعوة: ${d.inviteCode || 'لا يوجد'}</span>
                             </div>
-                            <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">📍 التوصيل إلى: ${o.address}</div>
-                            <div style="font-size: 12px; color: #93c5fd; margin-top: 2px;">🏪 التاجر: ${o.clientName || 'متجر معتمد'}</div>
-                            
-                            <div class="order-actions">
-                                ${!o.driverId ? `
-                                    <button class="btn-primary" style="grid-column: span 2;" onclick="acceptOrder('${doc.id}')">قبول المهمة 🛵</button>
-                                ` : `
-                                    <button class="btn-secondary" onclick="updateOrderStatus('${doc.id}', 'delivering')">جاري التوصيل 🛣️</button>
-                                    <button class="btn-primary" style="background: var(--success);" onclick="completeOrder('${doc.id}', '${o.price}')">تم التسليم والتحصيل ✓</button>
-                                `}
+                            <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">📞 ${d.phone} | 🚲 المركبة: ${d.vehicle} | 📍 التغطية: ${d.coverageArea}</div>
+                            <div style="margin-top: 10px; display: flex; gap: 8px;">
+                                <button class="btn btn-success" onclick="approveCaptain('${doc.id}')">قبول بعد المقابلة وتفعيل ✓</button>
+                                <button class="btn btn-danger" onclick="rejectCaptain('${doc.id}')">رفض ✕</button>
                             </div>
                         </div>
                     `;
+                } else if (d.status === "approved") {
+                    select.innerHTML += `<option value="${doc.id}">${d.name} (${d.phone})</option>`;
+                    financeTbody.innerHTML += `
+                        <tr>
+                            <td><strong>${d.name}</strong></td>
+                            <td>${d.phone}</td>
+                            <td style="color: var(--gold); font-weight: 700;">${(d.collectedCash || 0).toLocaleString()} ل.س</td>
+                            <td style="color: var(--success); font-weight: 700;">${(d.earnings || 0).toLocaleString()} ل.س</td>
+                            <td>
+                                <button class="btn btn-primary" style="padding: 6px 12px;" onclick="resetCaptainCash('${doc.id}')">تصفية واستلام العهدة</button>
+                            </td>
+                        </tr>
+                    `;
                 }
             });
-        });
-    }
 
-    // قبول المهمة
-    async function acceptOrder(id) {
-        await db.collection("orders").doc(id).update({
-            driverId: currentDriver.uid,
-            driverName: currentDriver.displayName,
-            status: "accepted"
-        });
-    }
-
-    // تحديث الحالة
-    async function updateOrderStatus(id, status) {
-        await db.collection("orders").doc(id).update({ status: status });
-    }
-
-    // تسليم المهمة وزيادة المحفظة والرانك
-    async function completeOrder(id, priceStr) {
-        const cashValue = parseInt(priceStr) || 0;
-        const captainFee = 5000; // عمولة توصيل افتراضية لكل طرد
-
-        await db.collection("orders").doc(id).update({
-            status: "delivered",
-            deliveredAt: firebase.firestore.FieldValue.serverTimestamp()
+            document.getElementById('stat-interviews').innerText = pendingCount;
         });
 
-        await db.collection("drivers").doc(currentDriver.uid).update({
-            deliveredCount: firebase.firestore.FieldValue.increment(1),
-            earnings: firebase.firestore.FieldValue.increment(captainFee),
-            collectedCash: firebase.firestore.FieldValue.increment(cashValue)
-        });
-
-        alert("تم تسليم الطرد وتحديث رصيد محفظتك بنجاح!");
-        location.reload();
-    }
-
-    // طلبات الاستراحة
-    async function orderBreakItem(itemName) {
-        const conf = confirm(`هل تود تأكيد طلب (${itemName}) من أقرب محطة استراحة؟`);
-        if (conf) {
-            await db.collection("break_orders").add({
-                driverId: currentDriver.uid,
-                driverName: currentDriver.displayName,
-                item: itemName,
-                time: firebase.firestore.FieldValue.serverTimestamp(),
-                status: "جاهز للاستلام"
+        // ج. طلبات المتاجر
+        db.collection("clients").where("status", "==", "pending").onSnapshot(snap => {
+            const cliList = document.getElementById("clients-applications-list");
+            cliList.innerHTML = "";
+            if (snap.empty) {
+                cliList.innerHTML = `<div style="color: var(--text-muted); font-size: 13px;">لا توجد طلبات متاجر معلقة.</div>`;
+            }
+            snap.forEach(doc => {
+                const c = doc.data();
+                cliList.innerHTML += `
+                    <div style="background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 10px;">
+                        <strong>🏪 ${c.businessName} - ${c.name}</strong>
+                        <div style="font-size: 12px; color: var(--text-muted);">📞 ${c.phone} | 📍 ${c.address}</div>
+                        <div style="margin-top: 8px;">
+                            <button class="btn btn-success" style="padding: 6px 12px;" onclick="approveClient('${doc.id}')">اعتماد التاجر ✓</button>
+                        </div>
+                    </div>
+                `;
             });
-            alert(`تم تسجيل طلبك: ${itemName}، توجه لنقطة التوزيع للاستلام مجاناً/بالخصم.`);
+        });
+
+        // د. استراحة الكباتن
+        db.collection("break_orders").orderBy("time", "desc").limit(10).onSnapshot(snap => {
+            const breakList = document.getElementById("break-orders-list");
+            breakList.innerHTML = "";
+            snap.forEach(doc => {
+                const b = doc.data();
+                breakList.innerHTML += `
+                    <div style="background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong>☕ ${b.item}</strong> للكابتن: <strong>${b.driverName}</strong>
+                        </div>
+                        <span class="badge badge-delivered">جاهز للتسليم في النقطة</span>
+                    </div>
+                `;
+            });
+        });
+    }
+
+    // إجراءات المدير
+    async function createOrder() {
+        const cust = document.getElementById("ord-cust").value.trim();
+        const addr = document.getElementById("ord-addr").value.trim();
+        const price = document.getElementById("ord-price").value.trim();
+        const driverId = document.getElementById("ord-driver-select").value;
+
+        if (!cust || !addr) {
+            alert("يرجى إدخال اسم المستلم والعنوان.");
+            return;
+        }
+
+        const newOrder = {
+            orderCode: "SH-" + Math.floor(1000 + Math.random() * 9000),
+            customer: cust,
+            address: addr,
+            price: price ? price + " ل.س" : "مدفوع مسبقاً",
+            driverId: driverId || null,
+            status: "pending",
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        await db.collection("orders").add(newOrder);
+
+        document.getElementById("ord-cust").value = "";
+        document.getElementById("ord-addr").value = "";
+        document.getElementById("ord-price").value = "";
+    }
+
+    async function approveCaptain(id) {
+        await db.collection("drivers").doc(id).update({ status: "approved" });
+        alert("تم اعتماد وتفعيل حساب الكابتن بنجاح!");
+    }
+
+    async function rejectCaptain(id) {
+        await db.collection("drivers").doc(id).update({ status: "rejected" });
+        alert("تم رفض طلب الكابتن.");
+    }
+
+    async function approveClient(id) {
+        await db.collection("clients").doc(id).update({ status: "approved" });
+        alert("تم اعتماد التاجر وتفعيل حسابه!");
+    }
+
+    async function resetCaptainCash(id) {
+        const conf = confirm("هل تم استلام المبالغ النقدية وتصفية عهدة الكابتن؟");
+        if (conf) {
+            await db.collection("drivers").doc(id).update({
+                collectedCash: 0
+            });
+            alert("تمت تصفية العهدة النقدية بنجاح!");
         }
     }
 </script>
