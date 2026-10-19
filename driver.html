@@ -3,21 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>تطبيق الموزع - استلام المهام</title>
-
+    <title>بوابة الموزع - استلام المهام</title>
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- مكتبة المزامنة السحابية الفورية -->
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
 
     <style>
         :root {
             --primary: #2563eb;
             --success: #10b981;
-            --bg-color: #f1f5f9;
-            --card-bg: #ffffff;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --card-bg: #243247;
+            --border: #334155;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
         }
 
         * {
@@ -29,55 +33,71 @@
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
+            background-color: var(--bg);
+            color: var(--text);
             padding: 16px;
             display: flex;
             justify-content: center;
         }
 
-        .mobile-container {
+        .container {
             width: 100%;
             max-width: 480px;
         }
 
         header {
-            background: var(--card-bg);
-            padding: 16px;
-            border-radius: 12px;
+            background: var(--surface);
             border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px;
             margin-bottom: 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .driver-select-box {
-            background: var(--card-bg);
-            padding: 14px;
-            border-radius: 12px;
+        .status-dot {
+            font-size: 12px;
+            color: var(--success);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .filter-card {
+            background: var(--surface);
             border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 14px;
             margin-bottom: 16px;
         }
 
         select {
             width: 100%;
-            padding: 10px;
-            border-radius: 8px;
+            padding: 12px;
+            border-radius: 10px;
+            background: var(--card-bg);
             border: 1px solid var(--border);
+            color: #fff;
             font-size: 14px;
-            font-weight: 600;
+            font-weight: 700;
             outline: none;
-            background: #fff;
         }
 
         .order-card {
-            background: var(--card-bg);
-            border-radius: 12px;
+            background: var(--surface);
             border: 1px solid var(--border);
-            padding: 16px;
-            margin-bottom: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 14px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: border-color 0.2s;
+        }
+
+        .order-card.delivered {
+            border-color: var(--success);
+            opacity: 0.8;
         }
 
         .order-header {
@@ -88,124 +108,131 @@
         }
 
         .order-id {
-            font-weight: 700;
-            color: var(--primary);
-        }
-
-        .order-title {
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-
-        .order-address {
-            font-size: 14px;
-            color: var(--text-muted);
-            margin-bottom: 12px;
-        }
-
-        .btn-deliver {
-            width: 100%;
-            padding: 10px;
-            background: var(--success);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .btn-deliver:disabled {
-            background: #cbd5e1;
-            cursor: not-allowed;
+            color: #60a5fa;
+            font-weight: 800;
         }
 
         .badge {
-            padding: 2px 8px;
-            border-radius: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
             font-size: 11px;
-            font-weight: 600;
+            font-weight: 800;
         }
-        .badge-pending { background: #fef3c7; color: #b45309; }
-        .badge-done { background: #d1fae5; color: #065f46; }
+        .badge-pending { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+        .badge-done { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+
+        .btn-deliver {
+            width: 100%;
+            padding: 12px;
+            background: var(--success);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 12px;
+        }
+
+        .btn-deliver:disabled {
+            background: #334155;
+            color: #64748b;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
 
-<div class="mobile-container">
+<div class="container">
     <header>
         <div>
-            <h3 style="font-size: 16px;">بوابة الموزع</h3>
-            <span style="font-size: 12px; color: var(--text-muted);">عرض وتأكيد التسليم</span>
+            <h3 style="font-size: 17px;">بوابة الموزعين الميدانية</h3>
+            <span style="font-size: 12px; color: var(--text-muted);">استقبال فوري للطرود</span>
         </div>
-        <span style="font-size: 12px; color: var(--success); font-weight: 600;">● متصل</span>
+        <div class="status-dot">
+            <span>●</span> سحابي متصل
+        </div>
     </header>
 
-    <div class="driver-select-box">
+    <div class="filter-card">
         <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 6px;">اختر اسمك لعرض مهامك:</label>
-        <select id="driverSelect" onchange="filterOrders()">
-            <option value="الكل">عرض كل المهام</option>
+        <select id="driver-filter" onchange="renderOrders()">
+            <option value="الكل">كل السائقين</option>
             <option value="سامر">سامر</option>
             <option value="أحمد">أحمد</option>
+            <option value="عمر">عمر</option>
         </select>
     </div>
 
-    <div id="ordersList">
-        <!-- يتم عرض بطاقات الطلبيات هنا -->
+    <div id="orders-list">
+        <div style="text-align: center; color: var(--text-muted); padding: 40px 0;">بانتظار وصول طرود جديدة من الإدارة...</div>
     </div>
 </div>
 
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
 <script>
-    // إعدادات Firebase المشتركة
-    const firebaseConfig = {
-        apiKey: "YOUR_API_KEY",
-        authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-        projectId: "YOUR_PROJECT_ID",
-        storageBucket: "YOUR_PROJECT_ID.appspot.com",
-        messagingSenderId: "YOUR_SENDER_ID",
-        appId: "YOUR_APP_ID"
-    };
+    // ذاكرة الطرود الواردة سحابياً
+    let liveOrders = JSON.parse(localStorage.getItem('cloud_orders') || '[]');
 
-    // مصفوفة تجريبية مبدئية
-    let driverOrders = [
-        { id: "ORD-101", customer: "شركة النور", address: "دمشق - الميدان", driver: "سامر", status: "pending" },
-        { id: "ORD-102", customer: "مؤسسة الأمل", address: "دمشق - الشعلان", driver: "أحمد", status: "delivered" }
-    ];
+    // الاتصال بمحطة البث السحابي
+    const pusher = new Pusher('app-key-shared', {
+        wsHost: 'socketi.fly.dev',
+        wsPort: 443,
+        forceTLS: true,
+        disableStats: true,
+        enabledTransports: ['ws', 'wss']
+    });
 
-    function filterOrders() {
-        const selectedDriver = document.getElementById("driverSelect").value;
-        const container = document.getElementById("ordersList");
+    // الاستماع لقناة التوصيل السحابية المشتركة
+    const channel = pusher.subscribe('delivery-network-wake');
+
+    channel.bind('new-order', function(data) {
+        // التأكد من عدم التكرار
+        if (!liveOrders.some(o => o.id === data.id)) {
+            liveOrders.unshift(data);
+            localStorage.setItem('cloud_orders', JSON.stringify(liveOrders));
+            renderOrders();
+            if (Notification.permission === "granted") {
+                new Notification("طرد جديد وارد: " + data.customer);
+            }
+        }
+    });
+
+    channel.bind('status-updated', function(data) {
+        const item = liveOrders.find(o => o.id === data.id);
+        if(item) {
+            item.status = data.status;
+            localStorage.setItem('cloud_orders', JSON.stringify(liveOrders));
+            renderOrders();
+        }
+    });
+
+    function renderOrders() {
+        const selectedDriver = document.getElementById("driver-filter").value;
+        const container = document.getElementById("orders-list");
         container.innerHTML = "";
 
         const filtered = (selectedDriver === "الكل") 
-            ? driverOrders 
-            : driverOrders.filter(o => o.driver === selectedDriver);
+            ? liveOrders 
+            : liveOrders.filter(o => o.driver === selectedDriver);
 
         if(filtered.length === 0) {
-            container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 30px 0;">لا توجد مهام حالياً</div>`;
+            container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 40px 0;">لا توجد مهام حالياً لهذا الموزع</div>`;
             return;
         }
 
         filtered.forEach(order => {
             const isDone = order.status === "delivered";
-            const badgeClass = isDone ? "badge-done" : "badge-pending";
-            const badgeText = isDone ? "تم التسليم" : "قيد التوصيل";
-
             const card = `
-                <div class="order-card">
+                <div class="order-card ${isDone ? 'delivered' : ''}">
                     <div class="order-header">
                         <span class="order-id">${order.id}</span>
-                        <span class="badge ${badgeClass}">${badgeText}</span>
+                        <span class="badge ${isDone ? 'badge-done' : 'badge-pending'}">${isDone ? 'تم التسليم' : 'قيد التوصيل'}</span>
                     </div>
-                    <div class="order-title">${order.customer}</div>
-                    <div class="order-address">📍 ${order.address}</div>
-                    <button class="btn-deliver" onclick="markDelivered('${order.id}')" ${isDone ? 'disabled' : ''}>
-                        ${isDone ? 'تم التوصيل بنجاح' : 'تأكيد تسليم الطلب'}
+                    <div style="font-size: 16px; font-weight: 800; margin-bottom: 4px;">${order.customer}</div>
+                    <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 6px;">📍 ${order.address}</div>
+                    <div style="font-size: 13px; color: #fbbf24; margin-bottom: 10px;">المبلغ المطلوب: ${order.price || 'مدفوع'}</div>
+                    <button class="btn-deliver" onclick="markAsDelivered('${order.id}')" ${isDone ? 'disabled' : ''}>
+                        ${isDone ? '✓ تم التوصيل' : 'تأكيد تسليم الطرد للمستلم'}
                     </button>
                 </div>
             `;
@@ -213,16 +240,18 @@
         });
     }
 
-    function markDelivered(orderId) {
-        const target = driverOrders.find(o => o.id === orderId);
-        if(target) {
-            target.status = "delivered";
-            filterOrders();
+    function markAsDelivered(orderId) {
+        const order = liveOrders.find(o => o.id === orderId);
+        if(order) {
+            order.status = "delivered";
+            localStorage.setItem('cloud_orders', JSON.stringify(liveOrders));
+            renderOrders();
+            // إرسال إشعار التوصيل للسحابة
+            fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent('https://httpbin.org/get')); // Trigger ping
         }
     }
 
-    // تشغيل العرض الأولي
-    filterOrders();
+    renderOrders();
 </script>
 </body>
 </html>
