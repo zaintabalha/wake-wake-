@@ -339,7 +339,7 @@
             text-align: center;
         }
 
-        /* النوافذ المدمجة للنظام (بديل الـ Popup و Alert و Confirm على iOS و Android) */
+        /* النوافذ المدمجة للنظام (بديل الـ Alert و Confirm في WebView) */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -567,27 +567,11 @@
 
 </div>
 
-<!-- نافذة تسجيل الدخول المدمجة للموزعين داخل التطبيق (لتفادي حظر النوافذ المنبثقة في iOS & Android WebView) -->
-<div id="inapp-auth-modal" class="modal-overlay hidden">
-    <div class="sys-dialog-box">
-        <div style="font-size: 40px; margin-bottom: 8px;">☕</div>
-        <div class="brand-logo" style="font-size: 20px; margin-bottom: 6px;">WAKE, WAKE</div>
-        <h3 style="font-size: 17px; margin-bottom: 6px;">تسجيل دخول الموزع</h3>
-        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">أدخل اسمك وبريدك في Google للمتابعة أو استعادة حسابك فوراً</p>
-        <input type="text" id="inapp-dist-name" placeholder="الاسم الكامل للموزع" style="margin-bottom: 10px;">
-        <input type="email" id="inapp-dist-email" placeholder="البريد الإلكتروني (example@gmail.com)" dir="ltr" style="text-align: right; margin-bottom: 14px;">
-        <div style="display: flex; gap: 10px;">
-            <button id="inapp-login-btn" class="btn btn-primary" style="flex: 1;" onclick="confirmInAppDistributorLogin()">متابعة وربط الحساب ✓</button>
-            <button class="btn btn-secondary" onclick="closeInAppDistributorModal()">إلغاء</button>
-        </div>
-    </div>
-</div>
-
-<!-- نافذة التنبيهات والتأكيد المدمجة للنظام (بديل alert و confirm في WebView) -->
+<!-- نافذة التنبيهات والتأكيد المدمجة للنظام (بديل alert و confirm) -->
 <div id="sys-dialog-modal" class="modal-overlay hidden" style="z-index: 2000;">
     <div class="sys-dialog-box">
         <div id="sys-dialog-icon" style="font-size: 36px; margin-bottom: 10px;">🔔</div>
-        <p id="sys-dialog-msg" style="font-size: 14px; font-weight: 700; line-height: 1.7; margin-bottom: 20px; white-space: pre-line;">-</p>
+        <p id="sys-dialog-msg" style="font-size: 15px; font-weight: 700; line-height: 1.6; margin-bottom: 20px;">-</p>
         <div id="sys-dialog-actions" style="display: flex; gap: 10px; justify-content: center;"></div>
     </div>
 </div>
@@ -612,12 +596,14 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // ضمان ثبات اتصال Firestore على أجهزة الآيباد والأندرويد والـ VPN
+    // تفعيل الحفظ الدائم للجلسة على الجهاز (Local Persistence)
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(err => {
+        console.warn("Auth persistence error:", err);
+    });
+
     try {
         db.settings({ experimentalAutoDetectLongPolling: true, merge: true });
-    } catch (e) {
-        console.warn("Firestore settings notice:", e);
-    }
+    } catch (e) {}
 
     let currentUser = null;
     let userData = null;
@@ -637,13 +623,12 @@
     let rawAds = [];
     let rawNotifs = [];
 
-    // نوافذ التنبيه والتأكيد المدمجة لتعمل في كافة بيئات iOS & Android WebView
     function showAppAlert(message) {
         const modal = document.getElementById('sys-dialog-modal');
         document.getElementById('sys-dialog-icon').innerText = '✅';
         document.getElementById('sys-dialog-msg').innerText = message;
         document.getElementById('sys-dialog-actions').innerHTML = `
-            <button class="btn btn-primary" style="min-width: 120px; width: auto; padding: 10px 24px;" onclick="document.getElementById('sys-dialog-modal').classList.add('hidden')">حسناً</button>
+            <button class="btn btn-primary" style="min-width: 120px; padding: 10px 24px;" onclick="document.getElementById('sys-dialog-modal').classList.add('hidden')">حسناً</button>
         `;
         modal.classList.remove('hidden');
     }
@@ -651,15 +636,15 @@
     function showAppConfirm(message) {
         return new Promise((resolve) => {
             const modal = document.getElementById('sys-dialog-modal');
-            document.getElementById('sys-dialog-icon').innerText = '📦';
+            document.getElementById('sys-dialog-icon').innerText = '⚠️';
             document.getElementById('sys-dialog-msg').innerText = message;
             const actions = document.getElementById('sys-dialog-actions');
             actions.innerHTML = '';
 
             const yesBtn = document.createElement('button');
             yesBtn.className = 'btn btn-success';
-            yesBtn.style.minWidth = '120px';
-            yesBtn.innerText = 'تأكيد الطلب ✓';
+            yesBtn.style.minWidth = '110px';
+            yesBtn.innerText = 'نعم، تأكيد ✓';
             yesBtn.onclick = () => {
                 modal.classList.add('hidden');
                 resolve(true);
@@ -667,7 +652,7 @@
 
             const noBtn = document.createElement('button');
             noBtn.className = 'btn btn-secondary';
-            noBtn.style.minWidth = '100px';
+            noBtn.style.minWidth = '110px';
             noBtn.innerText = 'إلغاء';
             noBtn.onclick = () => {
                 modal.classList.add('hidden');
@@ -682,105 +667,11 @@
 
     window.alert = showAppAlert;
 
-    function isEmbeddedAppEnvironment() {
-        const proto = window.location.protocol;
-        const ua = navigator.userAgent || '';
-        if (proto === 'file:' || proto === 'applewebdata:' || proto === 'content:') return true;
-        if (/wv|WebView/i.test(ua)) return true;
-        if ((/iPhone|iPad|iPod/i.test(ua)) && !/Safari/i.test(ua)) return true;
-        return false;
-    }
-
-    // توليد معرف ثابت للموزع بناءً على بريده الإلكتروني لضمان عدم ضياع الحساب
-    function generateDeterministicUid(email) {
-        const clean = email.trim().toLowerCase();
-        let hash = 0;
-        for (let i = 0; i < clean.length; i++) {
-            const chr = clean.charCodeAt(i);
-            hash = ((hash << 5) - hash) + chr;
-            hash |= 0;
-        }
-        const hex = Math.abs(hash).toString(16);
-        const safeChars = clean.replace(/[^a-z0-9]/g, '').substring(0, 14);
-        return 'dist_' + safeChars + '_' + hex;
-    }
-
-    function showScreen(screenId) {
-        ['view-login', 'view-register', 'view-app'].forEach(id => {
-            document.getElementById(id).classList.add('hidden');
-        });
-        document.getElementById(screenId).classList.remove('hidden');
-    }
-
-    function openInAppDistributorModal() {
-        const savedName = localStorage.getItem('wake_dist_name') || '';
-        const savedEmail = localStorage.getItem('wake_dist_email') || '';
-        document.getElementById('inapp-dist-name').value = savedName;
-        document.getElementById('inapp-dist-email').value = savedEmail;
-        document.getElementById('inapp-auth-modal').classList.remove('hidden');
-    }
-
-    function closeInAppDistributorModal() {
-        document.getElementById('inapp-auth-modal').classList.add('hidden');
-    }
-
-    async function confirmInAppDistributorLogin() {
-        const name = document.getElementById('inapp-dist-name').value.trim();
-        const email = document.getElementById('inapp-dist-email').value.trim().toLowerCase();
-
-        if (!name || !email || !email.includes('@')) {
-            showAppAlert("يرجى إدخال الاسم الكامل والبريد الإلكتروني بشكل صحيح.");
-            return;
-        }
-
-        const btn = document.getElementById('inapp-login-btn');
-        btn.disabled = true;
-        btn.innerText = "جاري التحقق...";
-
-        try {
-            let targetUid = generateDeterministicUid(email);
-
-            // البحث أولاً في قاعدة البيانات إذا كان هذا البريد مسجلاً مسبقاً لاستعادة نفس الحساب
-            const existingSnap = await db.collection("users").where("email", "==", email).limit(1).get();
-            if (!existingSnap.empty) {
-                targetUid = existingSnap.docs[0].id;
-            }
-
-            const sessionUser = {
-                uid: targetUid,
-                displayName: name,
-                email: email,
-                photoURL: "https://ui-avatars.com/api/?name=" + encodeURIComponent(name) + "&background=4338ca&color=fff"
-            };
-
-            localStorage.setItem('wake_dist_session', JSON.stringify(sessionUser));
-            localStorage.setItem('wake_dist_name', name);
-            localStorage.setItem('wake_dist_email', email);
-
-            try {
-                await auth.signInAnonymously();
-            } catch (e) {}
-
-            closeInAppDistributorModal();
-            startDistributorSession(sessionUser);
-        } catch (err) {
-            showAppAlert("حدث خطأ أثناء الاتصال: " + err.message);
-        } finally {
-            btn.disabled = false;
-            btn.innerText = "متابعة وربط الحساب ✓";
-        }
-    }
-
+    // تسجيل الدخول حصرياً عبر Google Redirect الآمن والموثق
     function signInWithGoogle() {
-        if (isEmbeddedAppEnvironment()) {
-            openInAppDistributorModal();
-            return;
-        }
-
         const provider = new firebase.auth.GoogleAuthProvider();
-        auth.signInWithPopup(provider).catch(err => {
-            console.warn("Popup blocked or unsupported, opening in-app modal:", err.code);
-            openInAppDistributorModal();
+        auth.signInWithRedirect(provider).catch(err => {
+            showAppAlert("خطأ في تسجيل الدخول: " + err.message);
         });
     }
 
@@ -797,7 +688,6 @@
     }
 
     function logoutUser() {
-        localStorage.removeItem('wake_dist_session');
         cleanupListeners();
         currentUser = null;
         userData = null;
@@ -805,48 +695,40 @@
         showScreen('view-login');
     }
 
-    function startDistributorSession(user) {
-        currentUser = user;
-        if (typeof userDocUnsub === 'function') userDocUnsub();
-
-        const defaultAvatar = "https://ui-avatars.com/api/?name=" + encodeURIComponent(user.displayName || "U") + "&background=4338ca&color=fff";
-
-        userDocUnsub = db.collection("users").doc(user.uid).onSnapshot(doc => {
-            if (doc.exists) {
-                userData = doc.data();
-                showScreen('view-app');
-                renderDistributorApp(userData);
-                renderFilteredProducts();
-                renderFilteredAds();
-                renderFilteredNotifs();
-            } else {
-                document.getElementById('reg-photo').src = user.photoURL || defaultAvatar;
-                document.getElementById('reg-google-name').innerText = user.displayName || "موزع جديد";
-                document.getElementById('reg-email').innerText = user.email || "";
-                document.getElementById('cv-name').value = user.displayName || "";
-                showScreen('view-register');
-            }
-        }, err => console.error("User doc listener error:", err));
-
-        initSharedListeners();
-    }
+    auth.getRedirectResult().then((result) => {
+        if (result.user) {
+            console.log("Driver logged in successfully:", result.user.email);
+        }
+    }).catch((error) => {
+        console.warn("Driver redirect error:", error.message);
+    });
 
     auth.onAuthStateChanged(user => {
         if (user && user.email) {
-            startDistributorSession(user);
-        } else {
-            const savedSession = localStorage.getItem('wake_dist_session');
-            if (savedSession) {
-                try {
-                    const parsed = JSON.parse(savedSession);
-                    if (parsed && parsed.uid) {
-                        startDistributorSession(parsed);
-                        return;
-                    }
-                } catch (e) {
-                    localStorage.removeItem('wake_dist_session');
+            currentUser = user;
+            if (typeof userDocUnsub === 'function') userDocUnsub();
+
+            const defaultAvatar = "https://ui-avatars.com/api/?name=" + encodeURIComponent(user.displayName || "U") + "&background=4338ca&color=fff";
+
+            userDocUnsub = db.collection("users").doc(user.uid).onSnapshot(doc => {
+                if (doc.exists) {
+                    userData = doc.data();
+                    showScreen('view-app');
+                    renderDistributorApp(userData);
+                    renderFilteredProducts();
+                    renderFilteredAds();
+                    renderFilteredNotifs();
+                } else {
+                    document.getElementById('reg-photo').src = user.photoURL || defaultAvatar;
+                    document.getElementById('reg-google-name').innerText = user.displayName || "موزع جديد";
+                    document.getElementById('reg-email').innerText = user.email;
+                    document.getElementById('cv-name').value = user.displayName || "";
+                    showScreen('view-register');
                 }
-            }
+            });
+
+            initSharedListeners();
+        } else {
             currentUser = null;
             userData = null;
             showScreen('view-login');
@@ -945,7 +827,6 @@
             alertBanner.classList.remove('hidden');
         }
 
-        // الفئات S, G, E, C
         const rank = u.rank || "C";
         const rankBox = document.getElementById('app-rank-box');
         const rankTitle = document.getElementById('app-rank-title');
@@ -1012,7 +893,6 @@
         if (sharedListenersInitialized || !currentUser) return;
         sharedListenersInitialized = true;
 
-        // 0. الاستماع لإعدادات نسب الفئات (S, G, E, C)
         const unsubSettings = db.collection("settings").doc("ranks_config").onSnapshot(doc => {
             if (doc.exists) {
                 globalSettings = doc.data();
@@ -1023,7 +903,6 @@
             }
         });
 
-        // أ. الاستماع لقائمة المنتجات
         const unsubProducts = db.collection("products").onSnapshot(snap => {
             rawProducts = [];
             snap.forEach(doc => {
@@ -1032,7 +911,6 @@
             renderFilteredProducts();
         });
 
-        // ب. طلبياتي الخاصة
         const unsubOrders = db.collection("orders").where("distributorId", "==", currentUser.uid).onSnapshot(snap => {
             const list = document.getElementById('my-orders-container');
             list.innerHTML = "";
@@ -1071,7 +949,6 @@
             });
         });
 
-        // ج. الاستماع للإعلانات
         const unsubAds = db.collection("announcements").orderBy("pinned", "desc").onSnapshot(snap => {
             rawAds = [];
             snap.forEach(doc => {
@@ -1080,7 +957,6 @@
             renderFilteredAds();
         });
 
-        // د. الاستماع للإشعارات
         const unsubNotifs = db.collection("notifications").orderBy("createdAt", "desc").limit(20).onSnapshot(snap => {
             rawNotifs = [];
             snap.forEach(doc => {
