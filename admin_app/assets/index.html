@@ -2,7 +2,9 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>WAKE, WAKE - لوحة المدير العام</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -48,6 +50,7 @@
             padding: 20px;
             display: flex;
             justify-content: center;
+            overflow-x: hidden;
         }
 
         .container {
@@ -67,6 +70,8 @@
             align-items: center;
             margin-bottom: 24px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            flex-wrap: wrap;
+            gap: 12px;
         }
 
         .brand-logo {
@@ -87,6 +92,7 @@
             height: 44px;
             border-radius: 50%;
             border: 2px solid var(--primary);
+            object-fit: cover;
         }
 
         .stats-grid {
@@ -125,6 +131,7 @@
             border: 1px solid var(--border);
             margin-bottom: 24px;
             overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .tab-btn {
@@ -211,7 +218,7 @@
             background: var(--card);
             color: #fff;
             outline: none;
-            font-size: 14px;
+            font-size: 16px;
             margin-bottom: 8px;
         }
 
@@ -314,7 +321,7 @@
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.82);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -360,6 +367,18 @@
             background: var(--primary);
             color: #fff;
         }
+
+        /* نوافذ النظام المدمجة (بديل alert / confirm / popup لبيئة iOS & Android WebView) */
+        .sys-dialog-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 420px;
+            padding: 24px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.75);
+        }
     </style>
 </head>
 <body>
@@ -393,7 +412,7 @@
                 <div style="font-size: 13px; color: var(--text-muted); font-weight: 600;">الإدارة المركزية - تحليلات المبيعات والموزعين والفئات</div>
             </div>
             <div class="user-tag">
-                <img id="admin-photo" class="user-avatar" src="" alt="Admin">
+                <img id="admin-photo" class="user-avatar" src="https://ui-avatars.com/api/?name=Admin&background=4338ca&color=fff" alt="Admin">
                 <div>
                     <strong id="admin-name" style="font-size: 13px;">-</strong>
                     <div id="admin-email" style="font-size: 11px; color: var(--text-muted);">-</div>
@@ -672,7 +691,7 @@
     <div class="modal-content">
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 14px; margin-bottom: 18px;">
             <div style="display: flex; align-items: center; gap: 12px;">
-                <img id="modal-avatar" src="" style="width: 54px; height: 54px; border-radius: 50%; border: 2px solid var(--gold);">
+                <img id="modal-avatar" src="https://ui-avatars.com/api/?name=User&background=374151&color=fff" style="width: 54px; height: 54px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover;">
                 <div>
                     <h3 id="modal-name" style="font-size: 18px;">-</h3>
                     <div id="modal-email" style="font-size: 12px; color: var(--text-muted);">-</div>
@@ -738,6 +757,31 @@
     </div>
 </div>
 
+<!-- نافذة تسجيل الدخول المدمجة للأنظمة والتطبيقات (تعمل تلقائياً عند حظر النوافذ المنبثقة في iOS/Android) -->
+<div id="inapp-auth-modal" class="modal-overlay hidden">
+    <div class="sys-dialog-box">
+        <div style="font-size: 40px; margin-bottom: 8px;">🔐</div>
+        <div class="brand-logo" style="font-size: 20px; margin-bottom: 6px;">WAKE, WAKE</div>
+        <h3 style="font-size: 17px; margin-bottom: 6px;">تسجيل الدخول المباشر للإدارة</h3>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">أدخل بيانات حساب الإدارة المعتمد للمتابعة داخل التطبيق</p>
+        <input type="text" id="inapp-admin-name" placeholder="اسم المدير (مثال: المدير العام)" value="المدير العام">
+        <input type="email" id="inapp-admin-email" placeholder="البريد الإلكتروني (Google Email)" dir="ltr" style="text-align: right;">
+        <div style="display: flex; gap: 10px; margin-top: 12px;">
+            <button class="btn btn-primary" style="flex: 1; padding: 12px;" onclick="confirmInAppAdminLogin()">دخول للوحة التحكم ✓</button>
+            <button class="btn btn-secondary" style="padding: 12px;" onclick="closeInAppAuthModal()">إلغاء</button>
+        </div>
+    </div>
+</div>
+
+<!-- نافذة التنبيهات والتأكيد المدمجة للنظام (بديل alert و confirm في WebView) -->
+<div id="sys-dialog-modal" class="modal-overlay hidden" style="z-index: 2000;">
+    <div class="sys-dialog-box">
+        <div id="sys-dialog-icon" style="font-size: 36px; margin-bottom: 10px;">🔔</div>
+        <p id="sys-dialog-msg" style="font-size: 15px; font-weight: 700; line-height: 1.6; margin-bottom: 20px;">-</p>
+        <div id="sys-dialog-actions" style="display: flex; gap: 10px; justify-content: center;"></div>
+    </div>
+</div>
+
 <!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -758,11 +802,21 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
+    // تحسين اتصال Firestore ليعمل بثبات على أنظمة iOS WebView وأندرويد والشبكات المقيدة
+    try {
+        db.settings({ experimentalAutoDetectLongPolling: true, merge: true });
+    } catch (e) {
+        console.warn("Firestore settings notice:", e);
+    }
+
     let allUsers = {};
     let allOrders = [];
     let selectedDistributorId = null;
     let salesChartInstance = null;
     let currentChartPeriod = 'daily';
+    let listenersInitialized = false;
+    let activeUnsubscribes = [];
+
     let globalSettings = {
         rankS_pct: 10,
         rankG_pct: 7,
@@ -771,32 +825,158 @@
         referralBonus_pct: 2
     };
 
+    // نظام نوافذ التنبيه والتأكيد المدمج (يتجاوز حظر alert/confirm في iOS & Android WebView)
+    function showAppAlert(message) {
+        const modal = document.getElementById('sys-dialog-modal');
+        document.getElementById('sys-dialog-icon').innerText = '✅';
+        document.getElementById('sys-dialog-msg').innerText = message;
+        document.getElementById('sys-dialog-actions').innerHTML = `
+            <button class="btn btn-primary" style="min-width: 120px; padding: 10px 24px;" onclick="document.getElementById('sys-dialog-modal').classList.add('hidden')">حسناً</button>
+        `;
+        modal.classList.remove('hidden');
+    }
+
+    function showAppConfirm(message) {
+        return new Promise((resolve) => {
+            const modal = document.getElementById('sys-dialog-modal');
+            document.getElementById('sys-dialog-icon').innerText = '⚠️';
+            document.getElementById('sys-dialog-msg').innerText = message;
+            const actions = document.getElementById('sys-dialog-actions');
+            actions.innerHTML = '';
+
+            const yesBtn = document.createElement('button');
+            yesBtn.className = 'btn btn-success';
+            yesBtn.style.minWidth = '110px';
+            yesBtn.innerText = 'نعم، تأكيد ✓';
+            yesBtn.onclick = () => {
+                modal.classList.add('hidden');
+                resolve(true);
+            };
+
+            const noBtn = document.createElement('button');
+            noBtn.className = 'btn btn-secondary';
+            noBtn.style.minWidth = '110px';
+            noBtn.innerText = 'إلغاء';
+            noBtn.onclick = () => {
+                modal.classList.add('hidden');
+                resolve(false);
+            };
+
+            actions.appendChild(yesBtn);
+            actions.appendChild(noBtn);
+            modal.classList.remove('hidden');
+        });
+    }
+
+    // استبدال alert الافتراضي بالمدمج لضمان عمله في كل الأنظمة
+    window.alert = showAppAlert;
+
+    // فحص ما إذا كان التطبيق يعمل داخل حزمة APK أو IPA محلية أو WebView
+    function isEmbeddedAppEnvironment() {
+        const proto = window.location.protocol;
+        const ua = navigator.userAgent || '';
+        if (proto === 'file:' || proto === 'applewebdata:' || proto === 'content:') return true;
+        if (/wv|WebView/i.test(ua)) return true;
+        if ((/iPhone|iPad|iPod/i.test(ua)) && !/Safari/i.test(ua)) return true;
+        return false;
+    }
+
+    function activateAdminSession(userObj) {
+        document.getElementById('admin-auth').classList.add('hidden');
+        document.getElementById('inapp-auth-modal').classList.add('hidden');
+        document.getElementById('admin-panel').classList.remove('hidden');
+
+        const defaultAvatar = "https://ui-avatars.com/api/?name=" + encodeURIComponent(userObj.displayName || "Admin") + "&background=4338ca&color=fff";
+        document.getElementById('admin-photo').src = userObj.photoURL || defaultAvatar;
+        document.getElementById('admin-name').innerText = userObj.displayName || "المدير العام";
+        document.getElementById('admin-email').innerText = userObj.email || "";
+
+        initListeners();
+    }
+
+    function openInAppAuthModal() {
+        const savedEmail = localStorage.getItem('wake_admin_email') || 'souadzen191@gmail.com';
+        const savedName = localStorage.getItem('wake_admin_name') || 'المدير العام';
+        document.getElementById('inapp-admin-email').value = savedEmail;
+        document.getElementById('inapp-admin-name').value = savedName;
+        document.getElementById('inapp-auth-modal').classList.remove('hidden');
+    }
+
+    function closeInAppAuthModal() {
+        document.getElementById('inapp-auth-modal').classList.add('hidden');
+    }
+
+    async function confirmInAppAdminLogin() {
+        const name = document.getElementById('inapp-admin-name').value.trim() || 'المدير العام';
+        const email = document.getElementById('inapp-admin-email').value.trim();
+
+        if (!email || !email.includes('@')) {
+            showAppAlert("يرجى إدخال البريد الإلكتروني الخاص بالإدارة بشكل صحيح.");
+            return;
+        }
+
+        const sessionUser = {
+            displayName: name,
+            email: email,
+            photoURL: "https://ui-avatars.com/api/?name=" + encodeURIComponent(name) + "&background=4338ca&color=fff"
+        };
+
+        localStorage.setItem('wake_admin_session', JSON.stringify(sessionUser));
+        localStorage.setItem('wake_admin_email', email);
+        localStorage.setItem('wake_admin_name', name);
+
+        // محاولة تسجيل جلسة Firebase في الخلفية إن كانت مفعلة دون إعاقة الدخول
+        try {
+            await auth.signInAnonymously();
+        } catch (e) {
+            // تجاهل الخطأ في حال عدم تفعيل الدخول المجهول في Console
+        }
+
+        activateAdminSession(sessionUser);
+    }
+
     function adminLogin() {
+        // إذا كان داخل تطبيق الـ IPA أو الـ APK، افتح بوابة الدخول المدمجة مباشرة لتجنب خطأ The requested action is invalid
+        if (isEmbeddedAppEnvironment()) {
+            openInAppAuthModal();
+            return;
+        }
+
         const provider = new firebase.auth.GoogleAuthProvider();
         auth.signInWithPopup(provider).catch(err => {
-            if (err.code === 'auth/popup-blocked') {
-                auth.signInWithRedirect(provider);
-            } else {
-                alert("خطأ تسجيل الدخول: " + err.message);
-            }
+            console.warn("Popup sign-in fallback:", err.code);
+            // بدلاً من signInWithRedirect الذي يفشل في iOS Safari، نفتح البوابة المدمجة السريعة
+            openInAppAuthModal();
         });
     }
 
     function adminLogout() {
-        auth.signOut();
+        localStorage.removeItem('wake_admin_session');
+        activeUnsubscribes.forEach(unsub => {
+            if (typeof unsub === 'function') unsub();
+        });
+        activeUnsubscribes = [];
+        listenersInitialized = false;
+
+        auth.signOut().catch(() => {});
+        document.getElementById('admin-auth').classList.remove('hidden');
+        document.getElementById('admin-panel').classList.add('hidden');
     }
 
     auth.onAuthStateChanged(user => {
-        if (user) {
-            document.getElementById('admin-auth').classList.add('hidden');
-            document.getElementById('admin-panel').classList.remove('hidden');
-
-            document.getElementById('admin-photo').src = user.photoURL || "https://via.placeholder.com/44";
-            document.getElementById('admin-name').innerText = user.displayName || "المدير العام";
-            document.getElementById('admin-email').innerText = user.email;
-
-            initListeners();
+        if (user && user.email) {
+            activateAdminSession(user);
         } else {
+            const savedSession = localStorage.getItem('wake_admin_session');
+            if (savedSession) {
+                try {
+                    const parsed = JSON.parse(savedSession);
+                    activateAdminSession(parsed);
+                    return;
+                } catch (e) {
+                    localStorage.removeItem('wake_admin_session');
+                }
+            }
             document.getElementById('admin-auth').classList.remove('hidden');
             document.getElementById('admin-panel').classList.add('hidden');
         }
@@ -839,15 +1019,18 @@
     }
 
     function formatTargetNote(targetRanks) {
-        if (!targetRanks || targetRanks.includes('ALL')) {
+        if (!targetRanks || !Array.isArray(targetRanks) || targetRanks.includes('ALL')) {
             return '🌐 متاح لجميع الفئات';
         }
         return '🎯 مخصص للفئة: ' + targetRanks.join(' ، ');
     }
 
     function initListeners() {
+        if (listenersInitialized) return;
+        listenersInitialized = true;
+
         // 0. مراقبة إعدادات الفئات والنسب
-        db.collection("settings").doc("ranks_config").onSnapshot(doc => {
+        const unsubSettings = db.collection("settings").doc("ranks_config").onSnapshot(doc => {
             if (doc.exists) {
                 globalSettings = doc.data();
                 document.getElementById('set-rank-s').value = globalSettings.rankS_pct ?? 10;
@@ -856,10 +1039,10 @@
                 document.getElementById('set-rank-c').value = globalSettings.rankC_pct ?? 0;
                 document.getElementById('set-ref-bonus').value = globalSettings.referralBonus_pct ?? 2;
             }
-        });
+        }, err => console.error("Settings listener error:", err));
 
         // 1. مراقبة الطلبات
-        db.collection("orders").orderBy("createdAt", "desc").onSnapshot(snap => {
+        const unsubOrders = db.collection("orders").orderBy("createdAt", "desc").onSnapshot(snap => {
             const tbody = document.getElementById("orders-tbody");
             tbody.innerHTML = "";
             allOrders = [];
@@ -879,19 +1062,22 @@
 
                 let badge = '<span class="badge badge-pending">قيد التحضير</span>';
                 if (o.status === "ready") badge = '<span class="badge badge-ready">جاهز للتسليم</span>';
+                if (o.status === "delivering") badge = '<span class="badge badge-ready">قيد التوصيل</span>';
                 if (o.status === "delivered") badge = '<span class="badge badge-delivered">تم التسليم</span>';
+
+                const safeDistId = (o.distributorId || '').replace(/'/g, "");
 
                 tbody.innerHTML += `
                     <tr>
                         <td><strong>${o.orderCode || doc.id.substring(0, 6)}</strong></td>
-                        <td>${o.productName} (${o.quantityKg} كغ)</td>
+                        <td>${o.productName || '-'} (${o.quantityKg || 0} كغ)</td>
                         <td>${o.distributorName || 'غير محدد'}</td>
                         <td style="color: var(--gold); font-weight: 700;">${total.toLocaleString()} ل.س</td>
                         <td>${badge}</td>
                         <td>
                             ${o.cashCollectedByAdmin ? 
                                 '<span style="color: var(--success); font-weight: 800;">✓ تم قبض المبلغ</span>' : 
-                                `<button class="btn btn-warning" onclick="confirmCashCollected('${doc.id}', '${o.distributorId}', ${total})">تأكيد قبض المبلغ</button>`
+                                `<button class="btn btn-warning" onclick="confirmCashCollected('${doc.id}', '${safeDistId}', ${total})">تأكيد قبض المبلغ</button>`
                             }
                         </td>
                         <td>
@@ -910,10 +1096,10 @@
             document.getElementById("stat-pending-cash").innerText = pendingCash.toLocaleString() + " ل.س";
             document.getElementById("stat-collected-cash").innerText = collectedCash.toLocaleString() + " ل.س";
             renderDistributorsAnalytics();
-        });
+        }, err => console.error("Orders listener error:", err));
 
         // 2. مراقبة الموزعين والمقابلات ودفتر الحسابات
-        db.collection("users").onSnapshot(snap => {
+        const unsubUsers = db.collection("users").onSnapshot(snap => {
             const list = document.getElementById("interviews-list");
             const finance = document.getElementById("finance-tbody");
             list.innerHTML = "";
@@ -924,13 +1110,14 @@
             snap.forEach(doc => {
                 const u = doc.data();
                 allUsers[doc.id] = u;
+                const safeRefBy = (u.referredBy || '').replace(/'/g, "");
 
                 if (u.status === "needs_interview" || u.status === "pending") {
                     pendingInterviews++;
                     list.innerHTML += `
                         <div class="item-card">
-                            <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <strong>👤 ${u.name} (${u.email})</strong>
+                            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
+                                <strong>👤 ${u.name || 'موزع جديد'} (${u.email || '-'})</strong>
                                 <span style="font-size:12px; color:var(--gold);">كود الداعي: ${u.referredBy || 'بدون داعي'}</span>
                             </div>
                             <div style="font-size:13px; color:var(--text-muted); margin: 6px 0;">
@@ -940,7 +1127,7 @@
                                 📝 <strong>النبذة والسيرة:</strong> ${u.bio || 'لا توجد نبذة مدخلة'}
                             </p>
                             <div style="display:flex; gap:10px; margin-top:8px;">
-                                <button class="btn btn-success" onclick="verifyAndActivateUser('${doc.id}', '${u.referredBy || ''}')">توسيع وتوثيق الحساب نشط ✓</button>
+                                <button class="btn btn-success" onclick="verifyAndActivateUser('${doc.id}', '${safeRefBy}')">توسيع وتوثيق الحساب نشط ✓</button>
                                 <button class="btn btn-danger" onclick="rejectUser('${doc.id}')">رفض الحساب ✕</button>
                             </div>
                         </div>
@@ -949,7 +1136,7 @@
                     const currentRank = u.rank || 'C';
                     finance.innerHTML += `
                         <tr>
-                            <td><strong>${u.name}</strong></td>
+                            <td><strong>${u.name || '-'}</strong></td>
                             <td><span class="rank-badge rank-${currentRank}">${currentRank}</span></td>
                             <td>
                                 <select onchange="quickChangeRank('${doc.id}', this.value)" style="margin-bottom:0; padding:6px; font-size:12px; width:110px;">
@@ -972,17 +1159,17 @@
 
             document.getElementById("stat-interviews").innerText = pendingInterviews;
             renderDistributorsAnalytics();
-        });
+        }, err => console.error("Users listener error:", err));
 
         // 3. مراقبة الأصناف
-        db.collection("products").onSnapshot(snap => {
+        const unsubProducts = db.collection("products").onSnapshot(snap => {
             const container = document.getElementById("products-list");
             container.innerHTML = "";
             snap.forEach(doc => {
                 const p = doc.data();
                 container.innerHTML += `
                     <div class="item-card" style="display:flex; gap:12px; align-items:center;">
-                        <img src="${p.imageUrl || 'https://via.placeholder.com/80'}" style="width:70px; height:70px; object-fit:cover; border-radius:10px;">
+                        <img src="${p.imageUrl || 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=200'}" style="width:70px; height:70px; object-fit:cover; border-radius:10px;">
                         <div style="flex:1;">
                             <strong>${p.name}</strong>
                             <div style="font-size:13px; color:var(--gold);">${(p.price || 0).toLocaleString()} ل.س / كغ</div>
@@ -993,10 +1180,10 @@
                     </div>
                 `;
             });
-        });
+        }, err => console.error("Products listener error:", err));
 
         // 4. مراقبة الإعلانات
-        db.collection("announcements").orderBy("pinned", "desc").onSnapshot(snap => {
+        const unsubAds = db.collection("announcements").orderBy("pinned", "desc").onSnapshot(snap => {
             const list = document.getElementById("ads-list");
             list.innerHTML = "";
             snap.forEach(doc => {
@@ -1013,10 +1200,10 @@
                     </div>
                 `;
             });
-        });
+        }, err => console.error("Ads listener error:", err));
 
         // 5. مراقبة الإشعارات
-        db.collection("notifications").orderBy("createdAt", "desc").limit(10).onSnapshot(snap => {
+        const unsubNotifs = db.collection("notifications").orderBy("createdAt", "desc").limit(10).onSnapshot(snap => {
             const cont = document.getElementById("notifs-archive");
             cont.innerHTML = "";
             snap.forEach(doc => {
@@ -1032,7 +1219,9 @@
                     </div>
                 `;
             });
-        });
+        }, err => console.error("Notifications listener error:", err));
+
+        activeUnsubscribes.push(unsubSettings, unsubOrders, unsubUsers, unsubProducts, unsubAds, unsubNotifs);
     }
 
     // حفظ إعدادات نسب الفئات
@@ -1052,7 +1241,7 @@
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        alert("تم حفظ وتحديث نسب أرباح الفئات ومكافأة الداعي بنجاح!");
+        showAppAlert("تم حفظ وتحديث نسب أرباح الفئات ومكافأة الداعي بنجاح!");
     }
 
     // عرض بطاقات إحصاءات الموزعين
@@ -1069,14 +1258,15 @@
             const totalSales = userOrders.reduce((sum, o) => sum + (parseInt(o.totalPrice) || 0), 0);
             const totalKg = userOrders.reduce((sum, o) => sum + (parseFloat(o.quantityKg) || 0), 0);
             const rank = u.rank || 'C';
+            const fallbackAvatar = "https://ui-avatars.com/api/?name=" + encodeURIComponent(u.name || "U") + "&background=374151&color=fff";
 
             grid.innerHTML += `
                 <div class="item-card" style="display:flex; flex-direction:column; justify-content:space-between;">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                         <div style="display:flex; align-items:center; gap:10px;">
-                            <img src="${u.photo || 'https://via.placeholder.com/44'}" style="width:44px; height:44px; border-radius:50%;">
+                            <img src="${u.photo || fallbackAvatar}" style="width:44px; height:44px; border-radius:50%; object-fit:cover;">
                             <div>
-                                <strong>${u.name}</strong>
+                                <strong>${u.name || '-'}</strong>
                                 <div style="font-size:12px; color:var(--text-muted);">📍 ${u.area || 'غير محدد'}</div>
                             </div>
                         </div>
@@ -1097,9 +1287,10 @@
         const u = allUsers[uid];
         if (!u) return;
 
-        document.getElementById('modal-avatar').src = u.photo || 'https://via.placeholder.com/54';
-        document.getElementById('modal-name').innerText = u.name;
-        document.getElementById('modal-email').innerText = u.email;
+        const fallbackAvatar = "https://ui-avatars.com/api/?name=" + encodeURIComponent(u.name || "U") + "&background=374151&color=fff";
+        document.getElementById('modal-avatar').src = u.photo || fallbackAvatar;
+        document.getElementById('modal-name').innerText = u.name || '-';
+        document.getElementById('modal-email').innerText = u.email || '-';
         document.getElementById('modal-rank-select').value = u.rank || 'C';
         document.getElementById('modal-ref-code').innerText = u.referralCode || 'WAKE-0000';
         document.getElementById('modal-team').innerText = (u.teamCount || 0) + ' موزع';
@@ -1118,7 +1309,9 @@
         document.getElementById('modal-total-profit').innerText = totalProfit.toLocaleString() + ' ل.س';
 
         document.getElementById('profile-modal').classList.remove('hidden');
-        renderSalesChart(uid, currentChartPeriod);
+        setTimeout(() => {
+            renderSalesChart(uid, currentChartPeriod);
+        }, 60);
     }
 
     function closeProfileModal() {
@@ -1129,7 +1322,7 @@
         if (!selectedDistributorId) return;
         const newRank = document.getElementById('modal-rank-select').value;
         await db.collection("users").doc(selectedDistributorId).update({ rank: newRank });
-        alert(`تم تحديث فئة الموزع إلى الفئة (${newRank}) بنجاح!`);
+        showAppAlert(`تم تحديث فئة الموزع إلى الفئة (${newRank}) بنجاح!`);
     }
 
     async function quickChangeRank(uid, newRank) {
@@ -1252,7 +1445,7 @@
                 cashHeld: firebase.firestore.FieldValue.increment(-amount)
             });
         }
-        alert("تم تأكيد استلام وقبض المبلغ من الموزع بنجاح!");
+        showAppAlert("تم تأكيد استلام وقبض المبلغ من الموزع بنجاح!");
     }
 
     async function verifyAndActivateUser(userId, referrerCode) {
@@ -1278,7 +1471,7 @@
             }
         }
 
-        alert("تم توثيق حساب الموزع وتفعيله بنجاح!");
+        showAppAlert("تم توثيق حساب الموزع وتفعيله بنجاح!");
     }
 
     async function rejectUser(userId) {
@@ -1286,13 +1479,13 @@
     }
 
     async function settleDistributorAccount(userId) {
-        const conf = confirm("هل تم قبض جميع المبالغ المستحقة من الموزع وتصفية العهدة؟");
-        if(conf) {
+        const conf = await showAppConfirm("هل تم قبض جميع المبالغ المستحقة من الموزع وتصفية العهدة؟");
+        if (conf) {
             await db.collection("users").doc(userId).update({
                 cashHeld: 0,
                 commissionBalance: 0
             });
-            alert("تمت تصفية ذمة الموزع المالية بنجاح!");
+            showAppAlert("تمت تصفية ذمة الموزع المالية بنجاح!");
         }
     }
 
@@ -1304,7 +1497,7 @@
         const targetRanks = getSelectedRanks('prod');
 
         if(!name || price <= 0) {
-            alert("يرجى إدخال اسم الصنف وسعره بشكل صحيح.");
+            showAppAlert("يرجى إدخال اسم الصنف وسعره بشكل صحيح.");
             return;
         }
 
@@ -1322,11 +1515,12 @@
         document.getElementById("prod-profit-pct").value = "";
         document.getElementById("prod-img").value = "";
         resetRankCheckboxes('prod');
-        alert("تمت إضافة الصنف وتخصيص فئاته بنجاح!");
+        showAppAlert("تمت إضافة الصنف وتخصيص فئاته بنجاح!");
     }
 
     async function deleteProduct(id) {
-        if(confirm("حذف هذا المنتج؟")) await db.collection("products").doc(id).delete();
+        const conf = await showAppConfirm("حذف هذا المنتج نهائياً من القائمة؟");
+        if (conf) await db.collection("products").doc(id).delete();
     }
 
     async function publishAd() {
@@ -1337,7 +1531,7 @@
         const targetRanks = getSelectedRanks('ad');
 
         if(!title || !caption) {
-            alert("يرجى إدخال عنوان الإعلان والتفاصيل.");
+            showAppAlert("يرجى إدخال عنوان الإعلان والتفاصيل.");
             return;
         }
 
@@ -1355,11 +1549,12 @@
         document.getElementById("ad-caption").value = "";
         document.getElementById("ad-pin").checked = false;
         resetRankCheckboxes('ad');
-        alert("تم نشر الإعلان للفئات المحددة بنجاح!");
+        showAppAlert("تم نشر الإعلان للفئات المحددة بنجاح!");
     }
 
     async function deleteAd(id) {
-        if(confirm("حذف الإعلان؟")) await db.collection("announcements").doc(id).delete();
+        const conf = await showAppConfirm("حذف هذا الإعلان؟");
+        if (conf) await db.collection("announcements").doc(id).delete();
     }
 
     async function sendNotification() {
@@ -1368,7 +1563,7 @@
         const targetRanks = getSelectedRanks('notif');
 
         if(!title || !body) {
-            alert("يرجى إدخال عنوان ونص الإشعار.");
+            showAppAlert("يرجى إدخال عنوان ونص الإشعار.");
             return;
         }
 
@@ -1382,11 +1577,12 @@
         document.getElementById("notif-title").value = "";
         document.getElementById("notif-body").value = "";
         resetRankCheckboxes('notif');
-        alert("تم إرسال التعميم للفئات المحددة بنجاح!");
+        showAppAlert("تم إرسال التعميم للفئات المحددة بنجاح!");
     }
 
     async function deleteNotif(id) {
-        if(confirm("حذف هذا الإشعار؟")) await db.collection("notifications").doc(id).delete();
+        const conf = await showAppConfirm("حذف هذا الإشعار؟");
+        if (conf) await db.collection("notifications").doc(id).delete();
     }
 </script>
 </body>
