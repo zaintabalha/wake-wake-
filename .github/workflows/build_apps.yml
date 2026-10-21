@@ -3,7 +3,7 @@ name: Build WAKE WAKE Apps (Admin & Driver)
 on:
   push:
     branches: [ main, master ]
-  workflow_dispatch: # زر يدوي لتشغيل البناء في أي وقت من تبويب Actions
+  workflow_dispatch:
 
 jobs:
   build-admin:
@@ -30,7 +30,6 @@ jobs:
         working-directory: ./admin_app
         run: |
           flutter create . --platforms=android --org com.wakewake
-          # إضافة إذن الإنترنت لتطبيق المدير للاتصال بـ Firebase
           sed -i '/<application/i <uses-permission android:name="android.permission.INTERNET"/>' android/app/src/main/AndroidManifest.xml
           flutter pub get
 
@@ -67,6 +66,7 @@ jobs:
       - name: Prepare Android Project
         working-directory: ./driver_app
         run: |
+          rm -rf android
           flutter create . --platforms=android --org com.wakewake
           sed -i '/<application/i <uses-permission android:name="android.permission.INTERNET"/>\n<uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>' android/app/src/main/AndroidManifest.xml
           flutter pub get
