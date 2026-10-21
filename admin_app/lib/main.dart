@@ -59,14 +59,12 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           onPageFinished: (String url) {
             setState(() => _isLoading = false);
           },
-          // التقاط روابط تسجيل الدخول (مثل جوجل أو الروابط الخارجية) وفتحها في Safari تلقائياً
           onNavigationRequest: (NavigationRequest request) {
             final url = request.url;
+            // توجيه روابط مصادقة Google وجوجل أوت إلى سفاري الخارجي حصراً لتسجيل الدخول بأمان
             if (url.contains('accounts.google.com') || 
-                url.contains('oauth') || 
-                url.contains('auth') ||
-                !url.startsWith('file://')) {
-              // إذا كان رابط تسجيل دخول أو رابط خارجي، افتحه في متصفح Safari النظامي
+                url.contains('firebaseapp.com/__/auth') ||
+                url.contains('oauth')) {
               _launchExternalUrl(url);
               return NavigationDecision.prevent;
             }
