@@ -3,11 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة المدير العام - إدارة منظومة ويك ويك</title>
+    <title>WAKE, WAKE - لوحة المدير العام</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- مكتبة الرسوم والمخططات البيانية -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         :root {
@@ -24,9 +27,9 @@
             --danger: #ef4444;
             --gold: #fbbf24;
             --cyan: #06b6d4;
-            --rank-s: #ec4899;
-            --rank-a: #8b5cf6;
-            --rank-b: #3b82f6;
+            --rank-s: #f59e0b;
+            --rank-g: #ec4899;
+            --rank-e: #3b82f6;
             --rank-c: #10b981;
         }
 
@@ -49,7 +52,7 @@
 
         .container {
             width: 100%;
-            max-width: 1200px;
+            max-width: 1260px;
         }
 
         .hidden { display: none !important; }
@@ -64,6 +67,13 @@
             align-items: center;
             margin-bottom: 24px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .brand-logo {
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            color: var(--gold);
         }
 
         .user-tag {
@@ -178,10 +188,20 @@
         .badge-pending { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
         .badge-delivered { background: rgba(16, 185, 129, 0.2); color: #34d399; }
 
-        .rank-s { color: var(--rank-s); font-weight: 900; }
-        .rank-a { color: var(--rank-a); font-weight: 800; }
-        .rank-b { color: var(--rank-b); font-weight: 800; }
-        .rank-c { color: var(--rank-c); font-weight: 700; }
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            font-weight: 900;
+            font-size: 15px;
+        }
+        .rank-S { background: rgba(245, 158, 11, 0.2); color: var(--rank-s); border: 2px solid var(--rank-s); }
+        .rank-G { background: rgba(236, 72, 153, 0.2); color: var(--rank-g); border: 2px solid var(--rank-g); }
+        .rank-E { background: rgba(59, 130, 246, 0.2); color: var(--rank-e); border: 2px solid var(--rank-e); }
+        .rank-C { background: rgba(16, 185, 129, 0.2); color: var(--rank-c); border: 2px solid var(--rank-c); }
 
         input, select, textarea {
             width: 100%;
@@ -210,6 +230,7 @@
         .btn-success { background: var(--success); color: #fff; }
         .btn-warning { background: var(--warning); color: #111827; }
         .btn-danger { background: var(--danger); color: #fff; }
+        .btn-secondary { background: #374151; color: #fff; }
 
         .btn-google {
             width: 100%;
@@ -231,8 +252,8 @@
 
         .grid-2 {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 14px;
         }
 
         .item-card {
@@ -241,6 +262,103 @@
             border-radius: 14px;
             padding: 16px;
             margin-bottom: 12px;
+        }
+
+        /* شريط اختيار الفئات المستهدفة */
+        .target-ranks-box {
+            background: #111827;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin: 8px 0 14px 0;
+        }
+
+        .target-ranks-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-top: 8px;
+        }
+
+        .rank-checkbox-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            background: var(--card);
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .rank-checkbox-label input {
+            width: auto;
+            margin: 0;
+        }
+
+        .target-note {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 800;
+            background: rgba(6, 182, 212, 0.15);
+            color: var(--cyan);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+        }
+
+        /* نافذة بروفايل وإحصاءات الموزع (Modal) */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            width: 100%;
+            max-width: 850px;
+            padding: 26px;
+            max-height: 92vh;
+            overflow-y: auto;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+        }
+
+        .period-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            background: var(--card);
+            padding: 6px;
+            border-radius: 12px;
+            width: fit-content;
+        }
+
+        .period-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .period-btn.active {
+            background: var(--primary);
+            color: #fff;
         }
     </style>
 </head>
@@ -251,7 +369,8 @@
     <!-- 1. شاشة تسجيل دخول المدير عبر Google -->
     <div id="admin-auth" class="card" style="max-width: 460px; margin: 80px auto; text-align: center;">
         <div style="font-size: 48px; margin-bottom: 12px;">☕</div>
-        <h2 style="font-size: 22px; font-weight: 800;">بوابة المدير العام المركزية</h2>
+        <div class="brand-logo" style="margin-bottom: 6px;">WAKE, WAKE</div>
+        <h2 style="font-size: 20px; font-weight: 800;">بوابة المدير العام المركزية</h2>
         <p style="color: var(--text-muted); font-size: 13px; margin-top: 6px;">سجل دخولك بحساب الإدارة المعتمد لإدارة المنظومة</p>
 
         <button class="btn-google" onclick="adminLogin()">
@@ -270,8 +389,8 @@
         
         <header class="top-nav">
             <div>
-                <h2 style="font-size: 20px; font-weight: 800;">معمل قهوة ويك ويك - الإدارة المركزية</h2>
-                <div style="font-size: 12px; color: var(--text-muted);">متابعة التوريد، المقابلات، الحسابات، والمنتجات</div>
+                <div class="brand-logo">WAKE, WAKE</div>
+                <div style="font-size: 13px; color: var(--text-muted); font-weight: 600;">الإدارة المركزية - تحليلات المبيعات والموزعين والفئات</div>
             </div>
             <div class="user-tag">
                 <img id="admin-photo" class="user-avatar" src="" alt="Admin">
@@ -283,14 +402,14 @@
             </div>
         </header>
 
-        <!-- الإحصائيات -->
+        <!-- الإحصائيات العامة -->
         <div class="stats-grid">
             <div class="stat-card">
                 <span>إجمالي الطلبيات</span>
                 <h3 id="stat-orders" style="color: #60a5fa;">0</h3>
             </div>
             <div class="stat-card">
-                <span>مقابلات بانتظار الاعتماد</span>
+                <span>مقابلات بانتظار التوثيق</span>
                 <h3 id="stat-interviews" style="color: var(--warning);">0</h3>
             </div>
             <div class="stat-card">
@@ -305,15 +424,17 @@
 
         <!-- التبويبات الرئيسية -->
         <div class="nav-tabs">
-            <button class="tab-btn active" onclick="switchTab('orders')">📦 متابعة الطلبات</button>
-            <button class="tab-btn" onclick="switchTab('interviews')">👥 طلبات المقابلة والتوثيق</button>
-            <button class="tab-btn" onclick="switchTab('finance')">📒 دفتر حسابات الموزعين</button>
-            <button class="tab-btn" onclick="switchTab('products')">☕ منتجات المعمل والنسب</button>
-            <button class="tab-btn" onclick="switchTab('ads')">📢 لوحة الإعلانات والعروض</button>
-            <button class="tab-btn" onclick="switchTab('notifs')">🔔 التعميمات والإشعارات</button>
+            <button class="tab-btn active" onclick="switchTab('orders', this)">📦 متابعة الطلبات</button>
+            <button class="tab-btn" onclick="switchTab('analytics', this)">📊 إحصاءات وبروفايلات الموزعين</button>
+            <button class="tab-btn" onclick="switchTab('interviews', this)">👥 طلبات المقابلة والتوثيق</button>
+            <button class="tab-btn" onclick="switchTab('finance', this)">📒 دفتر الحسابات</button>
+            <button class="tab-btn" onclick="switchTab('products', this)">☕ أصناف WAKE, WAKE</button>
+            <button class="tab-btn" onclick="switchTab('ads', this)">📢 الإعلانات والعروض</button>
+            <button class="tab-btn" onclick="switchTab('notifs', this)">🔔 الإشعارات</button>
+            <button class="tab-btn" onclick="switchTab('settings', this)">⚙️ إعدادات الفئات والنسب</button>
         </div>
 
-        <!-- تبويب الطلبات -->
+        <!-- 1. تبويب الطلبات -->
         <div id="tab-orders">
             <div class="card">
                 <h3 style="font-size: 16px; margin-bottom: 12px;">سجل الطلبيات وتعديل الحالات والقبض</h3>
@@ -327,7 +448,7 @@
                                 <th>المبلغ</th>
                                 <th>حالة التجهيز</th>
                                 <th>قبض المبلغ من الموزع</th>
-                                <th>إجراءات</th>
+                                <th>إجراءات الحالة</th>
                             </tr>
                         </thead>
                         <tbody id="orders-tbody"></tbody>
@@ -336,7 +457,16 @@
             </div>
         </div>
 
-        <!-- تبويب المقابلات وتوثيق الموزعين -->
+        <!-- 2. تبويب إحصاءات وبروفايلات الموزعين -->
+        <div id="tab-analytics" class="hidden">
+            <div class="card">
+                <h3 style="font-size: 16px; margin-bottom: 6px;">قائمة الموزعين المعتمدين وإحصاءات المبيعات</h3>
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">اضغط على "فتح البروفايل والمخطط" لأي موزع لاستعراض مخطط مبيعاته (يومي، أسبوعي، شهري، سنوي) وتعديل فئته (S, G, E, C) فوراً</p>
+                <div id="distributors-grid" class="grid-2"></div>
+            </div>
+        </div>
+
+        <!-- 3. تبويب المقابلات وتوثيق الموزعين -->
         <div id="tab-interviews" class="hidden">
             <div class="card">
                 <h3 style="font-size: 16px; margin-bottom: 6px;">طلبات المقابلة والتوثيق للموزعين الجدد</h3>
@@ -345,19 +475,20 @@
             </div>
         </div>
 
-        <!-- تبويب دفتر الحسابات -->
+        <!-- 4. تبويب دفتر الحسابات -->
         <div id="tab-finance" class="hidden">
             <div class="card">
-                <h3 style="font-size: 16px; margin-bottom: 12px;">دفتر حسابات ذمم الموزعين (العهد النقدية والعمولات)</h3>
+                <h3 style="font-size: 16px; margin-bottom: 12px;">دفتر حسابات ذمم الموزعين وتعديل الفئات المباشر</h3>
                 <div style="overflow-x: auto;">
                     <table>
                         <thead>
                             <tr>
                                 <th>اسم الموزع</th>
-                                <th>الرتبة</th>
+                                <th>الفئة الحالية</th>
+                                <th>تغيير الفئة فوري</th>
                                 <th>مبالغ بحوزته لم تورد</th>
                                 <th>أرباحه المستحقة</th>
-                                <th>الإجراء المالي</th>
+                                <th>الإجراء المالي / البروفايل</th>
                             </tr>
                         </thead>
                         <tbody id="finance-tbody"></tbody>
@@ -366,34 +497,78 @@
             </div>
         </div>
 
-        <!-- تبويب المنتجات والنسب -->
+        <!-- 5. تبويب المنتجات والنسب وتخصيص الفئات -->
         <div id="tab-products" class="hidden">
             <div class="card">
-                <h3 style="font-size: 16px; margin-bottom: 14px;">إدراج صنف قهوة / منتج جديد</h3>
+                <h3 style="font-size: 16px; margin-bottom: 14px;">إدراج صنف جديد في WAKE, WAKE وتحديد الفئات المسموح لها بطلبه</h3>
                 <div class="grid-2">
-                    <input type="text" id="prod-name" placeholder="اسم الصنف (مثال: بن ويك ويك الفاخر)">
+                    <input type="text" id="prod-name" placeholder="اسم الصنف (مثال: WAKE, WAKE Gold Blend)">
                     <input type="number" id="prod-price" placeholder="سعر الكيلو للمستهلك (ل.س)">
-                    <input type="number" id="prod-profit-pct" placeholder="نسبة ربح الموزع من هذا الصنف % (مثال: 15)">
+                    <input type="number" id="prod-profit-pct" placeholder="نسبة الربح الأساسية من هذا الصنف % (مثال: 12)">
                     <input type="url" id="prod-img" placeholder="رابط صورة الصنف (URL)">
                 </div>
-                <button class="btn btn-primary" style="margin-top: 8px; width: 100%;" onclick="addProduct()">إدراج المنتج في قائمة المعمل</button>
+
+                <div class="target-ranks-box">
+                    <span style="font-size: 13px; font-weight: 700; color: var(--gold);">🎯 تخصيص ظهور الصنف للفئات:</span>
+                    <div class="target-ranks-options">
+                        <label class="rank-checkbox-label">
+                            <input type="checkbox" id="prod-rank-all" checked onchange="toggleAllRanks('prod', this)"> متاح للجميع (ALL)
+                        </label>
+                        <label class="rank-checkbox-label">
+                            <input type="checkbox" class="prod-rank-item" value="S" onchange="uncheckAllOption('prod')"> فئة S
+                        </label>
+                        <label class="rank-checkbox-label">
+                            <input type="checkbox" class="prod-rank-item" value="G" onchange="uncheckAllOption('prod')"> فئة G
+                        </label>
+                        <label class="rank-checkbox-label">
+                            <input type="checkbox" class="prod-rank-item" value="E" onchange="uncheckAllOption('prod')"> فئة E
+                        </label>
+                        <label class="rank-checkbox-label">
+                            <input type="checkbox" class="prod-rank-item" value="C" onchange="uncheckAllOption('prod')"> فئة C
+                        </label>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" style="width: 100%;" onclick="addProduct()">إدراج المنتج في القائمة</button>
             </div>
 
             <div class="card">
-                <h3 style="font-size: 16px; margin-bottom: 12px;">الأصناف المفعلة حالياً للموزعين</h3>
+                <h3 style="font-size: 16px; margin-bottom: 12px;">الأصناف المفعلة حالياً</h3>
                 <div id="products-list" class="grid-2"></div>
             </div>
         </div>
 
-        <!-- تبويب الإعلانات والعروض -->
+        <!-- 6. تبويب الإعلانات والعروض وتخصيص الفئات -->
         <div id="tab-ads" class="hidden">
             <div class="card">
-                <h3 style="font-size: 16px; margin-bottom: 14px;">نشر إعلان / عرض ترويجي جديد</h3>
+                <h3 style="font-size: 16px; margin-bottom: 14px;">نشر إعلان / عرض ترويجي جديد وتحديد الفئات المستهدفة</h3>
                 <div class="grid-2">
                     <input type="text" id="ad-title" placeholder="عنوان العرض أو الإعلان">
                     <input type="url" id="ad-img" placeholder="رابط صورة العرض (URL)">
                 </div>
                 <textarea id="ad-caption" rows="3" placeholder="نص العرض الترويجي والتفاصيل..."></textarea>
+
+                <div class="target-ranks-box">
+                    <span style="font-size: 13px; font-weight: 700; color: var(--gold);">🎯 توجيه هذا الإعلان إلى:</span>
+                    <div class="target-ranks-options">
+                        <label class="rank-checkbox-label">
+                            <input type="checkbox" id="ad-rank-all" checked onchange="toggleAllRanks('ad', this)"> متاح للجميع (ALL)
+                        </label>
+                        <label class="rank-checkbox-label">
+                            <input type="checkbox" class="ad-rank-item" value="S" onchange="uncheckAllOption('ad')"> فئة S
+                        </label>
+                        <label class="rank-checkbox-label">
+                            <input type="checkbox" class="ad-rank-item" value="G" onchange="uncheckAllOption('ad')"> فئة G
+                        </label>
+                        <label class="rank-checkbox-label">
+                            <input type="checkbox" class="ad-rank-item" value="E" onchange="uncheckAllOption('ad')"> فئة E
+                        </label>
+                        <label class="rank-checkbox-label">
+                            <input type="checkbox" class="ad-rank-item" value="C" onchange="uncheckAllOption('ad')"> فئة C
+                        </label>
+                    </div>
+                </div>
+
                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
                     <input type="checkbox" id="ad-pin" style="width: auto; margin-bottom: 0;">
                     <label for="ad-pin" style="font-weight: 700; color: var(--gold); cursor: pointer;">📌 تثبيت هذا الإعلان في أعلى شاشة الموزعين</label>
@@ -407,23 +582,160 @@
             </div>
         </div>
 
-        <!-- تبويب الإشعارات -->
+        <!-- 7. تبويب الإشعارات وتخصيص الفئات -->
         <div id="tab-notifs" class="hidden">
             <div class="card">
-                <h3 style="font-size: 16px; margin-bottom: 14px;">إرسال تعميم / إشعار فوري لجميع الموزعين</h3>
+                <h3 style="font-size: 16px; margin-bottom: 14px;">إرسال تعميم / إشعار فوري للموزعين</h3>
                 <input type="text" id="notif-title" placeholder="عنوان التعميم">
-                <textarea id="notif-body" rows="3" placeholder="نص الإشعار الموجه للموزعين في الميدان..."></textarea>
+                <textarea id="notif-body" rows="3" placeholder="نص الإشعار الموجه للموزعين..."></textarea>
+
+                <div class="target-ranks-box">
+                    <span style="font-size: 13px; font-weight: 700; color: var(--gold);">🎯 تخصيص الإشعار للفئات:</span>
+                    <div class="target-ranks-options">
+                        <label class="rank-checkbox-label">
+                            <input type="checkbox" id="notif-rank-all" checked onchange="toggleAllRanks('notif', this)"> للجميع (ALL)
+                        </label>
+                        <label class="rank-checkbox-label">
+                            <input type="checkbox" class="notif-rank-item" value="S" onchange="uncheckAllOption('notif')"> فئة S
+                        </label>
+                        <label class="rank-checkbox-label">
+                            <input type="checkbox" class="notif-rank-item" value="G" onchange="uncheckAllOption('notif')"> فئة G
+                        </label>
+                        <label class="rank-checkbox-label">
+                            <input type="checkbox" class="notif-rank-item" value="E" onchange="uncheckAllOption('notif')"> فئة E
+                        </label>
+                        <label class="rank-checkbox-label">
+                            <input type="checkbox" class="notif-rank-item" value="C" onchange="uncheckAllOption('notif')"> فئة C
+                        </label>
+                    </div>
+                </div>
+
                 <button class="btn btn-primary" style="width: 100%;" onclick="sendNotification()">إرسال التعميم الفوري 🔔</button>
             </div>
 
             <div class="card">
-                <h3 style="font-size: 16px; margin-bottom: 12px;">أرشيف التعميمات</h3>
+                <h3 style="font-size: 16px; margin-bottom: 12px;">أرشيف التعميمات المرسلة</h3>
                 <div id="notifs-archive"></div>
+            </div>
+        </div>
+
+        <!-- 8. تبويب إعدادات الفئات ونسب الأرباح (Settings) -->
+        <div id="tab-settings" class="hidden">
+            <div class="card">
+                <h3 style="font-size: 18px; margin-bottom: 6px;">⚙️ إعدادات نسب الأرباح للفئات (S, G, E, C) ومكافأة الداعي</h3>
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">
+                    حدد نسبة الربح الإضافية المخصصة لكل فئة؛ تُضاف هذه النسبة تلقائياً فوق نسبة ربح المنتج لكل موزع حسب فئته الحالية.
+                </p>
+
+                <div class="grid-2">
+                    <div class="item-card">
+                        <label style="font-size: 13px; font-weight: 700; color: var(--rank-s); display: block; margin-bottom: 8px;">نسبة أرباح الفئة S الإضافية (%)</label>
+                        <input type="number" id="set-rank-s" value="10" step="0.5">
+                        <small style="color: var(--text-muted); font-size: 11px;">تُمنح لموزعي النخبة من فئة S</small>
+                    </div>
+
+                    <div class="item-card">
+                        <label style="font-size: 13px; font-weight: 700; color: var(--rank-g); display: block; margin-bottom: 8px;">نسبة أرباح الفئة G الإضافية (%)</label>
+                        <input type="number" id="set-rank-g" value="7" step="0.5">
+                        <small style="color: var(--text-muted); font-size: 11px;">تُمنح للموزعين من فئة G</small>
+                    </div>
+
+                    <div class="item-card">
+                        <label style="font-size: 13px; font-weight: 700; color: var(--rank-e); display: block; margin-bottom: 8px;">نسبة أرباح الفئة E الإضافية (%)</label>
+                        <input type="number" id="set-rank-e" value="4" step="0.5">
+                        <small style="color: var(--text-muted); font-size: 11px;">تُمنح للموزعين من فئة E</small>
+                    </div>
+
+                    <div class="item-card">
+                        <label style="font-size: 13px; font-weight: 700; color: var(--rank-c); display: block; margin-bottom: 8px;">نسبة أرباح الفئة C الإضافية (%)</label>
+                        <input type="number" id="set-rank-c" value="0" step="0.5">
+                        <small style="color: var(--text-muted); font-size: 11px;">الفئة الأساسية الابتدائية للموزعين</small>
+                    </div>
+                </div>
+
+                <div class="item-card" style="margin-top: 8px; border-color: var(--gold);">
+                    <label style="font-size: 14px; font-weight: 800; color: var(--gold); display: block; margin-bottom: 8px;">🎁 نسبة مكافأة كود الداعي لكل موزع جديد موثق (%)</label>
+                    <input type="number" id="set-ref-bonus" value="2" step="0.5">
+                    <small style="color: var(--text-muted); font-size: 12px;">مقدار الزيادة في نسبة ربح الداعي عند توثيق حساب شخص مسجل بكود الدعوة الخاص به</small>
+                </div>
+
+                <button class="btn btn-success" style="width: 100%; padding: 14px; font-size: 15px; margin-top: 10px;" onclick="saveRankSettings()">حفظ وتطبيق إعدادات الفئات والنسب ✓</button>
             </div>
         </div>
 
     </div>
 
+</div>
+
+<!-- نافذة بروفايل الموزع ومخطط المبيعات (Modal) -->
+<div id="profile-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 14px; margin-bottom: 18px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <img id="modal-avatar" src="" style="width: 54px; height: 54px; border-radius: 50%; border: 2px solid var(--gold);">
+                <div>
+                    <h3 id="modal-name" style="font-size: 18px;">-</h3>
+                    <div id="modal-email" style="font-size: 12px; color: var(--text-muted);">-</div>
+                </div>
+            </div>
+            <button class="btn btn-danger" onclick="closeProfileModal()">إغلاق ✕</button>
+        </div>
+
+        <div class="grid-2" style="margin-bottom: 18px;">
+            <div class="item-card" style="margin-bottom: 0;">
+                <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">تعديل فئة الموزع فوراً (S, G, E, C):</div>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <select id="modal-rank-select" style="margin-bottom: 0; flex: 1; font-weight: 800;">
+                        <option value="S">الفئة S (S-Class النخبة)</option>
+                        <option value="G">الفئة G (G-Class متقدم)</option>
+                        <option value="E">الفئة E (E-Class نشط)</option>
+                        <option value="C">الفئة C (C-Class أساسي)</option>
+                    </select>
+                    <button class="btn btn-success" onclick="saveModalRank()">حفظ الفئة ✓</button>
+                </div>
+                <div style="font-size: 12px; color: var(--gold); margin-top: 10px;">
+                    كود الداعي: <strong id="modal-ref-code">-</strong> | الفريق الموثق: <strong id="modal-team">0</strong>
+                </div>
+            </div>
+
+            <div class="item-card" style="margin-bottom: 0;">
+                <div style="font-size: 13px; margin-bottom: 4px;">📞 الهاتف: <strong id="modal-phone">-</strong></div>
+                <div style="font-size: 13px; margin-bottom: 4px;">📍 المنطقة: <strong id="modal-area">-</strong></div>
+                <div style="font-size: 13px; margin-bottom: 4px;">🛵 المركبة: <strong id="modal-transport">-</strong></div>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;" id="modal-bio">-</div>
+            </div>
+        </div>
+
+        <div class="stats-grid" style="margin-bottom: 18px;">
+            <div class="stat-card" style="padding: 14px;">
+                <span>إجمالي الكميات المسحوبة</span>
+                <h3 id="modal-total-kg" style="color: var(--cyan); font-size: 19px;">0 كغ</h3>
+            </div>
+            <div class="stat-card" style="padding: 14px;">
+                <span>إجمالي قيمة مبيعاته</span>
+                <h3 id="modal-total-sales" style="color: var(--gold); font-size: 19px;">0 ل.س</h3>
+            </div>
+            <div class="stat-card" style="padding: 14px;">
+                <span>أرباحه الصافية</span>
+                <h3 id="modal-total-profit" style="color: var(--success); font-size: 19px;">0 ل.س</h3>
+            </div>
+        </div>
+
+        <div class="item-card" style="background: #111827;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 14px;">
+                <h4 style="font-size: 15px;">📈 مخطط مبيعات الموزع المقارن</h4>
+                <div class="period-selector" style="margin-bottom: 0;">
+                    <button class="period-btn active" onclick="updateChartPeriod('daily', this)">يومي</button>
+                    <button class="period-btn" onclick="updateChartPeriod('weekly', this)">أسبوعي</button>
+                    <button class="period-btn" onclick="updateChartPeriod('monthly', this)">شهري</button>
+                    <button class="period-btn" onclick="updateChartPeriod('yearly', this)">سنوي</button>
+                </div>
+            </div>
+            <div style="height: 280px; width: 100%;">
+                <canvas id="distributorSalesChart"></canvas>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Firebase SDKs -->
@@ -446,18 +758,33 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
+    let allUsers = {};
+    let allOrders = [];
+    let selectedDistributorId = null;
+    let salesChartInstance = null;
+    let currentChartPeriod = 'daily';
+    let globalSettings = {
+        rankS_pct: 10,
+        rankG_pct: 7,
+        rankE_pct: 4,
+        rankC_pct: 0,
+        referralBonus_pct: 2
+    };
+
     function adminLogin() {
         const provider = new firebase.auth.GoogleAuthProvider();
-        auth.signInWithRedirect(provider);
+        auth.signInWithPopup(provider).catch(err => {
+            if (err.code === 'auth/popup-blocked') {
+                auth.signInWithRedirect(provider);
+            } else {
+                alert("خطأ تسجيل الدخول: " + err.message);
+            }
+        });
     }
 
     function adminLogout() {
         auth.signOut();
     }
-
-    auth.getRedirectResult().catch(err => {
-        if (err.code) alert("خطأ تسجيل الدخول: " + err.message);
-    });
 
     auth.onAuthStateChanged(user => {
         if (user) {
@@ -475,27 +802,75 @@
         }
     });
 
-    function switchTab(tabId) {
+    function switchTab(tabId, btnElement) {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        ['orders', 'interviews', 'finance', 'products', 'ads', 'notifs'].forEach(id => {
+        ['orders', 'analytics', 'interviews', 'finance', 'products', 'ads', 'notifs', 'settings'].forEach(id => {
             document.getElementById('tab-' + id).classList.add('hidden');
         });
-        event.target.classList.add('active');
+        btnElement.classList.add('active');
         document.getElementById('tab-' + tabId).classList.remove('hidden');
     }
 
+    // إدارة مربعات اختيار الفئات (الجميع أو فئات مخصصة)
+    function toggleAllRanks(prefix, allCheckbox) {
+        if (allCheckbox.checked) {
+            document.querySelectorAll('.' + prefix + '-rank-item').forEach(cb => cb.checked = false);
+        }
+    }
+
+    function uncheckAllOption(prefix) {
+        const anyChecked = Array.from(document.querySelectorAll('.' + prefix + '-rank-item')).some(cb => cb.checked);
+        document.getElementById(prefix + '-rank-all').checked = !anyChecked;
+    }
+
+    function getSelectedRanks(prefix) {
+        const isAll = document.getElementById(prefix + '-rank-all').checked;
+        if (isAll) return ['ALL'];
+        const selected = [];
+        document.querySelectorAll('.' + prefix + '-rank-item').forEach(cb => {
+            if (cb.checked) selected.push(cb.value);
+        });
+        return selected.length > 0 ? selected : ['ALL'];
+    }
+
+    function resetRankCheckboxes(prefix) {
+        document.getElementById(prefix + '-rank-all').checked = true;
+        document.querySelectorAll('.' + prefix + '-rank-item').forEach(cb => cb.checked = false);
+    }
+
+    function formatTargetNote(targetRanks) {
+        if (!targetRanks || targetRanks.includes('ALL')) {
+            return '🌐 متاح لجميع الفئات';
+        }
+        return '🎯 مخصص للفئة: ' + targetRanks.join(' ، ');
+    }
+
     function initListeners() {
+        // 0. مراقبة إعدادات الفئات والنسب
+        db.collection("settings").doc("ranks_config").onSnapshot(doc => {
+            if (doc.exists) {
+                globalSettings = doc.data();
+                document.getElementById('set-rank-s').value = globalSettings.rankS_pct ?? 10;
+                document.getElementById('set-rank-g').value = globalSettings.rankG_pct ?? 7;
+                document.getElementById('set-rank-e').value = globalSettings.rankE_pct ?? 4;
+                document.getElementById('set-rank-c').value = globalSettings.rankC_pct ?? 0;
+                document.getElementById('set-ref-bonus').value = globalSettings.referralBonus_pct ?? 2;
+            }
+        });
+
         // 1. مراقبة الطلبات
         db.collection("orders").orderBy("createdAt", "desc").onSnapshot(snap => {
             const tbody = document.getElementById("orders-tbody");
             tbody.innerHTML = "";
+            allOrders = [];
             let pendingCash = 0;
             let collectedCash = 0;
 
             snap.forEach(doc => {
                 const o = doc.data();
+                allOrders.push({ id: doc.id, ...o });
+
                 const total = parseInt(o.totalPrice) || 0;
-                
                 if (o.status === "delivered" && !o.cashCollectedByAdmin) {
                     pendingCash += total;
                 } else if (o.cashCollectedByAdmin) {
@@ -503,8 +878,8 @@
                 }
 
                 let badge = '<span class="badge badge-pending">قيد التحضير</span>';
-                if (o.status === "ready") badge = '<span class="badge badge-ready">جاهز للتسليم في المعمل</span>';
-                if (o.status === "delivered") badge = '<span class="badge badge-delivered">تم التسليم للمستهلك</span>';
+                if (o.status === "ready") badge = '<span class="badge badge-ready">جاهز للتسليم</span>';
+                if (o.status === "delivered") badge = '<span class="badge badge-delivered">تم التسليم</span>';
 
                 tbody.innerHTML += `
                     <tr>
@@ -516,13 +891,13 @@
                         <td>
                             ${o.cashCollectedByAdmin ? 
                                 '<span style="color: var(--success); font-weight: 800;">✓ تم قبض المبلغ</span>' : 
-                                `<button class="btn btn-warning" onclick="confirmCashCollected('${doc.id}', '${o.distributorId}',${total})">تأكيد قبض المبلغ</button>`
+                                `<button class="btn btn-warning" onclick="confirmCashCollected('${doc.id}', '${o.distributorId}', ${total})">تأكيد قبض المبلغ</button>`
                             }
                         </td>
                         <td>
                             <select onchange="updateOrderStatus('${doc.id}', this.value)" style="margin-bottom:0; padding:6px; font-size:12px;">
                                 <option value="">تغيير الحالة...</option>
-                                <option value="ready">جاهز للتسليم في المعمل</option>
+                                <option value="ready">جاهز للتسليم</option>
                                 <option value="delivering">قيد التوصيل</option>
                                 <option value="delivered">تم التسليم النهائي</option>
                             </select>
@@ -534,6 +909,7 @@
             document.getElementById("stat-orders").innerText = snap.size;
             document.getElementById("stat-pending-cash").innerText = pendingCash.toLocaleString() + " ل.س";
             document.getElementById("stat-collected-cash").innerText = collectedCash.toLocaleString() + " ل.س";
+            renderDistributorsAnalytics();
         });
 
         // 2. مراقبة الموزعين والمقابلات ودفتر الحسابات
@@ -542,10 +918,13 @@
             const finance = document.getElementById("finance-tbody");
             list.innerHTML = "";
             finance.innerHTML = "";
+            allUsers = {};
             let pendingInterviews = 0;
 
             snap.forEach(doc => {
                 const u = doc.data();
+                allUsers[doc.id] = u;
+
                 if (u.status === "needs_interview" || u.status === "pending") {
                     pendingInterviews++;
                     list.innerHTML += `
@@ -566,16 +945,25 @@
                             </div>
                         </div>
                     `;
-                } else if (u.status === "accepted") {
-                    const rankClass = getRankClass(u.rank || 'C');
+                } else if (u.status === "accepted" || u.verified) {
+                    const currentRank = u.rank || 'C';
                     finance.innerHTML += `
                         <tr>
                             <td><strong>${u.name}</strong></td>
-                            <td><span class="${rankClass}">${u.rank || 'C'}</span></td>
+                            <td><span class="rank-badge rank-${currentRank}">${currentRank}</span></td>
+                            <td>
+                                <select onchange="quickChangeRank('${doc.id}', this.value)" style="margin-bottom:0; padding:6px; font-size:12px; width:110px;">
+                                    <option value="S" ${currentRank === 'S' ? 'selected' : ''}>الفئة S</option>
+                                    <option value="G" ${currentRank === 'G' ? 'selected' : ''}>الفئة G</option>
+                                    <option value="E" ${currentRank === 'E' ? 'selected' : ''}>الفئة E</option>
+                                    <option value="C" ${currentRank === 'C' ? 'selected' : ''}>الفئة C</option>
+                                </select>
+                            </td>
                             <td style="color:var(--danger); font-weight:700;">${(u.cashHeld || 0).toLocaleString()} ل.س</td>
                             <td style="color:var(--success); font-weight:700;">${(u.commissionBalance || 0).toLocaleString()} ل.س</td>
-                            <td>
-                                <button class="btn btn-primary" onclick="settleDistributorAccount('${doc.id}')">تصفية الحساب واستلام العهدة</button>
+                            <td style="display:flex; gap:6px;">
+                                <button class="btn btn-secondary" onclick="openProfileModal('${doc.id}')">📊 البروفايل والمخطط</button>
+                                <button class="btn btn-primary" onclick="settleDistributorAccount('${doc.id}')">تصفية العهدة</button>
                             </td>
                         </tr>
                     `;
@@ -583,6 +971,7 @@
             });
 
             document.getElementById("stat-interviews").innerText = pendingInterviews;
+            renderDistributorsAnalytics();
         });
 
         // 3. مراقبة الأصناف
@@ -597,7 +986,8 @@
                         <div style="flex:1;">
                             <strong>${p.name}</strong>
                             <div style="font-size:13px; color:var(--gold);">${(p.price || 0).toLocaleString()} ل.س / كغ</div>
-                            <div style="font-size:12px; color:var(--cyan);">نسبة الموزع: ${p.profitPct || 0}%</div>
+                            <div style="font-size:12px; color:var(--cyan);">النسبة الأساسية للصنف: ${p.profitPct || 0}%</div>
+                            <div class="target-note">${formatTargetNote(p.targetRanks)}</div>
                         </div>
                         <button class="btn btn-danger" style="padding:6px 10px;" onclick="deleteProduct('${doc.id}')">حذف</button>
                     </div>
@@ -618,36 +1008,234 @@
                             <button class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="deleteAd('${doc.id}')">حذف</button>
                         </div>
                         <p style="font-size:13px; color:var(--text-muted); margin:6px 0;">${a.caption}</p>
-                        ${a.imageUrl ? `<img src="${a.imageUrl}" style="max-height:120px; border-radius:8px; margin-top:6px;">` : ''}
+                        ${a.imageUrl ? `<img src="${a.imageUrl}" style="max-height:120px; border-radius:8px; margin-top:6px; display:block;">` : ''}
+                        <div class="target-note">${formatTargetNote(a.targetRanks)}</div>
                     </div>
                 `;
             });
         });
 
         // 5. مراقبة الإشعارات
-        db.collection("notifications").orderBy("createdAt", "desc").limit(5).onSnapshot(snap => {
+        db.collection("notifications").orderBy("createdAt", "desc").limit(10).onSnapshot(snap => {
             const cont = document.getElementById("notifs-archive");
             cont.innerHTML = "";
             snap.forEach(doc => {
                 const n = doc.data();
                 cont.innerHTML += `
-                    <div style="padding:10px; background:#111827; border-radius:8px; margin-bottom:8px;">
-                        <strong>🔔 ${n.title}</strong>
+                    <div style="padding:12px; background:#111827; border-radius:10px; margin-bottom:8px; border:1px solid var(--border);">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <strong>🔔 ${n.title}</strong>
+                            <button class="btn btn-danger" style="padding:3px 8px; font-size:11px;" onclick="deleteNotif('${doc.id}')">حذف</button>
+                        </div>
                         <p style="font-size:13px; color:var(--text-muted); margin-top:4px;">${n.body}</p>
+                        <div class="target-note">${formatTargetNote(n.targetRanks)}</div>
                     </div>
                 `;
             });
         });
     }
 
-    function getRankClass(rank) {
-        if(rank === 'S') return 'rank-s';
-        if(rank === 'A') return 'rank-a';
-        if(rank === 'B') return 'rank-b';
-        return 'rank-c';
+    // حفظ إعدادات نسب الفئات
+    async function saveRankSettings() {
+        const sPct = parseFloat(document.getElementById('set-rank-s').value) || 0;
+        const gPct = parseFloat(document.getElementById('set-rank-g').value) || 0;
+        const ePct = parseFloat(document.getElementById('set-rank-e').value) || 0;
+        const cPct = parseFloat(document.getElementById('set-rank-c').value) || 0;
+        const refBonus = parseFloat(document.getElementById('set-ref-bonus').value) || 0;
+
+        await db.collection("settings").doc("ranks_config").set({
+            rankS_pct: sPct,
+            rankG_pct: gPct,
+            rankE_pct: ePct,
+            rankC_pct: cPct,
+            referralBonus_pct: refBonus,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        alert("تم حفظ وتحديث نسب أرباح الفئات ومكافأة الداعي بنجاح!");
     }
 
-    // إجراءات الطلبات
+    // عرض بطاقات إحصاءات الموزعين
+    function renderDistributorsAnalytics() {
+        const grid = document.getElementById("distributors-grid");
+        if (!grid) return;
+        grid.innerHTML = "";
+
+        Object.keys(allUsers).forEach(uid => {
+            const u = allUsers[uid];
+            if (u.status !== "accepted" && !u.verified) return;
+
+            const userOrders = allOrders.filter(o => o.distributorId === uid);
+            const totalSales = userOrders.reduce((sum, o) => sum + (parseInt(o.totalPrice) || 0), 0);
+            const totalKg = userOrders.reduce((sum, o) => sum + (parseFloat(o.quantityKg) || 0), 0);
+            const rank = u.rank || 'C';
+
+            grid.innerHTML += `
+                <div class="item-card" style="display:flex; flex-direction:column; justify-content:space-between;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <img src="${u.photo || 'https://via.placeholder.com/44'}" style="width:44px; height:44px; border-radius:50%;">
+                            <div>
+                                <strong>${u.name}</strong>
+                                <div style="font-size:12px; color:var(--text-muted);">📍 ${u.area || 'غير محدد'}</div>
+                            </div>
+                        </div>
+                        <span class="rank-badge rank-${rank}">${rank}</span>
+                    </div>
+                    <div style="background:#111827; padding:10px; border-radius:10px; margin-bottom:12px; font-size:13px;">
+                        <div>إجمالي المبيعات: <strong style="color:var(--gold);">${totalSales.toLocaleString()} ل.س</strong></div>
+                        <div style="margin-top:4px;">الكميات المسحوبة: <strong style="color:var(--cyan);">${totalKg} كغ</strong> (${userOrders.length} طلبية)</div>
+                    </div>
+                    <button class="btn btn-primary" onclick="openProfileModal('${uid}')">📊 فتح البروفايل ومخطط المبيعات</button>
+                </div>
+            `;
+        });
+    }
+
+    function openProfileModal(uid) {
+        selectedDistributorId = uid;
+        const u = allUsers[uid];
+        if (!u) return;
+
+        document.getElementById('modal-avatar').src = u.photo || 'https://via.placeholder.com/54';
+        document.getElementById('modal-name').innerText = u.name;
+        document.getElementById('modal-email').innerText = u.email;
+        document.getElementById('modal-rank-select').value = u.rank || 'C';
+        document.getElementById('modal-ref-code').innerText = u.referralCode || 'WAKE-0000';
+        document.getElementById('modal-team').innerText = (u.teamCount || 0) + ' موزع';
+        document.getElementById('modal-phone').innerText = u.phone || '-';
+        document.getElementById('modal-area').innerText = u.area || '-';
+        document.getElementById('modal-transport').innerText = u.transport || '-';
+        document.getElementById('modal-bio').innerText = u.bio || '-';
+
+        const userOrders = allOrders.filter(o => o.distributorId === uid);
+        const totalKg = userOrders.reduce((s, o) => s + (parseFloat(o.quantityKg) || 0), 0);
+        const totalSales = userOrders.reduce((s, o) => s + (parseInt(o.totalPrice) || 0), 0);
+        const totalProfit = userOrders.reduce((s, o) => s + (parseInt(o.distributorProfit) || 0), 0);
+
+        document.getElementById('modal-total-kg').innerText = totalKg + ' كغ';
+        document.getElementById('modal-total-sales').innerText = totalSales.toLocaleString() + ' ل.س';
+        document.getElementById('modal-total-profit').innerText = totalProfit.toLocaleString() + ' ل.س';
+
+        document.getElementById('profile-modal').classList.remove('hidden');
+        renderSalesChart(uid, currentChartPeriod);
+    }
+
+    function closeProfileModal() {
+        document.getElementById('profile-modal').classList.add('hidden');
+    }
+
+    async function saveModalRank() {
+        if (!selectedDistributorId) return;
+        const newRank = document.getElementById('modal-rank-select').value;
+        await db.collection("users").doc(selectedDistributorId).update({ rank: newRank });
+        alert(`تم تحديث فئة الموزع إلى الفئة (${newRank}) بنجاح!`);
+    }
+
+    async function quickChangeRank(uid, newRank) {
+        await db.collection("users").doc(uid).update({ rank: newRank });
+    }
+
+    function updateChartPeriod(period, btn) {
+        currentChartPeriod = period;
+        document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        if (selectedDistributorId) {
+            renderSalesChart(selectedDistributorId, period);
+        }
+    }
+
+    function renderSalesChart(uid, period) {
+        const userOrders = allOrders.filter(o => o.distributorId === uid);
+        const now = new Date();
+        let labels = [];
+        let dataValues = [];
+
+        if (period === 'daily') {
+            const daysNames = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(now.getDate() - i);
+                labels.push(daysNames[d.getDay()] + ` (${d.getDate()}/${d.getMonth() + 1})`);
+                
+                const daySum = userOrders.reduce((sum, o) => {
+                    if (!o.createdAt) return sum;
+                    const od = o.createdAt.toDate ? o.createdAt.toDate() : new Date(o.createdAt);
+                    if (od.getDate() === d.getDate() && od.getMonth() === d.getMonth() && od.getFullYear() === d.getFullYear()) {
+                        return sum + (parseInt(o.totalPrice) || 0);
+                    }
+                    return sum;
+                }, 0);
+                dataValues.push(daySum);
+            }
+        } else if (period === 'weekly') {
+            labels = ['قبل 3 أسابيع', 'قبل أسبوعين', 'الأسبوع الماضي', 'الأسبوع الحالي'];
+            dataValues = [0, 0, 0, 0];
+            userOrders.forEach(o => {
+                if (!o.createdAt) return;
+                const od = o.createdAt.toDate ? o.createdAt.toDate() : new Date(o.createdAt);
+                const diffDays = Math.floor((now - od) / (1000 * 60 * 60 * 24));
+                const weekIndex = 3 - Math.floor(diffDays / 7);
+                if (weekIndex >= 0 && weekIndex <= 3) {
+                    dataValues[weekIndex] += (parseInt(o.totalPrice) || 0);
+                }
+            });
+        } else if (period === 'monthly') {
+            labels = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+            dataValues = new Array(12).fill(0);
+            userOrders.forEach(o => {
+                if (!o.createdAt) return;
+                const od = o.createdAt.toDate ? o.createdAt.toDate() : new Date(o.createdAt);
+                if (od.getFullYear() === now.getFullYear()) {
+                    dataValues[od.getMonth()] += (parseInt(o.totalPrice) || 0);
+                }
+            });
+        } else if (period === 'yearly') {
+            const curYear = now.getFullYear();
+            labels = [(curYear - 3).toString(), (curYear - 2).toString(), (curYear - 1).toString(), curYear.toString()];
+            dataValues = [0, 0, 0, 0];
+            userOrders.forEach(o => {
+                if (!o.createdAt) return;
+                const od = o.createdAt.toDate ? o.createdAt.toDate() : new Date(o.createdAt);
+                const idx = labels.indexOf(od.getFullYear().toString());
+                if (idx !== -1) {
+                    dataValues[idx] += (parseInt(o.totalPrice) || 0);
+                }
+            });
+        }
+
+        const ctx = document.getElementById('distributorSalesChart').getContext('2d');
+        if (salesChartInstance) {
+            salesChartInstance.destroy();
+        }
+
+        salesChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'حجم المبيعات (ل.س)',
+                    data: dataValues,
+                    backgroundColor: 'rgba(67, 56, 202, 0.7)',
+                    borderColor: '#fbbf24',
+                    borderWidth: 2,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { labels: { color: '#f9fafb', font: { family: 'Cairo' } } }
+                },
+                scales: {
+                    x: { ticks: { color: '#9ca3af', font: { family: 'Cairo' } }, grid: { color: '#1f2937' } },
+                    y: { ticks: { color: '#9ca3af', font: { family: 'Cairo' } }, grid: { color: '#1f2937' } }
+                }
+            }
+        });
+    }
+
     async function updateOrderStatus(orderId, newStatus) {
         if(!newStatus) return;
         await db.collection("orders").doc(orderId).update({ status: newStatus });
@@ -664,12 +1252,11 @@
                 cashHeld: firebase.firestore.FieldValue.increment(-amount)
             });
         }
-        alert("تم تأكيد استلام وقبض المبلغ من الموزع بنجاح وخصمه من ذمته!");
+        alert("تم تأكيد استلام وقبض المبلغ من الموزع بنجاح!");
     }
 
-    // توثيق الموزع وزيادة نسبة الداعي
     async function verifyAndActivateUser(userId, referrerCode) {
-        const adminBonusPct = 2; // المقدار الذي يعينه المدير لزيادة نسبة الداعي (%)
+        const adminBonusPct = parseFloat(globalSettings.referralBonus_pct) || 2;
 
         await db.collection("users").doc(userId).update({
             status: "accepted",
@@ -680,7 +1267,6 @@
             commissionBalance: 0
         });
 
-        // إذا كان مسجلاً بكود داعي، تتم مكافأة الداعي فوراً
         if (referrerCode && referrerCode !== "NONE") {
             const refSnap = await db.collection("users").where("referralCode", "==", referrerCode).limit(1).get();
             if (!refSnap.empty) {
@@ -692,7 +1278,7 @@
             }
         }
 
-        alert("تم توثيق حساب الموزع وتفعيله بنجاح، وتطبيق زيادة النسبة للمستدعي!");
+        alert("تم توثيق حساب الموزع وتفعيله بنجاح!");
     }
 
     async function rejectUser(userId) {
@@ -706,16 +1292,16 @@
                 cashHeld: 0,
                 commissionBalance: 0
             });
-            alert("تمت تصفية ذمة الموزع وتصفير العهدة المالية بنجاح!");
+            alert("تمت تصفية ذمة الموزع المالية بنجاح!");
         }
     }
 
-    // المنتجات
     async function addProduct() {
         const name = document.getElementById("prod-name").value.trim();
         const price = parseFloat(document.getElementById("prod-price").value) || 0;
         const profitPct = parseFloat(document.getElementById("prod-profit-pct").value) || 0;
         const img = document.getElementById("prod-img").value.trim();
+        const targetRanks = getSelectedRanks('prod');
 
         if(!name || price <= 0) {
             alert("يرجى إدخال اسم الصنف وسعره بشكل صحيح.");
@@ -727,6 +1313,7 @@
             price: price,
             profitPct: profitPct,
             imageUrl: img,
+            targetRanks: targetRanks,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
@@ -734,19 +1321,20 @@
         document.getElementById("prod-price").value = "";
         document.getElementById("prod-profit-pct").value = "";
         document.getElementById("prod-img").value = "";
-        alert("تمت إضافة الصنف بنجاح!");
+        resetRankCheckboxes('prod');
+        alert("تمت إضافة الصنف وتخصيص فئاته بنجاح!");
     }
 
     async function deleteProduct(id) {
         if(confirm("حذف هذا المنتج؟")) await db.collection("products").doc(id).delete();
     }
 
-    // الإعلانات
     async function publishAd() {
         const title = document.getElementById("ad-title").value.trim();
         const img = document.getElementById("ad-img").value.trim();
         const caption = document.getElementById("ad-caption").value.trim();
         const pinned = document.getElementById("ad-pin").checked;
+        const targetRanks = getSelectedRanks('ad');
 
         if(!title || !caption) {
             alert("يرجى إدخال عنوان الإعلان والتفاصيل.");
@@ -758,6 +1346,7 @@
             imageUrl: img,
             caption: caption,
             pinned: pinned,
+            targetRanks: targetRanks,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
@@ -765,17 +1354,18 @@
         document.getElementById("ad-img").value = "";
         document.getElementById("ad-caption").value = "";
         document.getElementById("ad-pin").checked = false;
-        alert("تم نشر الإعلان للموزعين بنجاح!");
+        resetRankCheckboxes('ad');
+        alert("تم نشر الإعلان للفئات المحددة بنجاح!");
     }
 
     async function deleteAd(id) {
         if(confirm("حذف الإعلان؟")) await db.collection("announcements").doc(id).delete();
     }
 
-    // الإشعارات
     async function sendNotification() {
         const title = document.getElementById("notif-title").value.trim();
         const body = document.getElementById("notif-body").value.trim();
+        const targetRanks = getSelectedRanks('notif');
 
         if(!title || !body) {
             alert("يرجى إدخال عنوان ونص الإشعار.");
@@ -785,12 +1375,18 @@
         await db.collection("notifications").add({
             title: title,
             body: body,
+            targetRanks: targetRanks,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
         document.getElementById("notif-title").value = "";
         document.getElementById("notif-body").value = "";
-        alert("تم إرسال التعميم لجميع الموزعين بنجاح!");
+        resetRankCheckboxes('notif');
+        alert("تم إرسال التعميم للفئات المحددة بنجاح!");
+    }
+
+    async function deleteNotif(id) {
+        if(confirm("حذف هذا الإشعار؟")) await db.collection("notifications").doc(id).delete();
     }
 </script>
 </body>
