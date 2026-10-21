@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -58,9 +59,30 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           onPageFinished: (String url) {
             setState(() => _isLoading = false);
           },
+          // التقاط روابط تسجيل الدخول (مثل جوجل أو الروابط الخارجية) وفتحها في Safari تلقائياً
+          onNavigationRequest: (NavigationRequest request) {
+            final url = request.url;
+            if (url.contains('accounts.google.com') || 
+                url.contains('oauth') || 
+                url.contains('auth') ||
+                !url.startsWith('file://')) {
+              // إذا كان رابط تسجيل دخول أو رابط خارجي، افتحه في متصفح Safari النظامي
+              _launchExternalUrl(url);
+              return NavigationDecision.prevent;
+            }
+            return NavigationDecision.navigate;
+          },
         ),
       )
+      ..setUserAgent("Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1")
       ..loadFlutterAsset('assets/index.html');
+  }
+
+  Future<void> _launchExternalUrl(String urlString) async {
+    final Uri url = Uri.parse(urlString);
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      debugPrint('Could not launch $url');
+    }
   }
 
   @override
