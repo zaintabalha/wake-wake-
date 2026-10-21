@@ -1,1 +1,983 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WAKE, WAKE - بوابة الموزعين</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
+    <style>
+        :root {
+            --primary: #4338ca;
+            --primary-hover: #3730a3;
+            --bg: #0b0f19;
+            --surface: #111827;
+            --card: #1f2937;
+            --border: #374151;
+            --text: #f9fafb;
+            --text-muted: #9ca3af;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gold: #fbbf24;
+            --cyan: #06b6d4;
+            --rank-s: #f59e0b;
+            --rank-g: #ec4899;
+            --rank-e: #3b82f6;
+            --rank-c: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 16px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .main-wrapper {
+            width: 100%;
+            max-width: 740px;
+        }
+
+        .hidden { display: none !important; }
+
+        .brand-logo {
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            color: var(--gold);
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 22px 18px;
+            margin-bottom: 16px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
+        }
+
+        /* زر جوجل */
+        .btn-google {
+            width: 100%;
+            background: #ffffff;
+            color: #1f2937;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 4px 15px rgba(255,255,255,0.1);
+            margin-top: 20px;
+            transition: transform 0.2s;
+        }
+
+        .btn-google:hover {
+            transform: translateY(-2px);
+            background: #f3f4f6;
+        }
+
+        /* الأزرار والحقول */
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: #6366f1;
+        }
+
+        .btn {
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-primary { width: 100%; background: var(--primary); color: #fff; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-secondary { background: #374151; color: #e5e7eb; }
+        .btn-success { background: var(--success); color: #fff; }
+        .btn-danger { background: var(--danger); color: #fff; }
+
+        /* الهيدر العلوي للموزع */
+        .user-header {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 14px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+        }
+
+        /* شريط حالة التوثيق */
+        .unverified-banner {
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid var(--warning);
+            color: #fde68a;
+            padding: 14px 16px;
+            border-radius: 14px;
+            font-size: 13px;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        .verified-tag {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            border: 1px solid var(--success);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 800;
+            margin-right: 6px;
+        }
+
+        .unverified-tag {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+            border: 1px solid var(--warning);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 800;
+            margin-right: 6px;
+        }
+
+        /* بطاقة الفئة (S, G, E, C) والإحالة */
+        .rank-card {
+            background: linear-gradient(135deg, #1e1b4b, #111827);
+            border: 1px solid #4338ca;
+            border-radius: 18px;
+            padding: 18px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .rank-circle {
+            width: 58px;
+            height: 58px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            font-weight: 900;
+        }
+
+        .rank-S { background: rgba(245, 158, 11, 0.2); color: var(--rank-s); border: 2px solid var(--rank-s); }
+        .rank-G { background: rgba(236, 72, 153, 0.2); color: var(--rank-g); border: 2px solid var(--rank-g); }
+        .rank-E { background: rgba(59, 130, 246, 0.2); color: var(--rank-e); border: 2px solid var(--rank-e); }
+        .rank-C { background: rgba(16, 185, 129, 0.2); color: var(--rank-c); border: 2px solid var(--rank-c); }
+
+        .ref-box {
+            background: rgba(255,255,255,0.05);
+            border: 1px dashed #6366f1;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* التبويبات */
+        .nav-tabs {
+            display: flex;
+            gap: 6px;
+            background: var(--surface);
+            padding: 6px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            margin-bottom: 16px;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            background: var(--card);
+            color: #fff;
+            border: 1px solid var(--border);
+        }
+
+        /* بطاقات المنتجات والطلبات */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 14px;
+        }
+
+        .item-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .product-img {
+            width: 100%;
+            height: 155px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            background: #111827;
+        }
+
+        .target-note {
+            display: inline-block;
+            margin-top: 6px;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 800;
+            background: rgba(6, 182, 212, 0.15);
+            color: var(--cyan);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .badge-pending { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+        .badge-ready { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid #3b82f6; }
+        .badge-delivered { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+
+        .ledger-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .ledger-box {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-wrapper">
+
+    <!-- 1. شاشة تسجيل الدخول عبر Google -->
+    <div id="view-login" class="card" style="text-align: center; padding: 40px 24px; margin-top: 40px;">
+        <div style="font-size: 52px; margin-bottom: 8px;">☕</div>
+        <div class="brand-logo" style="margin-bottom: 6px;">WAKE, WAKE</div>
+        <h2 style="font-size: 19px; font-weight: 800;">بوابة الموزعين المعتمدين وطلبات التوريد</h2>
+        <p style="color: var(--text-muted); font-size: 13px; margin-top: 6px;">سجل دخولك باستخدام حساب Google للمتابعة</p>
+
+        <button class="btn-google" onclick="signInWithGoogle()">
+            <svg width="20" height="20" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.15z"/>
+                <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.15C3.27 21.36 7.35 24 12 24z"/>
+                <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.26C.46 8.16 0 9.94 0 12s.46 3.84 1.26 5.42l4.02-3.15z"/>
+                <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.35 0 3.27 2.64 1.26 6.58l4.02 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+            </svg>
+            تسجيل الدخول باستخدام Google
+        </button>
+    </div>
+
+    <!-- 2. استمارة السيرة الذاتية (CV) ومعلومات الموزع الجديد -->
+    <div id="view-register" class="card hidden">
+        <div class="user-header" style="background: var(--card);">
+            <div class="user-info">
+                <img id="reg-photo" class="avatar" src="" alt="avatar">
+                <div>
+                    <strong id="reg-google-name" style="font-size: 14px;">-</strong>
+                    <div id="reg-email" style="font-size: 12px; color: var(--text-muted);">-</div>
+                </div>
+            </div>
+            <button class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;" onclick="logoutUser()">خروج</button>
+        </div>
+
+        <h3 style="font-size: 18px; margin-bottom: 6px;">استمارة الانضمام إلى WAKE, WAKE والسيرة الذاتية (CV)</h3>
+        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 18px;">أكمل معلوماتك المهنية ليتم جدولة مقابلتك وتوثيق حسابك من قِبل الإدارة</p>
+
+        <div class="form-group">
+            <label>الاسم الكامل</label>
+            <input type="text" id="cv-name" placeholder="الاسم الثلاثي">
+        </div>
+
+        <div class="form-group">
+            <label>رقم الهاتف (متاح للاتصال وواتساب)</label>
+            <input type="tel" id="cv-phone" placeholder="09xxxxxxxx">
+        </div>
+
+        <div class="form-group">
+            <label>المنطقة الجغرافية وخط التوزيع المستهدف</label>
+            <input type="text" id="cv-area" placeholder="مثال: دمشق - المزة، الشعلان، أبو رمانة">
+        </div>
+
+        <div class="form-group">
+            <label>وسيلة النقل المتوفرة لديك</label>
+            <select id="cv-transport">
+                <option value="سيارة خاصة">سيارة خاصة</option>
+                <option value="فان توزيع بضائع">فان توزيع بضائع</option>
+                <option value="دراجة نارية">دراجة نارية</option>
+                <option value="مندوب مبيعات بدون مركبة">مندوب مبيعات بدون مركبة</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>عدد سنوات الخبرة في مجال المبيعات والتوزيع</label>
+            <select id="cv-exp">
+                <option value="أقل من سنة">مبتدئ / أقل من سنة</option>
+                <option value="من 1 إلى 3 سنوات">من 1 إلى 3 سنوات</option>
+                <option value="أكثر من 3 سنوات">أكثر من 3 سنوات (خبير)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>نبذة عنك وعن خبراتك السابقة (السيرة الذاتية والمهارات)</label>
+            <textarea id="cv-bio" rows="4" placeholder="احكِ لنا باختصار عن نفسك، الشركات أو المجالات التي عملت بها سابقاً، وعدد المحلات أو نقاط البيع التي يمكنك تغطيتها..."></textarea>
+        </div>
+
+        <div class="form-group" style="background: rgba(67, 56, 202, 0.12); border: 1px dashed #6366f1; padding: 14px; border-radius: 14px;">
+            <label style="color: #a5b4fc;">كود الداعي (إذا انضممت عن طريق موزع آخر)</label>
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="cv-ref" placeholder="مثال: WAKE-1234" style="margin-bottom: 0;">
+                <button type="button" class="btn btn-secondary" onclick="skipReferralCode()" style="white-space: nowrap;">تخطي (بدون كود)</button>
+            </div>
+        </div>
+
+        <button class="btn btn-primary" onclick="submitRegistration()">حفظ البيانات والدخول إلى الحساب</button>
+    </div>
+
+    <!-- 3. الواجهة الرئيسية للموزع -->
+    <div id="view-app" class="hidden">
+
+        <!-- الهيدر -->
+        <div class="user-header">
+            <div class="user-info">
+                <img id="app-photo" class="avatar" src="" alt="avatar">
+                <div>
+                    <div style="display: flex; align-items: center; flex-wrap: wrap;">
+                        <strong id="app-name" style="font-size: 15px;">-</strong>
+                        <span id="app-verify-badge" class="unverified-tag">غير موثق</span>
+                    </div>
+                    <div style="font-size: 11px; color: var(--gold); font-weight: 800; letter-spacing: 1px;">WAKE, WAKE DISTRIBUTOR</div>
+                </div>
+            </div>
+            <button class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;" onclick="logoutUser()">خروج</button>
+        </div>
+
+        <!-- تنبيه الحساب غير الموثق -->
+        <div id="unverified-alert" class="unverified-banner hidden">
+            <strong>⏳ حسابك قيد المراجعة وبانتظار المقابلة الشخصية:</strong><br>
+            يمكنك تصفح أصناف <strong>WAKE, WAKE</strong> والعروض ولوحة حسابك الآن. سيتم تفعيل زر إرسال الطلبيات واعتماد حسابك رسمياً فور إتمام المقابلة وتوثيق الحساب من قِبل الإدارة.
+        </div>
+
+        <!-- بطاقة الفئة (S, G, E, C) وكود الداعي -->
+        <div class="rank-card">
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <div id="app-rank-box" class="rank-circle rank-C">C</div>
+                <div>
+                    <div style="font-size: 12px; color: #a5b4fc;">فئة الموزع الحالية</div>
+                    <h3 id="app-rank-title" style="font-size: 17px; font-weight: 800;">الفئة C - موزع أساسي</h3>
+                    <div style="font-size: 12px; color: var(--cyan); margin-top: 2px;">
+                        علاوة الفئة: +<span id="app-rank-pct">0</span>% | مكافأة الإحالات: +<span id="app-bonus-pct">0</span>%
+                    </div>
+                </div>
+            </div>
+
+            <div class="ref-box">
+                <div>
+                    <div style="color: var(--text-muted); font-size: 11px;">كود الداعي الخاص بك:</div>
+                    <strong id="app-my-code" style="color: #fff; font-size: 14px; letter-spacing: 1px;">WAKE-0000</strong>
+                    <div style="font-size: 11px; color: var(--success);">الفريق الموثق: <span id="app-team-count">0</span> موزع</div>
+                </div>
+                <button class="btn btn-secondary" style="padding: 6px 10px; font-size: 12px;" onclick="copyMyCode()">نسخ</button>
+            </div>
+        </div>
+
+        <!-- شريط التبويبات -->
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchAppTab('products', this)">☕ أصناف WAKE, WAKE</button>
+            <button class="tab-btn" onclick="switchAppTab('orders', this)">📦 طلبياتي وحالتها</button>
+            <button class="tab-btn" onclick="switchAppTab('ledger', this)">📒 دفتر الحسابات</button>
+            <button class="tab-btn" onclick="switchAppTab('ads', this)">📢 الإعلانات والعروض</button>
+            <button class="tab-btn" onclick="switchAppTab('notifs', this)">🔔 الإشعارات <span id="notif-count" style="color:var(--gold);"></span></button>
+        </div>
+
+        <!-- 1. تبويب المنتجات والطلب -->
+        <div id="tab-products">
+            <div class="card">
+                <h3 style="font-size: 16px; margin-bottom: 6px;">قائمة أصناف WAKE, WAKE المتاحة لفئتك</h3>
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">اختر الصنف وحدد الكمية بالكيلو؛ تُحسب نسبة ربحك الإجمالية تلقائياً (نسبة الصنف + علاوة فئتك + مكافأة إحالاتك)</p>
+                <div id="products-container" class="product-grid"></div>
+            </div>
+        </div>
+
+        <!-- 2. تبويب طلبياتي -->
+        <div id="tab-orders" class="hidden">
+            <div class="card">
+                <h3 style="font-size: 16px; margin-bottom: 14px;">سجل طلبياتي وحالة التجهيز والتسديد</h3>
+                <div id="my-orders-container"></div>
+            </div>
+        </div>
+
+        <!-- 3. تبويب دفتر الحسابات -->
+        <div id="tab-ledger" class="hidden">
+            <div class="ledger-grid">
+                <div class="ledger-box">
+                    <span style="font-size: 12px; color: var(--text-muted);">مبالغ بحوزتي لصالح WAKE, WAKE</span>
+                    <h3 id="ledger-cash-held" style="color: var(--danger); font-size: 20px; margin-top: 6px;">0 ل.س</h3>
+                    <small style="font-size: 11px; color: var(--text-muted);">تُخصم فور تأكيد المدير لقبض المبلغ</small>
+                </div>
+                <div class="ledger-box">
+                    <span style="font-size: 12px; color: var(--text-muted);">إجمالي أرباحي الصافية</span>
+                    <h3 id="ledger-commission" style="color: var(--success); font-size: 20px; margin-top: 6px;">0 ل.س</h3>
+                    <small style="font-size: 11px; color: var(--text-muted);">مجموع نسب أرباحك من المبيعات</small>
+                </div>
+            </div>
+
+            <div class="card">
+                <h4 style="font-size: 15px; margin-bottom: 8px;">آلية تسوية الحساب مع إدارة WAKE, WAKE</h4>
+                <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">
+                    عند استلامك للبضاعة وتحصيل ثمنها، يظهر المبلغ في خانة (مبالغ بحوزتي). وبمجرد تسليم الدفعة المالية للمدير العام، يقوم المدير بتأكيد (تم قبض المبلغ) لينزل من ذمتك المالية مباشرة.
+                </p>
+            </div>
+        </div>
+
+        <!-- 4. تبويب الإعلانات والعروض المثبتة -->
+        <div id="tab-ads" class="hidden">
+            <div class="card">
+                <h3 style="font-size: 16px; margin-bottom: 14px;">لوحة الإعلانات والعروض الموجهة لفئتك</h3>
+                <div id="ads-container"></div>
+            </div>
+        </div>
+
+        <!-- 5. تبويب الإشعارات والتعميمات -->
+        <div id="tab-notifs" class="hidden">
+            <div class="card">
+                <h3 style="font-size: 16px; margin-bottom: 14px;">إشعارات وتعميمات WAKE, WAKE</h3>
+                <div id="notifs-container"></div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyCmgHOmOuuAcgcMBLupnf39OeR45Spf8Mo",
+        authDomain: "wake-wake-6fb98.firebaseapp.com",
+        projectId: "wake-wake-6fb98",
+        storageBucket: "wake-wake-6fb98.firebasestorage.app",
+        messagingSenderId: "677970870264",
+        appId: "1:677970870264:web:36fc86c91d479c03fda00d",
+        measurementId: "G-LNFEM4MMTR"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    let currentUser = null;
+    let userData = null;
+    let globalSettings = {
+        rankS_pct: 10,
+        rankG_pct: 7,
+        rankE_pct: 4,
+        rankC_pct: 0,
+        referralBonus_pct: 2
+    };
+
+    let rawProducts = [];
+    let rawAds = [];
+    let rawNotifs = [];
+
+    function showScreen(screenId) {
+        ['view-login', 'view-register', 'view-app'].forEach(id => {
+            document.getElementById(id).classList.add('hidden');
+        });
+        document.getElementById(screenId).classList.remove('hidden');
+    }
+
+    function signInWithGoogle() {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        auth.signInWithPopup(provider).catch(err => {
+            if (err.code === 'auth/popup-blocked') {
+                auth.signInWithRedirect(provider);
+            } else {
+                alert("تعذر تسجيل الدخول: " + err.message);
+            }
+        });
+    }
+
+    function logoutUser() {
+        auth.signOut().then(() => showScreen('view-login'));
+    }
+
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            currentUser = user;
+            db.collection("users").doc(user.uid).onSnapshot(doc => {
+                if (doc.exists) {
+                    userData = doc.data();
+                    showScreen('view-app');
+                    renderDistributorApp(userData);
+                    // إعادة رسم القوائم لتطبيق فلتر الفئة ونسب الأرباح فوراً
+                    renderFilteredProducts();
+                    renderFilteredAds();
+                    renderFilteredNotifs();
+                } else {
+                    document.getElementById('reg-photo').src = user.photoURL || "https://via.placeholder.com/46";
+                    document.getElementById('reg-google-name').innerText = user.displayName || "موزع جديد";
+                    document.getElementById('reg-email').innerText = user.email;
+                    document.getElementById('cv-name').value = user.displayName || "";
+                    showScreen('view-register');
+                }
+            });
+
+            initSharedListeners();
+        } else {
+            currentUser = null;
+            userData = null;
+            showScreen('view-login');
+        }
+    });
+
+    function skipReferralCode() {
+        document.getElementById('cv-ref').value = "";
+        alert("تم تخطي كود الداعي، يمكنك إرسال استمارتك الآن.");
+    }
+
+    async function submitRegistration() {
+        const name = document.getElementById('cv-name').value.trim();
+        const phone = document.getElementById('cv-phone').value.trim();
+        const area = document.getElementById('cv-area').value.trim();
+        const transport = document.getElementById('cv-transport').value;
+        const exp = document.getElementById('cv-exp').value;
+        const bio = document.getElementById('cv-bio').value.trim();
+        const refCode = document.getElementById('cv-ref').value.trim().toUpperCase();
+
+        if (!name || !phone || !area || !bio) {
+            alert("يرجى ملء الاسم، رقم الهاتف، المنطقة، والنبذة الشخصية (السيرة الذاتية).");
+            return;
+        }
+
+        const generatedCode = "WAKE-" + Math.floor(1000 + Math.random() * 9000);
+
+        const newProfile = {
+            uid: currentUser.uid,
+            name: name,
+            email: currentUser.email,
+            photo: currentUser.photoURL || "",
+            phone: phone,
+            area: area,
+            transport: transport,
+            experience: exp,
+            bio: `الخبرة: ${exp} | ${bio}`,
+            referralCode: generatedCode,
+            referredBy: refCode || "NONE",
+            status: "pending",
+            verified: false,
+            rank: "C",
+            bonusProfitPct: 0,
+            teamCount: 0,
+            cashHeld: 0,
+            commissionBalance: 0,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        try {
+            await db.collection("users").doc(currentUser.uid).set(newProfile);
+        } catch (e) {
+            alert("حدث خطأ أثناء حفظ البيانات: " + e.message);
+        }
+    }
+
+    function getRankBonusPct(rank) {
+        if (rank === 'S') return parseFloat(globalSettings.rankS_pct) || 0;
+        if (rank === 'G') return parseFloat(globalSettings.rankG_pct) || 0;
+        if (rank === 'E') return parseFloat(globalSettings.rankE_pct) || 0;
+        return parseFloat(globalSettings.rankC_pct) || 0;
+    }
+
+    function isVisibleForDistributor(targetRanks) {
+        if (!targetRanks || !Array.isArray(targetRanks) || targetRanks.includes('ALL')) {
+            return true;
+        }
+        const myRank = (userData && userData.rank) ? userData.rank : 'C';
+        return targetRanks.includes(myRank);
+    }
+
+    function formatTargetNote(targetRanks) {
+        if (!targetRanks || !Array.isArray(targetRanks) || targetRanks.includes('ALL')) {
+            return '🌐 متاح لجميع الفئات';
+        }
+        return '🎯 مخصص للفئة: ' + targetRanks.join(' ، ');
+    }
+
+    function renderDistributorApp(u) {
+        document.getElementById('app-photo').src = u.photo || currentUser.photoURL || "https://via.placeholder.com/46";
+        document.getElementById('app-name').innerText = u.name;
+
+        const isVerified = (u.status === "accepted" || u.verified === true);
+        const badge = document.getElementById('app-verify-badge');
+        const alertBanner = document.getElementById('unverified-alert');
+
+        if (isVerified) {
+            badge.className = "verified-tag";
+            badge.innerText = "✓ موثق ومعتمد";
+            alertBanner.classList.add('hidden');
+        } else {
+            badge.className = "unverified-tag";
+            badge.innerText = "غير موثق (بانتظار المقابلة)";
+            alertBanner.classList.remove('hidden');
+        }
+
+        // الفئات S, G, E, C
+        const rank = u.rank || "C";
+        const rankBox = document.getElementById('app-rank-box');
+        const rankTitle = document.getElementById('app-rank-title');
+        rankBox.className = "rank-circle rank-" + rank;
+        rankBox.innerText = rank;
+
+        const rankDescriptions = {
+            'S': 'الفئة S - وكيل نخبة (S-Class)',
+            'G': 'الفئة G - موزع متقدم (G-Class)',
+            'E': 'الفئة E - موزع نشط (E-Class)',
+            'C': 'الفئة C - موزع أساسي (C-Class)'
+        };
+        rankTitle.innerText = rankDescriptions[rank] || rankDescriptions['C'];
+
+        document.getElementById('app-rank-pct').innerText = getRankBonusPct(rank);
+        document.getElementById('app-bonus-pct').innerText = u.bonusProfitPct || 0;
+        document.getElementById('app-my-code').innerText = u.referralCode || "WAKE-0000";
+        document.getElementById('app-team-count').innerText = u.teamCount || 0;
+
+        document.getElementById('ledger-cash-held').innerText = (u.cashHeld || 0).toLocaleString() + " ل.س";
+        document.getElementById('ledger-commission').innerText = (u.commissionBalance || 0).toLocaleString() + " ل.س";
+    }
+
+    function copyMyCode() {
+        const code = document.getElementById('app-my-code').innerText;
+        navigator.clipboard.writeText(code);
+        alert("تم نسخ كود الداعي الخاص بك: " + code);
+    }
+
+    function switchAppTab(tabId, btnElement) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        ['products', 'orders', 'ledger', 'ads', 'notifs'].forEach(id => {
+            document.getElementById('tab-' + id).classList.add('hidden');
+        });
+        btnElement.classList.add('active');
+        document.getElementById('tab-' + tabId).classList.remove('hidden');
+    }
+
+    function initSharedListeners() {
+        // 0. الاستماع لإعدادات نسب الفئات (S, G, E, C)
+        db.collection("settings").doc("ranks_config").onSnapshot(doc => {
+            if (doc.exists) {
+                globalSettings = doc.data();
+                if (userData) {
+                    renderDistributorApp(userData);
+                    renderFilteredProducts();
+                }
+            }
+        });
+
+        // أ. الاستماع لقائمة المنتجات
+        db.collection("products").onSnapshot(snap => {
+            rawProducts = [];
+            snap.forEach(doc => {
+                rawProducts.push({ id: doc.id, ...doc.data() });
+            });
+            renderFilteredProducts();
+        });
+
+        // ب. طلبياتي الخاصة
+        db.collection("orders").where("distributorId", "==", currentUser.uid).onSnapshot(snap => {
+            const list = document.getElementById('my-orders-container');
+            list.innerHTML = "";
+
+            if (snap.empty) {
+                list.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding:20px;">لم تقم بإرسال أي طلبيات بعد.</div>`;
+                return;
+            }
+
+            snap.forEach(doc => {
+                const o = doc.data();
+                let statusBadge = '<span class="badge badge-pending">قيد التحضير</span>';
+                if (o.status === 'ready') statusBadge = '<span class="badge badge-ready">جاهز للتسليم ✓</span>';
+                if (o.status === 'delivering') statusBadge = '<span class="badge badge-ready">قيد التوصيل</span>';
+                if (o.status === 'delivered') statusBadge = '<span class="badge badge-delivered">تم الاستلام والتوزيع</span>';
+
+                list.innerHTML += `
+                    <div class="item-card">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                            <strong>${o.productName} (${o.quantityKg} كغ)</strong>
+                            ${statusBadge}
+                        </div>
+                        <div style="font-size:13px; color:var(--text-muted);">
+                            إجمالي قيمة الطلبية: <strong style="color:var(--gold);">${(o.totalPrice || 0).toLocaleString()} ل.س</strong> |
+                            ربحك الصافي: <strong style="color:var(--success);">${(o.distributorProfit || 0).toLocaleString()} ل.س</strong>
+                        </div>
+                        <div style="margin-top:8px; font-size:12px;">
+                            حالة تسديد المبلغ للإدارة: 
+                            ${o.cashCollectedByAdmin ? 
+                                '<span style="color:var(--success); font-weight:800;">✓ تم قبض المبلغ من قِبل الإدارة</span>' : 
+                                '<span style="color:var(--warning); font-weight:700;">⏳ مسجل في ذمتك المالية لحين التسليم</span>'
+                            }
+                        </div>
+                    </div>
+                `;
+            });
+        });
+
+        // ج. الاستماع للإعلانات
+        db.collection("announcements").orderBy("pinned", "desc").onSnapshot(snap => {
+            rawAds = [];
+            snap.forEach(doc => {
+                rawAds.push({ id: doc.id, ...doc.data() });
+            });
+            renderFilteredAds();
+        });
+
+        // د. الاستماع للإشعارات
+        db.collection("notifications").orderBy("createdAt", "desc").limit(20).onSnapshot(snap => {
+            rawNotifs = [];
+            snap.forEach(doc => {
+                rawNotifs.push({ id: doc.id, ...doc.data() });
+            });
+            renderFilteredNotifs();
+        });
+    }
+
+    function renderFilteredProducts() {
+        const container = document.getElementById('products-container');
+        if (!container) return;
+        container.innerHTML = "";
+
+        const myRank = (userData && userData.rank) ? userData.rank : 'C';
+        const rankBonusPct = getRankBonusPct(myRank);
+        const refBonusPct = userData ? (parseFloat(userData.bonusProfitPct) || 0) : 0;
+
+        const visibleProducts = rawProducts.filter(p => isVisibleForDistributor(p.targetRanks));
+
+        if (visibleProducts.length === 0) {
+            container.innerHTML = `<div style="color:var(--text-muted); font-size:13px;">لا توجد أصناف مخصصة لفئتك حالياً.</div>`;
+            return;
+        }
+
+        visibleProducts.forEach(p => {
+            const basePct = parseFloat(p.profitPct) || 0;
+            const totalPct = basePct + rankBonusPct + refBonusPct;
+            const profitPerKg = Math.round((p.price * totalPct) / 100);
+
+            container.innerHTML += `
+                <div class="item-card">
+                    <img src="${p.imageUrl || 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=500'}" class="product-img" alt="${p.name}">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <strong style="font-size:16px;">${p.name}</strong>
+                        <span style="color:var(--gold); font-weight:800;">${(p.price || 0).toLocaleString()} ل.س/كغ</span>
+                    </div>
+                    <div style="font-size:12px; color:var(--cyan); margin: 6px 0;">
+                        إجمالي نسبتك: <strong>${totalPct}%</strong> (${profitPerKg.toLocaleString()} ل.س ربح لكل كغ)
+                        <div style="font-size:11px; color:var(--text-muted);">
+                            (أساسي ${basePct}% + فئة ${myRank}: ${rankBonusPct}% + إحالات: ${refBonusPct}%)
+                        </div>
+                    </div>
+                    <div class="target-note">${formatTargetNote(p.targetRanks)}</div>
+                    <div style="display:flex; gap:8px; margin-top:12px;">
+                        <input type="number" id="qty-${p.id}" placeholder="الكمية (كغ)" min="1" style="margin-bottom:0; flex:1;">
+                        <button class="btn btn-primary" style="width:auto; white-space:nowrap;" onclick="orderProduct('${p.id}', '${p.name}', ${p.price}, ${totalPct})">طلب كمية</button>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    function renderFilteredAds() {
+        const adsCont = document.getElementById('ads-container');
+        if (!adsCont) return;
+        adsCont.innerHTML = "";
+
+        const visibleAds = rawAds.filter(a => isVisibleForDistributor(a.targetRanks));
+
+        if (visibleAds.length === 0) {
+            adsCont.innerHTML = `<div style="color:var(--text-muted); font-size:13px;">لا توجد إعلانات مخصصة لفئتك حالياً.</div>`;
+            return;
+        }
+
+        visibleAds.forEach(a => {
+            adsCont.innerHTML += `
+                <div class="item-card" style="border-right: 4px solid ${a.pinned ? 'var(--gold)' : 'var(--primary)'};">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                        <strong style="font-size:16px;">${a.title}</strong>
+                        ${a.pinned ? '<span class="badge" style="background:rgba(251,191,36,0.2); color:var(--gold);">📌 إعلان مثبت</span>' : ''}
+                    </div>
+                    <p style="font-size:13px; color:#d1d5db; line-height:1.6; margin-bottom:10px;">${a.caption}</p>
+                    ${a.imageUrl ? `<img src="${a.imageUrl}" style="width:100%; max-height:260px; object-fit:cover; border-radius:12px; display:block; margin-bottom:8px;">` : ''}
+                    <div class="target-note">${formatTargetNote(a.targetRanks)}</div>
+                </div>
+            `;
+        });
+    }
+
+    function renderFilteredNotifs() {
+        const notifCont = document.getElementById('notifs-container');
+        if (!notifCont) return;
+        notifCont.innerHTML = "";
+
+        const visibleNotifs = rawNotifs.filter(n => isVisibleForDistributor(n.targetRanks));
+        document.getElementById('notif-count').innerText = visibleNotifs.length ? `(${visibleNotifs.length})` : "";
+
+        if (visibleNotifs.length === 0) {
+            notifCont.innerHTML = `<div style="color:var(--text-muted); font-size:13px;">لا توجد إشعارات حالياً.</div>`;
+            return;
+        }
+
+        visibleNotifs.forEach(n => {
+            notifCont.innerHTML += `
+                <div class="item-card">
+                    <strong style="color:#a5b4fc;">🔔 ${n.title}</strong>
+                    <p style="font-size:13px; color:var(--text-muted); margin-top:4px; line-height:1.6;">${n.body}</p>
+                    <div class="target-note">${formatTargetNote(n.targetRanks)}</div>
+                </div>
+            `;
+        });
+    }
+
+    async function orderProduct(prodId, prodName, pricePerKg, totalProfitPct) {
+        if (!userData || (userData.status !== "accepted" && !userData.verified)) {
+            alert("عذراً، حسابك غير موثق بعد! يمكنك إرسال الطلبيات فور إتمام المقابلة وتوثيق حسابك من قِبل الإدارة.");
+            return;
+        }
+
+        const qtyInput = document.getElementById('qty-' + prodId);
+        const qty = parseFloat(qtyInput.value);
+
+        if (!qty || qty <= 0) {
+            alert("يرجى إدخال الكمية المطلوبة بالكيلو.");
+            return;
+        }
+
+        const totalPrice = Math.round(pricePerKg * qty);
+        const distributorProfit = Math.round((totalPrice * totalProfitPct) / 100);
+        const netToAdmin = totalPrice - distributorProfit;
+
+        const conf = confirm(
+            `تأكيد طلب من WAKE, WAKE:\n` +
+            `الصنف: ${prodName}\n` +
+            `الكمية: ${qty} كغ\n` +
+            `القيمة الإجمالية: ${totalPrice.toLocaleString()} ل.س\n` +
+            `ربحك الصافي (${totalProfitPct}%): ${distributorProfit.toLocaleString()} ل.س\n` +
+            `المبلغ الصافي للمعمل: ${netToAdmin.toLocaleString()} ل.س`
+        );
+
+        if (!conf) return;
+
+        await db.collection("orders").add({
+            orderCode: "ORD-" + Math.floor(1000 + Math.random() * 9000),
+            productId: prodId,
+            productName: prodName,
+            quantityKg: qty,
+            totalPrice: totalPrice,
+            distributorProfit: distributorProfit,
+            distributorId: currentUser.uid,
+            distributorName: userData.name,
+            status: "pending",
+            cashCollectedByAdmin: false,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        await db.collection("users").doc(currentUser.uid).update({
+            cashHeld: firebase.firestore.FieldValue.increment(totalPrice),
+            commissionBalance: firebase.firestore.FieldValue.increment(distributorProfit),
+            completedOrders: firebase.firestore.FieldValue.increment(qty)
+        });
+
+        qtyInput.value = "";
+        alert("تم إرسال طلبك إلى WAKE, WAKE بنجاح، وتحديث دفتر حساباتك!");
+    }
+</script>
+</body>
+</html>
