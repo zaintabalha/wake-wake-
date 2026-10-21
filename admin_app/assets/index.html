@@ -368,7 +368,7 @@
             color: #fff;
         }
 
-        /* نوافذ النظام المدمجة (بديل alert / confirm / popup لبيئة iOS & Android WebView) */
+        /* نافذة النظام المدمجة (بديل alert و confirm) */
         .sys-dialog-box {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -757,23 +757,7 @@
     </div>
 </div>
 
-<!-- نافذة تسجيل الدخول المدمجة للأنظمة والتطبيقات (تعمل تلقائياً عند حظر النوافذ المنبثقة في iOS/Android) -->
-<div id="inapp-auth-modal" class="modal-overlay hidden">
-    <div class="sys-dialog-box">
-        <div style="font-size: 40px; margin-bottom: 8px;">🔐</div>
-        <div class="brand-logo" style="font-size: 20px; margin-bottom: 6px;">WAKE, WAKE</div>
-        <h3 style="font-size: 17px; margin-bottom: 6px;">تسجيل الدخول المباشر للإدارة</h3>
-        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">أدخل بيانات حساب الإدارة المعتمد للمتابعة داخل التطبيق</p>
-        <input type="text" id="inapp-admin-name" placeholder="اسم المدير (مثال: المدير العام)" value="المدير العام">
-        <input type="email" id="inapp-admin-email" placeholder="البريد الإلكتروني (Google Email)" dir="ltr" style="text-align: right;">
-        <div style="display: flex; gap: 10px; margin-top: 12px;">
-            <button class="btn btn-primary" style="flex: 1; padding: 12px;" onclick="confirmInAppAdminLogin()">دخول للوحة التحكم ✓</button>
-            <button class="btn btn-secondary" style="padding: 12px;" onclick="closeInAppAuthModal()">إلغاء</button>
-        </div>
-    </div>
-</div>
-
-<!-- نافذة التنبيهات والتأكيد المدمجة للنظام (بديل alert و confirm في WebView) -->
+<!-- نافذة التنبيهات والتأكيد المدمجة للنظام (بديل alert و confirm) -->
 <div id="sys-dialog-modal" class="modal-overlay hidden" style="z-index: 2000;">
     <div class="sys-dialog-box">
         <div id="sys-dialog-icon" style="font-size: 36px; margin-bottom: 10px;">🔔</div>
@@ -802,12 +786,14 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // تحسين اتصال Firestore ليعمل بثبات على أنظمة iOS WebView وأندرويد والشبكات المقيدة
+    // تفعيل الحفظ الدائم لجلسة تسجيل الدخول على الجهاز (Local Persistence) ليبقى مسجلاً بشكل دائم
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(err => {
+        console.warn("Auth persistence error:", err);
+    });
+
     try {
         db.settings({ experimentalAutoDetectLongPolling: true, merge: true });
-    } catch (e) {
-        console.warn("Firestore settings notice:", e);
-    }
+    } catch (e) {}
 
     let allUsers = {};
     let allOrders = [];
@@ -825,7 +811,6 @@
         referralBonus_pct: 2
     };
 
-    // نظام نوافذ التنبيه والتأكيد المدمج (يتجاوز حظر alert/confirm في iOS & Android WebView)
     function showAppAlert(message) {
         const modal = document.getElementById('sys-dialog-modal');
         document.getElementById('sys-dialog-icon').innerText = '✅';
@@ -868,90 +853,17 @@
         });
     }
 
-    // استبدال alert الافتراضي بالمدمج لضمان عمله في كل الأنظمة
     window.alert = showAppAlert;
 
-    // فحص ما إذا كان التطبيق يعمل داخل حزمة APK أو IPA محلية أو WebView
-    function isEmbeddedAppEnvironment() {
-        const proto = window.location.protocol;
-        const ua = navigator.userAgent || '';
-        if (proto === 'file:' || proto === 'applewebdata:' || proto === 'content:') return true;
-        if (/wv|WebView/i.test(ua)) return true;
-        if ((/iPhone|iPad|iPod/i.test(ua)) && !/Safari/i.test(ua)) return true;
-        return false;
-    }
-
-    function activateAdminSession(userObj) {
-        document.getElementById('admin-auth').classList.add('hidden');
-        document.getElementById('inapp-auth-modal').classList.add('hidden');
-        document.getElementById('admin-panel').classList.remove('hidden');
-
-        const defaultAvatar = "https://ui-avatars.com/api/?name=" + encodeURIComponent(userObj.displayName || "Admin") + "&background=4338ca&color=fff";
-        document.getElementById('admin-photo').src = userObj.photoURL || defaultAvatar;
-        document.getElementById('admin-name').innerText = userObj.displayName || "المدير العام";
-        document.getElementById('admin-email').innerText = userObj.email || "";
-
-        initListeners();
-    }
-
-    function openInAppAuthModal() {
-        const savedEmail = localStorage.getItem('wake_admin_email') || 'souadzen191@gmail.com';
-        const savedName = localStorage.getItem('wake_admin_name') || 'المدير العام';
-        document.getElementById('inapp-admin-email').value = savedEmail;
-        document.getElementById('inapp-admin-name').value = savedName;
-        document.getElementById('inapp-auth-modal').classList.remove('hidden');
-    }
-
-    function closeInAppAuthModal() {
-        document.getElementById('inapp-auth-modal').classList.add('hidden');
-    }
-
-    async function confirmInAppAdminLogin() {
-        const name = document.getElementById('inapp-admin-name').value.trim() || 'المدير العام';
-        const email = document.getElementById('inapp-admin-email').value.trim();
-
-        if (!email || !email.includes('@')) {
-            showAppAlert("يرجى إدخال البريد الإلكتروني الخاص بالإدارة بشكل صحيح.");
-            return;
-        }
-
-        const sessionUser = {
-            displayName: name,
-            email: email,
-            photoURL: "https://ui-avatars.com/api/?name=" + encodeURIComponent(name) + "&background=4338ca&color=fff"
-        };
-
-        localStorage.setItem('wake_admin_session', JSON.stringify(sessionUser));
-        localStorage.setItem('wake_admin_email', email);
-        localStorage.setItem('wake_admin_name', name);
-
-        // محاولة تسجيل جلسة Firebase في الخلفية إن كانت مفعلة دون إعاقة الدخول
-        try {
-            await auth.signInAnonymously();
-        } catch (e) {
-            // تجاهل الخطأ في حال عدم تفعيل الدخول المجهول في Console
-        }
-
-        activateAdminSession(sessionUser);
-    }
-
+    // تسجيل الدخول حصرياً عبر Google Redirect لضمان العمل الموثق والآمن 100%
     function adminLogin() {
-        // إذا كان داخل تطبيق الـ IPA أو الـ APK، افتح بوابة الدخول المدمجة مباشرة لتجنب خطأ The requested action is invalid
-        if (isEmbeddedAppEnvironment()) {
-            openInAppAuthModal();
-            return;
-        }
-
         const provider = new firebase.auth.GoogleAuthProvider();
-        auth.signInWithPopup(provider).catch(err => {
-            console.warn("Popup sign-in fallback:", err.code);
-            // بدلاً من signInWithRedirect الذي يفشل في iOS Safari، نفتح البوابة المدمجة السريعة
-            openInAppAuthModal();
+        auth.signInWithRedirect(provider).catch(err => {
+            showAppAlert("خطأ في تسجيل الدخول: " + err.message);
         });
     }
 
     function adminLogout() {
-        localStorage.removeItem('wake_admin_session');
         activeUnsubscribes.forEach(unsub => {
             if (typeof unsub === 'function') unsub();
         });
@@ -963,20 +875,27 @@
         document.getElementById('admin-panel').classList.add('hidden');
     }
 
+    // التحقق من نتيجة تسجيل الدخول عبر إعادة التوجيه واستمرار حفظ الجلسة تلقائياً
+    auth.getRedirectResult().then((result) => {
+        if (result.user) {
+            console.log("Logged in successfully via Google redirect:", result.user.email);
+        }
+    }).catch((error) => {
+        console.warn("Redirect result error:", error.message);
+    });
+
     auth.onAuthStateChanged(user => {
         if (user && user.email) {
-            activateAdminSession(user);
+            document.getElementById('admin-auth').classList.add('hidden');
+            document.getElementById('admin-panel').classList.remove('hidden');
+
+            const defaultAvatar = "https://ui-avatars.com/api/?name=" + encodeURIComponent(user.displayName || "Admin") + "&background=4338ca&color=fff";
+            document.getElementById('admin-photo').src = user.photoURL || defaultAvatar;
+            document.getElementById('admin-name').innerText = user.displayName || "المدير العام";
+            document.getElementById('admin-email').innerText = user.email;
+
+            initListeners();
         } else {
-            const savedSession = localStorage.getItem('wake_admin_session');
-            if (savedSession) {
-                try {
-                    const parsed = JSON.parse(savedSession);
-                    activateAdminSession(parsed);
-                    return;
-                } catch (e) {
-                    localStorage.removeItem('wake_admin_session');
-                }
-            }
             document.getElementById('admin-auth').classList.remove('hidden');
             document.getElementById('admin-panel').classList.add('hidden');
         }
@@ -991,7 +910,6 @@
         document.getElementById('tab-' + tabId).classList.remove('hidden');
     }
 
-    // إدارة مربعات اختيار الفئات (الجميع أو فئات مخصصة)
     function toggleAllRanks(prefix, allCheckbox) {
         if (allCheckbox.checked) {
             document.querySelectorAll('.' + prefix + '-rank-item').forEach(cb => cb.checked = false);
@@ -1029,7 +947,6 @@
         if (listenersInitialized) return;
         listenersInitialized = true;
 
-        // 0. مراقبة إعدادات الفئات والنسب
         const unsubSettings = db.collection("settings").doc("ranks_config").onSnapshot(doc => {
             if (doc.exists) {
                 globalSettings = doc.data();
@@ -1039,9 +956,8 @@
                 document.getElementById('set-rank-c').value = globalSettings.rankC_pct ?? 0;
                 document.getElementById('set-ref-bonus').value = globalSettings.referralBonus_pct ?? 2;
             }
-        }, err => console.error("Settings listener error:", err));
+        });
 
-        // 1. مراقبة الطلبات
         const unsubOrders = db.collection("orders").orderBy("createdAt", "desc").onSnapshot(snap => {
             const tbody = document.getElementById("orders-tbody");
             tbody.innerHTML = "";
@@ -1096,9 +1012,8 @@
             document.getElementById("stat-pending-cash").innerText = pendingCash.toLocaleString() + " ل.س";
             document.getElementById("stat-collected-cash").innerText = collectedCash.toLocaleString() + " ل.س";
             renderDistributorsAnalytics();
-        }, err => console.error("Orders listener error:", err));
+        });
 
-        // 2. مراقبة الموزعين والمقابلات ودفتر الحسابات
         const unsubUsers = db.collection("users").onSnapshot(snap => {
             const list = document.getElementById("interviews-list");
             const finance = document.getElementById("finance-tbody");
@@ -1159,9 +1074,8 @@
 
             document.getElementById("stat-interviews").innerText = pendingInterviews;
             renderDistributorsAnalytics();
-        }, err => console.error("Users listener error:", err));
+        });
 
-        // 3. مراقبة الأصناف
         const unsubProducts = db.collection("products").onSnapshot(snap => {
             const container = document.getElementById("products-list");
             container.innerHTML = "";
@@ -1180,9 +1094,8 @@
                     </div>
                 `;
             });
-        }, err => console.error("Products listener error:", err));
+        });
 
-        // 4. مراقبة الإعلانات
         const unsubAds = db.collection("announcements").orderBy("pinned", "desc").onSnapshot(snap => {
             const list = document.getElementById("ads-list");
             list.innerHTML = "";
@@ -1200,9 +1113,8 @@
                     </div>
                 `;
             });
-        }, err => console.error("Ads listener error:", err));
+        });
 
-        // 5. مراقبة الإشعارات
         const unsubNotifs = db.collection("notifications").orderBy("createdAt", "desc").limit(10).onSnapshot(snap => {
             const cont = document.getElementById("notifs-archive");
             cont.innerHTML = "";
@@ -1219,12 +1131,11 @@
                     </div>
                 `;
             });
-        }, err => console.error("Notifications listener error:", err));
+        });
 
         activeUnsubscribes.push(unsubSettings, unsubOrders, unsubUsers, unsubProducts, unsubAds, unsubNotifs);
     }
 
-    // حفظ إعدادات نسب الفئات
     async function saveRankSettings() {
         const sPct = parseFloat(document.getElementById('set-rank-s').value) || 0;
         const gPct = parseFloat(document.getElementById('set-rank-g').value) || 0;
@@ -1244,7 +1155,6 @@
         showAppAlert("تم حفظ وتحديث نسب أرباح الفئات ومكافأة الداعي بنجاح!");
     }
 
-    // عرض بطاقات إحصاءات الموزعين
     function renderDistributorsAnalytics() {
         const grid = document.getElementById("distributors-grid");
         if (!grid) return;
