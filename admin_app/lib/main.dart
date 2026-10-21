@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,6 +43,8 @@ class AdminHomeScreen extends StatefulWidget {
 class _AdminHomeScreenState extends State<AdminHomeScreen> {
   late final WebViewController _controller;
   bool _isLoading = true;
+  WebViewController? _popupController;
+  bool _showPopup = false;
 
   @override
   void initState() {
@@ -59,16 +60,38 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           onPageFinished: (String url) {
             setState(() => _isLoading = false);
           },
-          onNavigationRequest: (NavigationRequest request) {
-            final url = request.url;
-            // توجيه روابط مصادقة Google وجوجل أوت إلى سفاري الخارجي حصراً لتسجيل الدخول بأمان
-            if (url.contains('accounts.google.com') || 
-                url.contains('firebaseapp.com/__/auth') ||
-                url.contains('oauth')) {
-              _launchExternalUrl(url);
-              return NavigationDecision.prevent;
-            }
-            return NavigationDecision.navigate;
+        ),
+      )
+      // تفعيل إنشاء نوافذ منبثقة عائمة داخل التطبيق لتسجيل الدخول عبر Google
+      ..setPlatformNavigationDelegate(
+        PlatformNavigationDelegate(
+          onWidgeCreateWindow: (CreateWindowAction action) {
+            final popupCtrl = WebViewController()
+              ..setJavaScriptMode(JavaScriptMode.unrestricted)
+              ..setNavigationDelegate(
+                NavigationDelegate(
+                  onNavigationRequest: (NavigationRequest request) {
+                    if (request.url.contains('firebaseapp.com/__/auth/handler') ||
+                        request.url.contains('close') ||
+                        !request.url.contains('accounts.google.com')) {
+                      // عند الانتهاء من المصادقة، إغلاق النافذة المنبثقة والعودة للوحة التحكم
+                      setState(() {
+                        _showPopup = false;
+                        _popupController = null;
+                      });
+                      _controller.reload();
+                      return NavigationDecision.prevent;
+                    }
+                    return NavigationDecision.navigate;
+                  },
+                ),
+              );
+            
+            setState(() {
+              _popupController = popupCtrl;
+              _showPopup = true;
+            });
+            return Completer<WebViewController?>()..complete(popupCtrl);
           },
         ),
       )
@@ -76,17 +99,17 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       ..loadFlutterAsset('assets/index.html');
   }
 
-  Future<void> _launchExternalUrl(String urlString) async {
-    final Uri url = Uri.parse(urlString);
-    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-      debugPrint('Could not launch $url');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
+        if (_showPopup) {
+          setState(() {
+            _showPopup = false;
+            _popupController = null;
+          });
+          return false;
+        }
         if (await _controller.canGoBack()) {
           _controller.goBack();
           return false;
@@ -102,6 +125,50 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                 const Center(
                   child: CircularProgressIndicator(
                     color: Color(0xFFFBBF24),
+                  ),
+                ),
+              // نافذة منبثقة عائمة صغيرة لتسجيل دخول جوجل (مشابهة لطلبك)
+              if (_showPopup && _popupController != null)
+                Container(
+                  color: Colors.black.withOpacity(0.8),
+                  child: Center(
+                    child: Container(
+                      width: MediaQuery.of(context).size.width * 0.9,
+                      height: MediaQuery.of(context).size.height * 0.8,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF111827),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: const Color(0xFF374151)),
+                      ),
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text("تسجيل الدخول عبر Google", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                IconButton(
+                                  icon: const Icon(Icons.close, color: Colors.white),
+                                  onPressed: () {
+                                    setState(() {
+                                      _showPopup = false;
+                                      _popupController = null;
+                                    });
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            child: ClipRRect(
+                              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
+                              child: WebViewWidget(controller: _popupController!),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
             ],
