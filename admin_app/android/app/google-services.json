@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "677970870264",
+    "project_id": "wake-wake-6fb98",
+    "storage_bucket": "wake-wake-6fb98.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:677970870264:android:8214d0c8fcd3c671fda00d",
+        "android_client_info": {
+          "package_name": "com.wake.wake"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "677970870264-i595fqhmdq3mnp9spnn6ihg832i3sf7r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDnaVE88F1QOpJi7CFTujJeOwLHAxdpHzI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "677970870264-i595fqhmdq3mnp9spnn6ihg832i3sf7r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
