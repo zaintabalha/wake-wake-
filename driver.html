@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>معمل قهوة ويك ويك - بوابة الموزعين</title>
+    <title>WAKE, WAKE - بوابة الموزعين</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,9 +24,9 @@
             --danger: #ef4444;
             --gold: #fbbf24;
             --cyan: #06b6d4;
-            --rank-s: #ec4899;
-            --rank-a: #8b5cf6;
-            --rank-b: #3b82f6;
+            --rank-s: #f59e0b;
+            --rank-g: #ec4899;
+            --rank-e: #3b82f6;
             --rank-c: #10b981;
         }
 
@@ -49,10 +49,17 @@
 
         .main-wrapper {
             width: 100%;
-            max-width: 720px;
+            max-width: 740px;
         }
 
         .hidden { display: none !important; }
+
+        .brand-logo {
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            color: var(--gold);
+        }
 
         .card {
             background: var(--surface);
@@ -191,7 +198,7 @@
             margin-right: 6px;
         }
 
-        /* بطاقة الرانك والإحالة */
+        /* بطاقة الفئة (S, G, E, C) والإحالة */
         .rank-card {
             background: linear-gradient(135deg, #1e1b4b, #111827);
             border: 1px solid #4338ca;
@@ -206,8 +213,8 @@
         }
 
         .rank-circle {
-            width: 56px;
-            height: 56px;
+            width: 58px;
+            height: 58px;
             border-radius: 16px;
             display: flex;
             align-items: center;
@@ -216,15 +223,15 @@
             font-weight: 900;
         }
 
-        .rank-S { background: rgba(236, 72, 153, 0.2); color: var(--rank-s); border: 2px solid var(--rank-s); }
-        .rank-A { background: rgba(139, 92, 246, 0.2); color: var(--rank-a); border: 2px solid var(--rank-a); }
-        .rank-B { background: rgba(59, 130, 246, 0.2); color: var(--rank-b); border: 2px solid var(--rank-b); }
+        .rank-S { background: rgba(245, 158, 11, 0.2); color: var(--rank-s); border: 2px solid var(--rank-s); }
+        .rank-G { background: rgba(236, 72, 153, 0.2); color: var(--rank-g); border: 2px solid var(--rank-g); }
+        .rank-E { background: rgba(59, 130, 246, 0.2); color: var(--rank-e); border: 2px solid var(--rank-e); }
         .rank-C { background: rgba(16, 185, 129, 0.2); color: var(--rank-c); border: 2px solid var(--rank-c); }
 
         .ref-box {
             background: rgba(255,255,255,0.05);
             border: 1px dashed #6366f1;
-            padding: 8px 14px;
+            padding: 10px 14px;
             border-radius: 12px;
             font-size: 12px;
             display: flex;
@@ -280,11 +287,23 @@
 
         .product-img {
             width: 100%;
-            height: 150px;
+            height: 155px;
             object-fit: cover;
             border-radius: 12px;
             margin-bottom: 10px;
             background: #111827;
+        }
+
+        .target-note {
+            display: inline-block;
+            margin-top: 6px;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 800;
+            background: rgba(6, 182, 212, 0.15);
+            color: var(--cyan);
+            border: 1px solid rgba(6, 182, 212, 0.3);
         }
 
         .badge {
@@ -321,9 +340,10 @@
 
     <!-- 1. شاشة تسجيل الدخول عبر Google -->
     <div id="view-login" class="card" style="text-align: center; padding: 40px 24px; margin-top: 40px;">
-        <div style="font-size: 52px; margin-bottom: 10px;">☕</div>
-        <h1 style="font-size: 22px; font-weight: 800;">معمل قهوة ويك ويك</h1>
-        <p style="color: var(--text-muted); font-size: 14px; margin-top: 6px;">بوابة الموزعين المعتمدين وطلبات التوريد</p>
+        <div style="font-size: 52px; margin-bottom: 8px;">☕</div>
+        <div class="brand-logo" style="margin-bottom: 6px;">WAKE, WAKE</div>
+        <h2 style="font-size: 19px; font-weight: 800;">بوابة الموزعين المعتمدين وطلبات التوريد</h2>
+        <p style="color: var(--text-muted); font-size: 13px; margin-top: 6px;">سجل دخولك باستخدام حساب Google للمتابعة</p>
 
         <button class="btn-google" onclick="signInWithGoogle()">
             <svg width="20" height="20" viewBox="0 0 24 24">
@@ -349,8 +369,8 @@
             <button class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;" onclick="logoutUser()">خروج</button>
         </div>
 
-        <h3 style="font-size: 18px; margin-bottom: 6px;">استمارة التسجيل والسيرة الذاتية (CV)</h3>
-        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 18px;">أكمل معلوماتك المهنية ليتم جدولة مقابلتك وتوثيق حسابك من قبل الإدارة</p>
+        <h3 style="font-size: 18px; margin-bottom: 6px;">استمارة الانضمام إلى WAKE, WAKE والسيرة الذاتية (CV)</h3>
+        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 18px;">أكمل معلوماتك المهنية ليتم جدولة مقابلتك وتوثيق حسابك من قِبل الإدارة</p>
 
         <div class="form-group">
             <label>الاسم الكامل</label>
@@ -402,7 +422,7 @@
         <button class="btn btn-primary" onclick="submitRegistration()">حفظ البيانات والدخول إلى الحساب</button>
     </div>
 
-    <!-- 3. الواجهة الرئيسية للموزع (تفتح للجميع، مع تقييد الطلب لغير الموثقين) -->
+    <!-- 3. الواجهة الرئيسية للموزع -->
     <div id="view-app" class="hidden">
 
         <!-- الهيدر -->
@@ -410,31 +430,31 @@
             <div class="user-info">
                 <img id="app-photo" class="avatar" src="" alt="avatar">
                 <div>
-                    <div style="display: flex; align-items: center;">
+                    <div style="display: flex; align-items: center; flex-wrap: wrap;">
                         <strong id="app-name" style="font-size: 15px;">-</strong>
                         <span id="app-verify-badge" class="unverified-tag">غير موثق</span>
                     </div>
-                    <div id="app-email" style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">-</div>
+                    <div style="font-size: 11px; color: var(--gold); font-weight: 800; letter-spacing: 1px;">WAKE, WAKE DISTRIBUTOR</div>
                 </div>
             </div>
             <button class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;" onclick="logoutUser()">خروج</button>
         </div>
 
-        <!-- تنبيه الحساب غير الموثق (يختفي تلقائياً فور توثيق المدير للحساب) -->
+        <!-- تنبيه الحساب غير الموثق -->
         <div id="unverified-alert" class="unverified-banner hidden">
             <strong>⏳ حسابك قيد المراجعة وبانتظار المقابلة الشخصية:</strong><br>
-            يمكنك تصفح أصناف المعمل، العروض، ولوحة حسابك الآن. سيتم تفعيل زر إرسال الطلبيات واعتماد حسابك رسمياً فور إتمام المقابلة وتوثيق الحساب من قِبل الإدارة.
+            يمكنك تصفح أصناف <strong>WAKE, WAKE</strong> والعروض ولوحة حسابك الآن. سيتم تفعيل زر إرسال الطلبيات واعتماد حسابك رسمياً فور إتمام المقابلة وتوثيق الحساب من قِبل الإدارة.
         </div>
 
-        <!-- بطاقة الرانك وكود الداعي الخاص بالموزع -->
+        <!-- بطاقة الفئة (S, G, E, C) وكود الداعي -->
         <div class="rank-card">
             <div style="display: flex; align-items: center; gap: 14px;">
                 <div id="app-rank-box" class="rank-circle rank-C">C</div>
                 <div>
-                    <div style="font-size: 12px; color: #a5b4fc;">تصنيف الموزع الحالي</div>
-                    <h3 id="app-rank-title" style="font-size: 17px; font-weight: 800;">رتبة C - موزع معتمد</h3>
-                    <div style="font-size: 12px; color: var(--gold); margin-top: 2px;">
-                        مكافأة الإحالات الإضافية: +<span id="app-bonus-pct">0</span>% على كل صنف
+                    <div style="font-size: 12px; color: #a5b4fc;">فئة الموزع الحالية</div>
+                    <h3 id="app-rank-title" style="font-size: 17px; font-weight: 800;">الفئة C - موزع أساسي</h3>
+                    <div style="font-size: 12px; color: var(--cyan); margin-top: 2px;">
+                        علاوة الفئة: +<span id="app-rank-pct">0</span>% | مكافأة الإحالات: +<span id="app-bonus-pct">0</span>%
                     </div>
                 </div>
             </div>
@@ -451,18 +471,18 @@
 
         <!-- شريط التبويبات -->
         <div class="nav-tabs">
-            <button class="tab-btn active" onclick="switchAppTab('products')">☕ أصناف المعمل والطلب</button>
-            <button class="tab-btn" onclick="switchAppTab('orders')">📦 طلبياتي وحالتها</button>
-            <button class="tab-btn" onclick="switchAppTab('ledger')">📒 دفتر الحسابات</button>
-            <button class="tab-btn" onclick="switchAppTab('ads')">📢 الإعلانات والعروض</button>
-            <button class="tab-btn" onclick="switchAppTab('notifs')">🔔 الإشعارات <span id="notif-count" style="color:var(--gold);"></span></button>
+            <button class="tab-btn active" onclick="switchAppTab('products', this)">☕ أصناف WAKE, WAKE</button>
+            <button class="tab-btn" onclick="switchAppTab('orders', this)">📦 طلبياتي وحالتها</button>
+            <button class="tab-btn" onclick="switchAppTab('ledger', this)">📒 دفتر الحسابات</button>
+            <button class="tab-btn" onclick="switchAppTab('ads', this)">📢 الإعلانات والعروض</button>
+            <button class="tab-btn" onclick="switchAppTab('notifs', this)">🔔 الإشعارات <span id="notif-count" style="color:var(--gold);"></span></button>
         </div>
 
         <!-- 1. تبويب المنتجات والطلب -->
         <div id="tab-products">
             <div class="card">
-                <h3 style="font-size: 16px; margin-bottom: 6px;">قائمة أصناف معمل ويك ويك</h3>
-                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">اختر الصنف وحدد الكمية بالكيلو؛ تُحسب نسبة ربحك تلقائياً حسب الصنف ومكافأة إحالاتك</p>
+                <h3 style="font-size: 16px; margin-bottom: 6px;">قائمة أصناف WAKE, WAKE المتاحة لفئتك</h3>
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">اختر الصنف وحدد الكمية بالكيلو؛ تُحسب نسبة ربحك الإجمالية تلقائياً (نسبة الصنف + علاوة فئتك + مكافأة إحالاتك)</p>
                 <div id="products-container" class="product-grid"></div>
             </div>
         </div>
@@ -479,7 +499,7 @@
         <div id="tab-ledger" class="hidden">
             <div class="ledger-grid">
                 <div class="ledger-box">
-                    <span style="font-size: 12px; color: var(--text-muted);">مبالغ بحوزتي لصالح المعمل</span>
+                    <span style="font-size: 12px; color: var(--text-muted);">مبالغ بحوزتي لصالح WAKE, WAKE</span>
                     <h3 id="ledger-cash-held" style="color: var(--danger); font-size: 20px; margin-top: 6px;">0 ل.س</h3>
                     <small style="font-size: 11px; color: var(--text-muted);">تُخصم فور تأكيد المدير لقبض المبلغ</small>
                 </div>
@@ -491,9 +511,9 @@
             </div>
 
             <div class="card">
-                <h4 style="font-size: 15px; margin-bottom: 8px;">آلية تسوية الحساب مع الإدارة</h4>
+                <h4 style="font-size: 15px; margin-bottom: 8px;">آلية تسوية الحساب مع إدارة WAKE, WAKE</h4>
                 <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">
-                    عند استلامك للبضاعة وتحصيل ثمنها، يظهر المبلغ في خانة (مبالغ بحوزتي لصالح المعمل). وبمجرد تسليم الدفعة المالية للمدير العام، يقوم المدير بتأكيد (تم قبض المبلغ) لينزل من ذمتك المالية مباشرة.
+                    عند استلامك للبضاعة وتحصيل ثمنها، يظهر المبلغ في خانة (مبالغ بحوزتي). وبمجرد تسليم الدفعة المالية للمدير العام، يقوم المدير بتأكيد (تم قبض المبلغ) لينزل من ذمتك المالية مباشرة.
                 </p>
             </div>
         </div>
@@ -501,7 +521,7 @@
         <!-- 4. تبويب الإعلانات والعروض المثبتة -->
         <div id="tab-ads" class="hidden">
             <div class="card">
-                <h3 style="font-size: 16px; margin-bottom: 14px;">لوحة الإعلانات والعروض الترويجية</h3>
+                <h3 style="font-size: 16px; margin-bottom: 14px;">لوحة الإعلانات والعروض الموجهة لفئتك</h3>
                 <div id="ads-container"></div>
             </div>
         </div>
@@ -509,7 +529,7 @@
         <!-- 5. تبويب الإشعارات والتعميمات -->
         <div id="tab-notifs" class="hidden">
             <div class="card">
-                <h3 style="font-size: 16px; margin-bottom: 14px;">إشعارات وتعميمات الإدارة</h3>
+                <h3 style="font-size: 16px; margin-bottom: 14px;">إشعارات وتعميمات WAKE, WAKE</h3>
                 <div id="notifs-container"></div>
             </div>
         </div>
@@ -540,6 +560,17 @@
 
     let currentUser = null;
     let userData = null;
+    let globalSettings = {
+        rankS_pct: 10,
+        rankG_pct: 7,
+        rankE_pct: 4,
+        rankC_pct: 0,
+        referralBonus_pct: 2
+    };
+
+    let rawProducts = [];
+    let rawAds = [];
+    let rawNotifs = [];
 
     function showScreen(screenId) {
         ['view-login', 'view-register', 'view-app'].forEach(id => {
@@ -548,7 +579,6 @@
         document.getElementById(screenId).classList.remove('hidden');
     }
 
-    // 1. تسجيل الدخول بحساب Google (يدعم النافذة المنبثقة والتحويل التلقائي)
     function signInWithGoogle() {
         const provider = new firebase.auth.GoogleAuthProvider();
         auth.signInWithPopup(provider).catch(err => {
@@ -564,18 +594,19 @@
         auth.signOut().then(() => showScreen('view-login'));
     }
 
-    // مراقبة حالة المستخدم لحظياً
     auth.onAuthStateChanged(user => {
         if (user) {
             currentUser = user;
-            // الاستماع المباشر لملف الموزع في قاعدة البيانات
             db.collection("users").doc(user.uid).onSnapshot(doc => {
                 if (doc.exists) {
                     userData = doc.data();
                     showScreen('view-app');
                     renderDistributorApp(userData);
+                    // إعادة رسم القوائم لتطبيق فلتر الفئة ونسب الأرباح فوراً
+                    renderFilteredProducts();
+                    renderFilteredAds();
+                    renderFilteredNotifs();
                 } else {
-                    // مستخدم جديد لم يملأ السيرة الذاتية بعد
                     document.getElementById('reg-photo').src = user.photoURL || "https://via.placeholder.com/46";
                     document.getElementById('reg-google-name').innerText = user.displayName || "موزع جديد";
                     document.getElementById('reg-email').innerText = user.email;
@@ -597,7 +628,6 @@
         alert("تم تخطي كود الداعي، يمكنك إرسال استمارتك الآن.");
     }
 
-    // 2. حفظ السيرة الذاتية وإنشاء الحساب
     async function submitRegistration() {
         const name = document.getElementById('cv-name').value.trim();
         const phone = document.getElementById('cv-phone').value.trim();
@@ -626,7 +656,7 @@
             bio: `الخبرة: ${exp} | ${bio}`,
             referralCode: generatedCode,
             referredBy: refCode || "NONE",
-            status: "pending", // يبدأ غير موثق لحين موافقة المدير
+            status: "pending",
             verified: false,
             rank: "C",
             bonusProfitPct: 0,
@@ -643,11 +673,31 @@
         }
     }
 
-    // 3. تحديث واجهة الموزع ومعلومات التوثيق والرتبة
+    function getRankBonusPct(rank) {
+        if (rank === 'S') return parseFloat(globalSettings.rankS_pct) || 0;
+        if (rank === 'G') return parseFloat(globalSettings.rankG_pct) || 0;
+        if (rank === 'E') return parseFloat(globalSettings.rankE_pct) || 0;
+        return parseFloat(globalSettings.rankC_pct) || 0;
+    }
+
+    function isVisibleForDistributor(targetRanks) {
+        if (!targetRanks || !Array.isArray(targetRanks) || targetRanks.includes('ALL')) {
+            return true;
+        }
+        const myRank = (userData && userData.rank) ? userData.rank : 'C';
+        return targetRanks.includes(myRank);
+    }
+
+    function formatTargetNote(targetRanks) {
+        if (!targetRanks || !Array.isArray(targetRanks) || targetRanks.includes('ALL')) {
+            return '🌐 متاح لجميع الفئات';
+        }
+        return '🎯 مخصص للفئة: ' + targetRanks.join(' ، ');
+    }
+
     function renderDistributorApp(u) {
         document.getElementById('app-photo').src = u.photo || currentUser.photoURL || "https://via.placeholder.com/46";
         document.getElementById('app-name').innerText = u.name;
-        document.getElementById('app-email').innerText = u.email;
 
         const isVerified = (u.status === "accepted" || u.verified === true);
         const badge = document.getElementById('app-verify-badge');
@@ -663,7 +713,7 @@
             alertBanner.classList.remove('hidden');
         }
 
-        // الرتبة S, A, B, C
+        // الفئات S, G, E, C
         const rank = u.rank || "C";
         const rankBox = document.getElementById('app-rank-box');
         const rankTitle = document.getElementById('app-rank-title');
@@ -671,18 +721,18 @@
         rankBox.innerText = rank;
 
         const rankDescriptions = {
-            'S': 'رتبة S - وكيل نخبة (أعلى أولوية)',
-            'A': 'رتبة A - موزع متقدم',
-            'B': 'رتبة B - موزع نشط',
-            'C': 'رتبة C - موزع معتمد'
+            'S': 'الفئة S - وكيل نخبة (S-Class)',
+            'G': 'الفئة G - موزع متقدم (G-Class)',
+            'E': 'الفئة E - موزع نشط (E-Class)',
+            'C': 'الفئة C - موزع أساسي (C-Class)'
         };
         rankTitle.innerText = rankDescriptions[rank] || rankDescriptions['C'];
 
+        document.getElementById('app-rank-pct').innerText = getRankBonusPct(rank);
         document.getElementById('app-bonus-pct').innerText = u.bonusProfitPct || 0;
         document.getElementById('app-my-code').innerText = u.referralCode || "WAKE-0000";
         document.getElementById('app-team-count').innerText = u.teamCount || 0;
 
-        // دفتر الحسابات
         document.getElementById('ledger-cash-held').innerText = (u.cashHeld || 0).toLocaleString() + " ل.س";
         document.getElementById('ledger-commission').innerText = (u.commissionBalance || 0).toLocaleString() + " ل.س";
     }
@@ -693,51 +743,34 @@
         alert("تم نسخ كود الداعي الخاص بك: " + code);
     }
 
-    function switchAppTab(tabId) {
+    function switchAppTab(tabId, btnElement) {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         ['products', 'orders', 'ledger', 'ads', 'notifs'].forEach(id => {
             document.getElementById('tab-' + id).classList.add('hidden');
         });
-        event.target.classList.add('active');
+        btnElement.classList.add('active');
         document.getElementById('tab-' + tabId).classList.remove('hidden');
     }
 
-    // 4. الاستماع للمنتجات، الطلبات، الإعلانات، والإشعارات
     function initSharedListeners() {
-        // أ. قائمة المنتجات وحساب النسبة المخصصة
-        db.collection("products").onSnapshot(snap => {
-            const container = document.getElementById('products-container');
-            container.innerHTML = "";
-
-            if (snap.empty) {
-                container.innerHTML = `<div style="color:var(--text-muted); font-size:13px;">لا توجد أصناف مدرجة حالياً.</div>`;
-                return;
+        // 0. الاستماع لإعدادات نسب الفئات (S, G, E, C)
+        db.collection("settings").doc("ranks_config").onSnapshot(doc => {
+            if (doc.exists) {
+                globalSettings = doc.data();
+                if (userData) {
+                    renderDistributorApp(userData);
+                    renderFilteredProducts();
+                }
             }
+        });
 
+        // أ. الاستماع لقائمة المنتجات
+        db.collection("products").onSnapshot(snap => {
+            rawProducts = [];
             snap.forEach(doc => {
-                const p = doc.data();
-                const basePct = parseFloat(p.profitPct) || 0;
-                const bonusPct = userData ? (parseFloat(userData.bonusProfitPct) || 0) : 0;
-                const totalPct = basePct + bonusPct;
-                const profitPerKg = Math.round((p.price * totalPct) / 100);
-
-                container.innerHTML += `
-                    <div class="item-card">
-                        <img src="${p.imageUrl || 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=500'}" class="product-img" alt="${p.name}">
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <strong style="font-size:16px;">${p.name}</strong>
-                            <span style="color:var(--gold); font-weight:800;">${(p.price || 0).toLocaleString()} ل.س/كغ</span>
-                        </div>
-                        <div style="font-size:12px; color:var(--cyan); margin: 6px 0;">
-                            نسبة ربحك من الصنف: <strong>${totalPct}%</strong> (${profitPerKg.toLocaleString()} ل.س لكل كغ)
-                        </div>
-                        <div style="display:flex; gap:8px; margin-top:10px;">
-                            <input type="number" id="qty-${doc.id}" placeholder="الكمية (كغ)" min="1" style="margin-bottom:0; flex:1;">
-                            <button class="btn btn-primary" style="width:auto; white-space:nowrap;" onclick="orderProduct('${doc.id}', '${p.name}', ${p.price}, ${totalPct})">طلب كمية</button>
-                        </div>
-                    </div>
-                `;
+                rawProducts.push({ id: doc.id, ...doc.data() });
             });
+            renderFilteredProducts();
         });
 
         // ب. طلبياتي الخاصة
@@ -752,8 +785,8 @@
 
             snap.forEach(doc => {
                 const o = doc.data();
-                let statusBadge = '<span class="badge badge-pending">قيد التحضير في المعمل</span>';
-                if (o.status === 'ready') statusBadge = '<span class="badge badge-ready">جاهز للتسليم في المعمل ✓</span>';
+                let statusBadge = '<span class="badge badge-pending">قيد التحضير</span>';
+                if (o.status === 'ready') statusBadge = '<span class="badge badge-ready">جاهز للتسليم ✓</span>';
                 if (o.status === 'delivering') statusBadge = '<span class="badge badge-ready">قيد التوصيل</span>';
                 if (o.status === 'delivered') statusBadge = '<span class="badge badge-delivered">تم الاستلام والتوزيع</span>';
 
@@ -779,50 +812,120 @@
             });
         });
 
-        // ج. الإعلانات والعروض (المثبتة أولاً)
+        // ج. الاستماع للإعلانات
         db.collection("announcements").orderBy("pinned", "desc").onSnapshot(snap => {
-            const adsCont = document.getElementById('ads-container');
-            adsCont.innerHTML = "";
-
-            if (snap.empty) {
-                adsCont.innerHTML = `<div style="color:var(--text-muted); font-size:13px;">لا توجد إعلانات حالياً.</div>`;
-                return;
-            }
-
+            rawAds = [];
             snap.forEach(doc => {
-                const a = doc.data();
-                adsCont.innerHTML += `
-                    <div class="item-card" style="border-right: 4px solid ${a.pinned ? 'var(--gold)' : 'var(--primary)'};">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                            <strong style="font-size:16px;">${a.title}</strong>
-                            ${a.pinned ? '<span class="badge" style="background:rgba(251,191,36,0.2); color:var(--gold);">📌 إعلان مثبت</span>' : ''}
-                        </div>
-                        <p style="font-size:13px; color:#d1d5db; line-height:1.6; margin-bottom:10px;">${a.caption}</p>
-                        ${a.imageUrl ? `<img src="${a.imageUrl}" style="width:100%; max-height:260px; object-fit:cover; border-radius:12px;">` : ''}
-                    </div>
-                `;
+                rawAds.push({ id: doc.id, ...doc.data() });
             });
+            renderFilteredAds();
         });
 
-        // د. الإشعارات
-        db.collection("notifications").orderBy("createdAt", "desc").limit(15).onSnapshot(snap => {
-            const notifCont = document.getElementById('notifs-container');
-            notifCont.innerHTML = "";
-            document.getElementById('notif-count').innerText = snap.size ? `(${snap.size})` : "";
-
+        // د. الاستماع للإشعارات
+        db.collection("notifications").orderBy("createdAt", "desc").limit(20).onSnapshot(snap => {
+            rawNotifs = [];
             snap.forEach(doc => {
-                const n = doc.data();
-                notifCont.innerHTML += `
-                    <div class="item-card">
-                        <strong style="color:#a5b4fc;">🔔 ${n.title}</strong>
-                        <p style="font-size:13px; color:var(--text-muted); margin-top:4px; line-height:1.6;">${n.body}</p>
-                    </div>
-                `;
+                rawNotifs.push({ id: doc.id, ...doc.data() });
             });
+            renderFilteredNotifs();
         });
     }
 
-    // 5. طلب سحب كمية من منتج
+    function renderFilteredProducts() {
+        const container = document.getElementById('products-container');
+        if (!container) return;
+        container.innerHTML = "";
+
+        const myRank = (userData && userData.rank) ? userData.rank : 'C';
+        const rankBonusPct = getRankBonusPct(myRank);
+        const refBonusPct = userData ? (parseFloat(userData.bonusProfitPct) || 0) : 0;
+
+        const visibleProducts = rawProducts.filter(p => isVisibleForDistributor(p.targetRanks));
+
+        if (visibleProducts.length === 0) {
+            container.innerHTML = `<div style="color:var(--text-muted); font-size:13px;">لا توجد أصناف مخصصة لفئتك حالياً.</div>`;
+            return;
+        }
+
+        visibleProducts.forEach(p => {
+            const basePct = parseFloat(p.profitPct) || 0;
+            const totalPct = basePct + rankBonusPct + refBonusPct;
+            const profitPerKg = Math.round((p.price * totalPct) / 100);
+
+            container.innerHTML += `
+                <div class="item-card">
+                    <img src="${p.imageUrl || 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=500'}" class="product-img" alt="${p.name}">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <strong style="font-size:16px;">${p.name}</strong>
+                        <span style="color:var(--gold); font-weight:800;">${(p.price || 0).toLocaleString()} ل.س/كغ</span>
+                    </div>
+                    <div style="font-size:12px; color:var(--cyan); margin: 6px 0;">
+                        إجمالي نسبتك: <strong>${totalPct}%</strong> (${profitPerKg.toLocaleString()} ل.س ربح لكل كغ)
+                        <div style="font-size:11px; color:var(--text-muted);">
+                            (أساسي ${basePct}% + فئة ${myRank}: ${rankBonusPct}% + إحالات: ${refBonusPct}%)
+                        </div>
+                    </div>
+                    <div class="target-note">${formatTargetNote(p.targetRanks)}</div>
+                    <div style="display:flex; gap:8px; margin-top:12px;">
+                        <input type="number" id="qty-${p.id}" placeholder="الكمية (كغ)" min="1" style="margin-bottom:0; flex:1;">
+                        <button class="btn btn-primary" style="width:auto; white-space:nowrap;" onclick="orderProduct('${p.id}', '${p.name}', ${p.price}, ${totalPct})">طلب كمية</button>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    function renderFilteredAds() {
+        const adsCont = document.getElementById('ads-container');
+        if (!adsCont) return;
+        adsCont.innerHTML = "";
+
+        const visibleAds = rawAds.filter(a => isVisibleForDistributor(a.targetRanks));
+
+        if (visibleAds.length === 0) {
+            adsCont.innerHTML = `<div style="color:var(--text-muted); font-size:13px;">لا توجد إعلانات مخصصة لفئتك حالياً.</div>`;
+            return;
+        }
+
+        visibleAds.forEach(a => {
+            adsCont.innerHTML += `
+                <div class="item-card" style="border-right: 4px solid ${a.pinned ? 'var(--gold)' : 'var(--primary)'};">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                        <strong style="font-size:16px;">${a.title}</strong>
+                        ${a.pinned ? '<span class="badge" style="background:rgba(251,191,36,0.2); color:var(--gold);">📌 إعلان مثبت</span>' : ''}
+                    </div>
+                    <p style="font-size:13px; color:#d1d5db; line-height:1.6; margin-bottom:10px;">${a.caption}</p>
+                    ${a.imageUrl ? `<img src="${a.imageUrl}" style="width:100%; max-height:260px; object-fit:cover; border-radius:12px; display:block; margin-bottom:8px;">` : ''}
+                    <div class="target-note">${formatTargetNote(a.targetRanks)}</div>
+                </div>
+            `;
+        });
+    }
+
+    function renderFilteredNotifs() {
+        const notifCont = document.getElementById('notifs-container');
+        if (!notifCont) return;
+        notifCont.innerHTML = "";
+
+        const visibleNotifs = rawNotifs.filter(n => isVisibleForDistributor(n.targetRanks));
+        document.getElementById('notif-count').innerText = visibleNotifs.length ? `(${visibleNotifs.length})` : "";
+
+        if (visibleNotifs.length === 0) {
+            notifCont.innerHTML = `<div style="color:var(--text-muted); font-size:13px;">لا توجد إشعارات حالياً.</div>`;
+            return;
+        }
+
+        visibleNotifs.forEach(n => {
+            notifCont.innerHTML += `
+                <div class="item-card">
+                    <strong style="color:#a5b4fc;">🔔 ${n.title}</strong>
+                    <p style="font-size:13px; color:var(--text-muted); margin-top:4px; line-height:1.6;">${n.body}</p>
+                    <div class="target-note">${formatTargetNote(n.targetRanks)}</div>
+                </div>
+            `;
+        });
+    }
+
     async function orderProduct(prodId, prodName, pricePerKg, totalProfitPct) {
         if (!userData || (userData.status !== "accepted" && !userData.verified)) {
             alert("عذراً، حسابك غير موثق بعد! يمكنك إرسال الطلبيات فور إتمام المقابلة وتوثيق حسابك من قِبل الإدارة.");
@@ -842,7 +945,8 @@
         const netToAdmin = totalPrice - distributorProfit;
 
         const conf = confirm(
-            `تأكيد طلب: ${prodName}\n` +
+            `تأكيد طلب من WAKE, WAKE:\n` +
+            `الصنف: ${prodName}\n` +
             `الكمية: ${qty} كغ\n` +
             `القيمة الإجمالية: ${totalPrice.toLocaleString()} ل.س\n` +
             `ربحك الصافي (${totalProfitPct}%): ${distributorProfit.toLocaleString()} ل.س\n` +
@@ -865,22 +969,14 @@
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        // تسجيل الذمة المالية والربح في دفتر حسابات الموزع وترقية الرتبة تلقائياً حسب النشاط
-        const newOrdersTotal = (userData.completedOrders || 0) + qty;
-        let newRank = userData.rank || "C";
-        if (newOrdersTotal >= 200) newRank = "S";
-        else if (newOrdersTotal >= 100) newRank = "A";
-        else if (newOrdersTotal >= 40) newRank = "B";
-
         await db.collection("users").doc(currentUser.uid).update({
             cashHeld: firebase.firestore.FieldValue.increment(totalPrice),
             commissionBalance: firebase.firestore.FieldValue.increment(distributorProfit),
-            completedOrders: firebase.firestore.FieldValue.increment(qty),
-            rank: newRank
+            completedOrders: firebase.firestore.FieldValue.increment(qty)
         });
 
         qtyInput.value = "";
-        alert("تم إرسال طلبك للمعمل بنجاح، وتحديث دفتر حساباتك!");
+        alert("تم إرسال طلبك إلى WAKE, WAKE بنجاح، وتحديث دفتر حساباتك!");
     }
 </script>
 </body>
