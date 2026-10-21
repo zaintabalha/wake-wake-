@@ -1,4 +1,4 @@
-name: Build WAKE WAKE Apps (Admin & Driver)
+name: Build WAKE WAKE Apps (APK & IPA)
 
 on:
   push:
@@ -6,7 +6,10 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-admin:
+  # ==============================
+  # 1. بناء ملفات أندرويد (APK)
+  # ==============================
+  build-admin-apk:
     name: Build Admin APK
     runs-on: ubuntu-latest
     steps:
@@ -43,7 +46,7 @@ jobs:
           name: WAKE-WAKE-Admin-APK
           path: admin_app/build/app/outputs/flutter-apk/app-release.apk
 
-  build-driver:
+  build-driver-apk:
     name: Build Driver APK
     runs-on: ubuntu-latest
     steps:
@@ -80,3 +83,68 @@ jobs:
         with:
           name: WAKE-WAKE-Driver-APK
           path: driver_app/build/app/outputs/flutter-apk/app-release.apk
+
+  # ==============================
+  # 2. بناء ملفات آبل (IPA)
+  # ==============================
+  build-admin-ipa:
+    name: Build Admin IPA (iOS)
+    runs-on: macos-14
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.x'
+          channel: 'stable'
+          cache: true
+
+      - name: Build & Package Admin IPA
+        working-directory: ./admin_app
+        run: |
+          flutter create . --platforms=ios --org com.wakewake
+          flutter pub get
+          flutter build ios --release --no-codesign
+          cd build/ios/iphoneos
+          mkdir Payload
+          cp -r Runner.app Payload/
+          zip -r WAKE-WAKE-Admin.ipa Payload
+
+      - name: Upload Admin IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: WAKE-WAKE-Admin-IPA
+          path: admin_app/build/ios/iphoneos/WAKE-WAKE-Admin.ipa
+
+  build-driver-ipa:
+    name: Build Driver IPA (iOS)
+    runs-on: macos-14
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.x'
+          channel: 'stable'
+          cache: true
+
+      - name: Build & Package Driver IPA
+        working-directory: ./driver_app
+        run: |
+          flutter create . --platforms=ios --org com.wakewake
+          flutter pub get
+          flutter build ios --release --no-codesign
+          cd build/ios/iphoneos
+          mkdir Payload
+          cp -r Runner.app Payload/
+          zip -r WAKE-WAKE-Driver.ipa Payload
+
+      - name: Upload Driver IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: WAKE-WAKE-Driver-IPA
+          path: driver_app/build/ios/iphoneos/WAKE-WAKE-Driver.ipa
