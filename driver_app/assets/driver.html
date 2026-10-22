@@ -98,6 +98,12 @@
             background: #f3f4f6;
         }
 
+        .btn-google:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         /* الأزرار والحقول */
         .form-group {
             margin-bottom: 14px;
@@ -339,7 +345,7 @@
             text-align: center;
         }
 
-        /* النوافذ المدمجة للنظام (بديل الـ Popup و Alert و Confirm على iOS و Android) */
+        /* النوافذ المدمجة للنظام (بديل الـ Alert و Confirm في WebView) */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -374,7 +380,7 @@
         <h2 style="font-size: 19px; font-weight: 800;">بوابة الموزعين المعتمدين وطلبات التوريد</h2>
         <p style="color: var(--text-muted); font-size: 13px; margin-top: 6px;">سجل دخولك باستخدام حساب Google للمتابعة</p>
 
-        <button class="btn-google" onclick="signInWithGoogle()">
+        <button class="btn-google" id="google-login-btn" onclick="signInWithGoogle()">
             <svg width="20" height="20" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.15z"/>
                 <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.15C3.27 21.36 7.35 24 12 24z"/>
@@ -567,27 +573,11 @@
 
 </div>
 
-<!-- نافذة تسجيل الدخول المدمجة للموزعين داخل التطبيق (لتفادي حظر النوافذ المنبثقة في iOS & Android WebView) -->
-<div id="inapp-auth-modal" class="modal-overlay hidden">
-    <div class="sys-dialog-box">
-        <div style="font-size: 40px; margin-bottom: 8px;">☕</div>
-        <div class="brand-logo" style="font-size: 20px; margin-bottom: 6px;">WAKE, WAKE</div>
-        <h3 style="font-size: 17px; margin-bottom: 6px;">تسجيل دخول الموزع</h3>
-        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">أدخل اسمك وبريدك في Google للمتابعة أو استعادة حسابك فوراً</p>
-        <input type="text" id="inapp-dist-name" placeholder="الاسم الكامل للموزع" style="margin-bottom: 10px;">
-        <input type="email" id="inapp-dist-email" placeholder="البريد الإلكتروني (example@gmail.com)" dir="ltr" style="text-align: right; margin-bottom: 14px;">
-        <div style="display: flex; gap: 10px;">
-            <button id="inapp-login-btn" class="btn btn-primary" style="flex: 1;" onclick="confirmInAppDistributorLogin()">متابعة وربط الحساب ✓</button>
-            <button class="btn btn-secondary" onclick="closeInAppDistributorModal()">إلغاء</button>
-        </div>
-    </div>
-</div>
-
-<!-- نافذة التنبيهات والتأكيد المدمجة للنظام (بديل alert و confirm في WebView) -->
+<!-- نافذة التنبيهات والتأكيد المدمجة للنظام (بديل alert و confirm) -->
 <div id="sys-dialog-modal" class="modal-overlay hidden" style="z-index: 2000;">
     <div class="sys-dialog-box">
         <div id="sys-dialog-icon" style="font-size: 36px; margin-bottom: 10px;">🔔</div>
-        <p id="sys-dialog-msg" style="font-size: 14px; font-weight: 700; line-height: 1.7; margin-bottom: 20px; white-space: pre-line;">-</p>
+        <p id="sys-dialog-msg" style="font-size: 15px; font-weight: 700; line-height: 1.6; margin-bottom: 20px;">-</p>
         <div id="sys-dialog-actions" style="display: flex; gap: 10px; justify-content: center;"></div>
     </div>
 </div>
@@ -612,12 +602,26 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // ضمان ثبات اتصال Firestore على أجهزة الآيباد والأندرويد والـ VPN
+    // 1. تفعيل الحفظ الدائم للجلسة في المتصفح والتطبيق (LOCAL Persistence)
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+        .then(() => {
+            // 2. معالجة التوكن ونتيجة التحويل فور عودة المتصفح
+            return auth.getRedirectResult();
+        })
+        .then((result) => {
+            if (result && result.user) {
+                console.log("Logged in successfully via redirect:", result.user.email);
+            }
+        })
+        .catch((error) => {
+            console.error("Auth redirect result error:", error);
+            const btn = document.getElementById('google-login-btn');
+            if (btn) btn.disabled = false;
+        });
+
     try {
         db.settings({ experimentalAutoDetectLongPolling: true, merge: true });
-    } catch (e) {
-        console.warn("Firestore settings notice:", e);
-    }
+    } catch (e) {}
 
     let currentUser = null;
     let userData = null;
@@ -637,13 +641,12 @@
     let rawAds = [];
     let rawNotifs = [];
 
-    // نوافذ التنبيه والتأكيد المدمجة لتعمل في كافة بيئات iOS & Android WebView
     function showAppAlert(message) {
         const modal = document.getElementById('sys-dialog-modal');
         document.getElementById('sys-dialog-icon').innerText = '✅';
         document.getElementById('sys-dialog-msg').innerText = message;
         document.getElementById('sys-dialog-actions').innerHTML = `
-            <button class="btn btn-primary" style="min-width: 120px; width: auto; padding: 10px 24px;" onclick="document.getElementById('sys-dialog-modal').classList.add('hidden')">حسناً</button>
+            <button class="btn btn-primary" style="min-width: 120px; padding: 10px 24px;" onclick="document.getElementById('sys-dialog-modal').classList.add('hidden')">حسناً</button>
         `;
         modal.classList.remove('hidden');
     }
@@ -651,15 +654,15 @@
     function showAppConfirm(message) {
         return new Promise((resolve) => {
             const modal = document.getElementById('sys-dialog-modal');
-            document.getElementById('sys-dialog-icon').innerText = '📦';
+            document.getElementById('sys-dialog-icon').innerText = '⚠️';
             document.getElementById('sys-dialog-msg').innerText = message;
             const actions = document.getElementById('sys-dialog-actions');
             actions.innerHTML = '';
 
             const yesBtn = document.createElement('button');
             yesBtn.className = 'btn btn-success';
-            yesBtn.style.minWidth = '120px';
-            yesBtn.innerText = 'تأكيد الطلب ✓';
+            yesBtn.style.minWidth = '110px';
+            yesBtn.innerText = 'نعم، تأكيد ✓';
             yesBtn.onclick = () => {
                 modal.classList.add('hidden');
                 resolve(true);
@@ -667,7 +670,7 @@
 
             const noBtn = document.createElement('button');
             noBtn.className = 'btn btn-secondary';
-            noBtn.style.minWidth = '100px';
+            noBtn.style.minWidth = '110px';
             noBtn.innerText = 'إلغاء';
             noBtn.onclick = () => {
                 modal.classList.add('hidden');
@@ -682,105 +685,17 @@
 
     window.alert = showAppAlert;
 
-    function isEmbeddedAppEnvironment() {
-        const proto = window.location.protocol;
-        const ua = navigator.userAgent || '';
-        if (proto === 'file:' || proto === 'applewebdata:' || proto === 'content:') return true;
-        if (/wv|WebView/i.test(ua)) return true;
-        if ((/iPhone|iPad|iPod/i.test(ua)) && !/Safari/i.test(ua)) return true;
-        return false;
-    }
-
-    // توليد معرف ثابت للموزع بناءً على بريده الإلكتروني لضمان عدم ضياع الحساب
-    function generateDeterministicUid(email) {
-        const clean = email.trim().toLowerCase();
-        let hash = 0;
-        for (let i = 0; i < clean.length; i++) {
-            const chr = clean.charCodeAt(i);
-            hash = ((hash << 5) - hash) + chr;
-            hash |= 0;
-        }
-        const hex = Math.abs(hash).toString(16);
-        const safeChars = clean.replace(/[^a-z0-9]/g, '').substring(0, 14);
-        return 'dist_' + safeChars + '_' + hex;
-    }
-
-    function showScreen(screenId) {
-        ['view-login', 'view-register', 'view-app'].forEach(id => {
-            document.getElementById(id).classList.add('hidden');
-        });
-        document.getElementById(screenId).classList.remove('hidden');
-    }
-
-    function openInAppDistributorModal() {
-        const savedName = localStorage.getItem('wake_dist_name') || '';
-        const savedEmail = localStorage.getItem('wake_dist_email') || '';
-        document.getElementById('inapp-dist-name').value = savedName;
-        document.getElementById('inapp-dist-email').value = savedEmail;
-        document.getElementById('inapp-auth-modal').classList.remove('hidden');
-    }
-
-    function closeInAppDistributorModal() {
-        document.getElementById('inapp-auth-modal').classList.add('hidden');
-    }
-
-    async function confirmInAppDistributorLogin() {
-        const name = document.getElementById('inapp-dist-name').value.trim();
-        const email = document.getElementById('inapp-dist-email').value.trim().toLowerCase();
-
-        if (!name || !email || !email.includes('@')) {
-            showAppAlert("يرجى إدخال الاسم الكامل والبريد الإلكتروني بشكل صحيح.");
-            return;
-        }
-
-        const btn = document.getElementById('inapp-login-btn');
-        btn.disabled = true;
-        btn.innerText = "جاري التحقق...";
-
-        try {
-            let targetUid = generateDeterministicUid(email);
-
-            // البحث أولاً في قاعدة البيانات إذا كان هذا البريد مسجلاً مسبقاً لاستعادة نفس الحساب
-            const existingSnap = await db.collection("users").where("email", "==", email).limit(1).get();
-            if (!existingSnap.empty) {
-                targetUid = existingSnap.docs[0].id;
-            }
-
-            const sessionUser = {
-                uid: targetUid,
-                displayName: name,
-                email: email,
-                photoURL: "https://ui-avatars.com/api/?name=" + encodeURIComponent(name) + "&background=4338ca&color=fff"
-            };
-
-            localStorage.setItem('wake_dist_session', JSON.stringify(sessionUser));
-            localStorage.setItem('wake_dist_name', name);
-            localStorage.setItem('wake_dist_email', email);
-
-            try {
-                await auth.signInAnonymously();
-            } catch (e) {}
-
-            closeInAppDistributorModal();
-            startDistributorSession(sessionUser);
-        } catch (err) {
-            showAppAlert("حدث خطأ أثناء الاتصال: " + err.message);
-        } finally {
-            btn.disabled = false;
-            btn.innerText = "متابعة وربط الحساب ✓";
-        }
-    }
-
+    // تسجيل الدخول مع حماية الزر من التجمد
     function signInWithGoogle() {
-        if (isEmbeddedAppEnvironment()) {
-            openInAppDistributorModal();
-            return;
-        }
+        const btn = document.getElementById('google-login-btn');
+        if (btn) btn.disabled = true;
 
         const provider = new firebase.auth.GoogleAuthProvider();
-        auth.signInWithPopup(provider).catch(err => {
-            console.warn("Popup blocked or unsupported, opening in-app modal:", err.code);
-            openInAppDistributorModal();
+        provider.setCustomParameters({ prompt: 'select_account' });
+
+        auth.signInWithRedirect(provider).catch(err => {
+            if (btn) btn.disabled = false;
+            showAppAlert("خطأ في تسجيل الدخول: " + err.message);
         });
     }
 
@@ -797,61 +712,56 @@
     }
 
     function logoutUser() {
-        localStorage.removeItem('wake_dist_session');
         cleanupListeners();
         currentUser = null;
         userData = null;
         auth.signOut().catch(() => {});
         showScreen('view-login');
+        const btn = document.getElementById('google-login-btn');
+        if (btn) btn.disabled = false;
     }
 
-    function startDistributorSession(user) {
-        currentUser = user;
-        if (typeof userDocUnsub === 'function') userDocUnsub();
-
-        const defaultAvatar = "https://ui-avatars.com/api/?name=" + encodeURIComponent(user.displayName || "U") + "&background=4338ca&color=fff";
-
-        userDocUnsub = db.collection("users").doc(user.uid).onSnapshot(doc => {
-            if (doc.exists) {
-                userData = doc.data();
-                showScreen('view-app');
-                renderDistributorApp(userData);
-                renderFilteredProducts();
-                renderFilteredAds();
-                renderFilteredNotifs();
-            } else {
-                document.getElementById('reg-photo').src = user.photoURL || defaultAvatar;
-                document.getElementById('reg-google-name').innerText = user.displayName || "موزع جديد";
-                document.getElementById('reg-email').innerText = user.email || "";
-                document.getElementById('cv-name').value = user.displayName || "";
-                showScreen('view-register');
-            }
-        }, err => console.error("User doc listener error:", err));
-
-        initSharedListeners();
-    }
-
+    // مراقبة الجلسة ونقل الموزع فوراً ودائماً عند الدخول
     auth.onAuthStateChanged(user => {
         if (user && user.email) {
-            startDistributorSession(user);
-        } else {
-            const savedSession = localStorage.getItem('wake_dist_session');
-            if (savedSession) {
-                try {
-                    const parsed = JSON.parse(savedSession);
-                    if (parsed && parsed.uid) {
-                        startDistributorSession(parsed);
-                        return;
-                    }
-                } catch (e) {
-                    localStorage.removeItem('wake_dist_session');
+            currentUser = user;
+            if (typeof userDocUnsub === 'function') userDocUnsub();
+
+            const defaultAvatar = "https://ui-avatars.com/api/?name=" + encodeURIComponent(user.displayName || "U") + "&background=4338ca&color=fff";
+
+            userDocUnsub = db.collection("users").doc(user.uid).onSnapshot(doc => {
+                if (doc.exists) {
+                    userData = doc.data();
+                    showScreen('view-app');
+                    renderDistributorApp(userData);
+                    renderFilteredProducts();
+                    renderFilteredAds();
+                    renderFilteredNotifs();
+                } else {
+                    document.getElementById('reg-photo').src = user.photoURL || defaultAvatar;
+                    document.getElementById('reg-google-name').innerText = user.displayName || "موزع جديد";
+                    document.getElementById('reg-email').innerText = user.email;
+                    document.getElementById('cv-name').value = user.displayName || "";
+                    showScreen('view-register');
                 }
-            }
+            });
+
+            initSharedListeners();
+        } else {
             currentUser = null;
             userData = null;
             showScreen('view-login');
+            const btn = document.getElementById('google-login-btn');
+            if (btn) btn.disabled = false;
         }
     });
+
+    function showScreen(screenId) {
+        ['view-login', 'view-register', 'view-app'].forEach(id => {
+            document.getElementById(id).classList.add('hidden');
+        });
+        document.getElementById(screenId).classList.remove('hidden');
+    }
 
     function skipReferralCode() {
         document.getElementById('cv-ref').value = "";
@@ -945,7 +855,6 @@
             alertBanner.classList.remove('hidden');
         }
 
-        // الفئات S, G, E, C
         const rank = u.rank || "C";
         const rankBox = document.getElementById('app-rank-box');
         const rankTitle = document.getElementById('app-rank-title');
@@ -1012,7 +921,6 @@
         if (sharedListenersInitialized || !currentUser) return;
         sharedListenersInitialized = true;
 
-        // 0. الاستماع لإعدادات نسب الفئات (S, G, E, C)
         const unsubSettings = db.collection("settings").doc("ranks_config").onSnapshot(doc => {
             if (doc.exists) {
                 globalSettings = doc.data();
@@ -1023,7 +931,6 @@
             }
         });
 
-        // أ. الاستماع لقائمة المنتجات
         const unsubProducts = db.collection("products").onSnapshot(snap => {
             rawProducts = [];
             snap.forEach(doc => {
@@ -1032,7 +939,6 @@
             renderFilteredProducts();
         });
 
-        // ب. طلبياتي الخاصة
         const unsubOrders = db.collection("orders").where("distributorId", "==", currentUser.uid).onSnapshot(snap => {
             const list = document.getElementById('my-orders-container');
             list.innerHTML = "";
@@ -1071,7 +977,6 @@
             });
         });
 
-        // ج. الاستماع للإعلانات
         const unsubAds = db.collection("announcements").orderBy("pinned", "desc").onSnapshot(snap => {
             rawAds = [];
             snap.forEach(doc => {
@@ -1080,7 +985,6 @@
             renderFilteredAds();
         });
 
-        // د. الاستماع للإشعارات
         const unsubNotifs = db.collection("notifications").orderBy("createdAt", "desc").limit(20).onSnapshot(snap => {
             rawNotifs = [];
             snap.forEach(doc => {
