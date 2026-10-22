@@ -59,13 +59,13 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
             setState(() => _isLoading = false);
           },
           onNavigationRequest: (NavigationRequest request) {
-            // السماح بفتح روابط المصادقة الخارجية وتسجيل الدخول بسلاسة
+            // البقاء داخل التطبيق دائماً وعدم فتح متصفح خارجي
             return NavigationDecision.navigate;
           },
         ),
       )
-      ..setUserAgent("Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1")
-      ..loadFlutterAsset('assets/index.html');
+      ..setUserAgent("Mozilla/5.0 (iPad; CPU OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1")
+      ..loadRequest(Uri.parse('https://zaintabalha.github.io/wake-wake-/index.html'));
   }
 
   @override
