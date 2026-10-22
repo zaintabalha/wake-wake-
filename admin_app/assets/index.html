@@ -255,6 +255,18 @@
             gap: 12px;
             box-shadow: 0 4px 15px rgba(255,255,255,0.1);
             margin-top: 20px;
+            transition: transform 0.2s;
+        }
+
+        .btn-google:hover {
+            transform: translateY(-2px);
+            background: #f3f4f6;
+        }
+
+        .btn-google:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .grid-2 {
@@ -392,7 +404,7 @@
         <h2 style="font-size: 20px; font-weight: 800;">بوابة المدير العام المركزية</h2>
         <p style="color: var(--text-muted); font-size: 13px; margin-top: 6px;">سجل دخولك بحساب الإدارة المعتمد لإدارة المنظومة</p>
 
-        <button class="btn-google" onclick="adminLogin()">
+        <button class="btn-google" id="admin-login-btn" onclick="adminLogin()">
             <svg width="20" height="20" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.15z"/>
                 <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.15C3.27 21.36 7.35 24 12 24z"/>
@@ -786,10 +798,22 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // تفعيل الحفظ الدائم لجلسة تسجيل الدخول على الجهاز (Local Persistence) ليبقى مسجلاً بشكل دائم
-    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(err => {
-        console.warn("Auth persistence error:", err);
-    });
+    // 1. تفعيل الحفظ الدائم للجلسة في المتصفح والتطبيق (LOCAL Persistence)
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+        .then(() => {
+            // 2. معالجة التوكن ونتيجة التحويل فور عودة المتصفح
+            return auth.getRedirectResult();
+        })
+        .then((result) => {
+            if (result && result.user) {
+                console.log("Admin logged in successfully via redirect:", result.user.email);
+            }
+        })
+        .catch((error) => {
+            console.error("Admin redirect result error:", error);
+            const btn = document.getElementById('admin-login-btn');
+            if (btn) btn.disabled = false;
+        });
 
     try {
         db.settings({ experimentalAutoDetectLongPolling: true, merge: true });
@@ -855,10 +879,16 @@
 
     window.alert = showAppAlert;
 
-    // تسجيل الدخول حصرياً عبر Google Redirect لضمان العمل الموثق والآمن 100%
+    // تسجيل الدخول مع حماية الزر من التجمد
     function adminLogin() {
+        const btn = document.getElementById('admin-login-btn');
+        if (btn) btn.disabled = true;
+
         const provider = new firebase.auth.GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+
         auth.signInWithRedirect(provider).catch(err => {
+            if (btn) btn.disabled = false;
             showAppAlert("خطأ في تسجيل الدخول: " + err.message);
         });
     }
@@ -873,17 +903,11 @@
         auth.signOut().catch(() => {});
         document.getElementById('admin-auth').classList.remove('hidden');
         document.getElementById('admin-panel').classList.add('hidden');
+        const btn = document.getElementById('admin-login-btn');
+        if (btn) btn.disabled = false;
     }
 
-    // التحقق من نتيجة تسجيل الدخول عبر إعادة التوجيه واستمرار حفظ الجلسة تلقائياً
-    auth.getRedirectResult().then((result) => {
-        if (result.user) {
-            console.log("Logged in successfully via Google redirect:", result.user.email);
-        }
-    }).catch((error) => {
-        console.warn("Redirect result error:", error.message);
-    });
-
+    // مراقبة الجلسة ونقل المدير فوراً للوحة التحكم ودائماً عند الدخول
     auth.onAuthStateChanged(user => {
         if (user && user.email) {
             document.getElementById('admin-auth').classList.add('hidden');
@@ -898,6 +922,8 @@
         } else {
             document.getElementById('admin-auth').classList.remove('hidden');
             document.getElementById('admin-panel').classList.add('hidden');
+            const btn = document.getElementById('admin-login-btn');
+            if (btn) btn.disabled = false;
         }
     });
 
