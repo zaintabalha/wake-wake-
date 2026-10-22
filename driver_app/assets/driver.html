@@ -380,14 +380,14 @@
         <h2 style="font-size: 19px; font-weight: 800;">بوابة الموزعين المعتمدين وطلبات التوريد</h2>
         <p style="color: var(--text-muted); font-size: 13px; margin-top: 6px;">سجل دخولك باستخدام حساب Google للمتابعة</p>
 
-        <button class="btn-google" id="google-login-btn" onclick="signInWithGoogle()">
+        <button class="btn-google" id="driver-login-btn" onclick="signInWithGoogle()">
             <svg width="20" height="20" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.15z"/>
                 <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.15C3.27 21.36 7.35 24 12 24z"/>
                 <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.26C.46 8.16 0 9.94 0 12s.46 3.84 1.26 5.42l4.02-3.15z"/>
                 <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.35 0 3.27 2.64 1.26 6.58l4.02 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
             </svg>
-            تسجيل الدخول باستخدام Google
+            <span id="driver-login-text">تسجيل الدخول باستخدام Google</span>
         </button>
     </div>
 
@@ -602,23 +602,6 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // 1. تفعيل الحفظ الدائم للجلسة في المتصفح والتطبيق (LOCAL Persistence)
-    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-        .then(() => {
-            // 2. معالجة التوكن ونتيجة التحويل فور عودة المتصفح
-            return auth.getRedirectResult();
-        })
-        .then((result) => {
-            if (result && result.user) {
-                console.log("Logged in successfully via redirect:", result.user.email);
-            }
-        })
-        .catch((error) => {
-            console.error("Auth redirect result error:", error);
-            const btn = document.getElementById('google-login-btn');
-            if (btn) btn.disabled = false;
-        });
-
     try {
         db.settings({ experimentalAutoDetectLongPolling: true, merge: true });
     } catch (e) {}
@@ -643,7 +626,8 @@
 
     function showAppAlert(message) {
         const modal = document.getElementById('sys-dialog-modal');
-        document.getElementById('sys-dialog-icon').innerText = '✅';
+        if (!modal) { alert(message); return; }
+        document.getElementById('sys-dialog-icon').innerText = '🔔';
         document.getElementById('sys-dialog-msg').innerText = message;
         document.getElementById('sys-dialog-actions').innerHTML = `
             <button class="btn btn-primary" style="min-width: 120px; padding: 10px 24px;" onclick="document.getElementById('sys-dialog-modal').classList.add('hidden')">حسناً</button>
@@ -654,6 +638,7 @@
     function showAppConfirm(message) {
         return new Promise((resolve) => {
             const modal = document.getElementById('sys-dialog-modal');
+            if (!modal) { resolve(confirm(message)); return; }
             document.getElementById('sys-dialog-icon').innerText = '⚠️';
             document.getElementById('sys-dialog-msg').innerText = message;
             const actions = document.getElementById('sys-dialog-actions');
@@ -663,19 +648,13 @@
             yesBtn.className = 'btn btn-success';
             yesBtn.style.minWidth = '110px';
             yesBtn.innerText = 'نعم، تأكيد ✓';
-            yesBtn.onclick = () => {
-                modal.classList.add('hidden');
-                resolve(true);
-            };
+            yesBtn.onclick = () => { modal.classList.add('hidden'); resolve(true); };
 
             const noBtn = document.createElement('button');
             noBtn.className = 'btn btn-secondary';
             noBtn.style.minWidth = '110px';
             noBtn.innerText = 'إلغاء';
-            noBtn.onclick = () => {
-                modal.classList.add('hidden');
-                resolve(false);
-            };
+            noBtn.onclick = () => { modal.classList.add('hidden'); resolve(false); };
 
             actions.appendChild(yesBtn);
             actions.appendChild(noBtn);
@@ -685,18 +664,68 @@
 
     window.alert = showAppAlert;
 
-    // تسجيل الدخول مع حماية الزر من التجمد
-    function signInWithGoogle() {
-        const btn = document.getElementById('google-login-btn');
+    function resetDriverLoginBtn() {
+        const btn = document.getElementById('driver-login-btn');
+        const txt = document.getElementById('driver-login-text');
+        if (btn) btn.disabled = false;
+        if (txt) txt.innerText = "تسجيل الدخول باستخدام Google";
+    }
+
+    // 1. تفعيل الحفظ الدائم والتقاط نتيجة العودة من جوجل فوراً
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+        .then(() => {
+            return auth.getRedirectResult();
+        })
+        .then((result) => {
+            if (result && result.user) {
+                console.log("Driver redirect login success:", result.user.email);
+            }
+        })
+        .catch((error) => {
+            console.error("Driver redirect error:", error);
+            showAppAlert("تنبيه أثناء استعادة الجلسة: " + error.message);
+            resetDriverLoginBtn();
+        });
+
+    // 2. دالة تسجيل الدخول الذكية (تحاول Popup أولاً ثم Redirect)
+    async function signInWithGoogle() {
+        const btn = document.getElementById('driver-login-btn');
+        const txt = document.getElementById('driver-login-text');
         if (btn) btn.disabled = true;
+        if (txt) txt.innerText = "جاري الاتصال بحساب Google...";
 
         const provider = new firebase.auth.GoogleAuthProvider();
         provider.setCustomParameters({ prompt: 'select_account' });
 
-        auth.signInWithRedirect(provider).catch(err => {
-            if (btn) btn.disabled = false;
-            showAppAlert("خطأ في تسجيل الدخول: " + err.message);
+        try {
+            await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+            await auth.signInWithPopup(provider);
+        } catch (err) {
+            console.warn("Popup fallback to redirect:", err.code);
+            if (
+                err.code === 'auth/popup-blocked' ||
+                err.code === 'auth/cancelled-popup-request' ||
+                err.code === 'auth/operation-not-supported-in-this-environment' ||
+                err.code === 'auth/popup-closed-by-user'
+            ) {
+                auth.signInWithRedirect(provider).catch(redirectErr => {
+                    resetDriverLoginBtn();
+                    showAppAlert("تعذر فتح صفحة الدخول: " + redirectErr.message);
+                });
+            } else {
+                resetDriverLoginBtn();
+                showAppAlert("خطأ في المصادقة: " + err.message);
+            }
+        }
+    }
+
+    function showScreen(screenId) {
+        ['view-login', 'view-register', 'view-app'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.classList.add('hidden');
         });
+        const target = document.getElementById(screenId);
+        if (target) target.classList.remove('hidden');
     }
 
     function cleanupListeners() {
@@ -715,13 +744,13 @@
         cleanupListeners();
         currentUser = null;
         userData = null;
-        auth.signOut().catch(() => {});
-        showScreen('view-login');
-        const btn = document.getElementById('google-login-btn');
-        if (btn) btn.disabled = false;
+        auth.signOut().then(() => {
+            showScreen('view-login');
+            resetDriverLoginBtn();
+        }).catch(err => showAppAlert("خطأ تسجيل الخروج: " + err.message));
     }
 
-    // مراقبة الجلسة ونقل الموزع فوراً ودائماً عند الدخول
+    // 3. مراقبة حالة الجلسة لفتح حساب الموزع تلقائياً وبشكل دائم
     auth.onAuthStateChanged(user => {
         if (user && user.email) {
             currentUser = user;
@@ -751,17 +780,9 @@
             currentUser = null;
             userData = null;
             showScreen('view-login');
-            const btn = document.getElementById('google-login-btn');
-            if (btn) btn.disabled = false;
+            resetDriverLoginBtn();
         }
     });
-
-    function showScreen(screenId) {
-        ['view-login', 'view-register', 'view-app'].forEach(id => {
-            document.getElementById(id).classList.add('hidden');
-        });
-        document.getElementById(screenId).classList.remove('hidden');
-    }
 
     function skipReferralCode() {
         document.getElementById('cv-ref').value = "";
