@@ -53,6 +53,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     if (WebViewPlatform.instance is WebKitWebViewPlatform) {
       params = WebKitWebViewControllerCreationParams(
         allowsInlineMediaPlayback: true,
+        mediaTypesRequiringUserAction: const <PlaybackMediaTypes>{},
       );
     } else {
       params = const PlatformWebViewControllerCreationParams();
@@ -73,6 +74,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
             setState(() => _isLoading = false);
           },
           onNavigationRequest: (NavigationRequest request) {
+            // السماح بجميع الروابط الخاصة بغوغل والمصادقة لتعمل بسلاسة
             return NavigationDecision.navigate;
           },
         ),
