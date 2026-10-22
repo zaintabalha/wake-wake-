@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -10,16 +11,16 @@ void main() {
       statusBarIconBrightness: Brightness.light,
     ),
   );
-  runApp(const WakeWakeDriverApp());
+  runApp(const WakeWakeAdminApp());
 }
 
-class WakeWakeDriverApp extends StatelessWidget {
-  const WakeWakeDriverApp({super.key});
+class WakeWakeAdminApp extends StatelessWidget {
+  const WakeWakeAdminApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'WAKE, WAKE Driver',
+      title: 'WAKE, WAKE Admin',
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: const Color(0xFF0B0F19),
@@ -28,26 +29,39 @@ class WakeWakeDriverApp extends StatelessWidget {
           surface: Color(0xFF111827),
         ),
       ),
-      home: const DriverHomeScreen(),
+      home: const AdminHomeScreen(),
     );
   }
 }
 
-class DriverHomeScreen extends StatefulWidget {
-  const DriverHomeScreen({super.key});
+class AdminHomeScreen extends StatefulWidget {
+  const AdminHomeScreen({super.key});
 
   @override
-  State<DriverHomeScreen> createState() => _DriverHomeScreenState();
+  State<AdminHomeScreen> createState() => _AdminHomeScreenState();
 }
 
-class _DriverHomeScreenState extends State<DriverHomeScreen> {
+class _AdminHomeScreenState extends State<AdminHomeScreen> {
   late final WebViewController _controller;
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _controller = WebViewController()
+
+    late final PlatformWebViewControllerCreationParams params;
+    if (WebViewPlatform.instance is WebKitWebViewPlatform) {
+      params = WebKitWebViewControllerCreationParams(
+        allowsInlineMediaPlayback: true,
+      );
+    } else {
+      params = const PlatformWebViewControllerCreationParams();
+    }
+
+    final WebViewController controller =
+        WebViewController.fromPlatformCreationParams(params);
+
+    controller
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(const Color(0xFF0B0F19))
       ..setNavigationDelegate(
@@ -63,8 +77,15 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
           },
         ),
       )
-      ..setUserAgent("Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1")
-      ..loadRequest(Uri.parse('https://zaintabalha.github.io/wake-wake-/driver.html'));
+      ..setUserAgent("Mozilla/5.0 (iPad; CPU OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1")
+      ..loadRequest(Uri.parse('https://zaintabalha.github.io/wake-wake-/index.html'));
+
+    if (controller.platform is WebKitWebViewController) {
+      (controller.platform as WebKitWebViewController)
+          .setInspectable(true);
+    }
+
+    _controller = controller;
   }
 
   @override
