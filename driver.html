@@ -98,6 +98,12 @@
             background: #f3f4f6;
         }
 
+        .btn-google:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         /* الأزرار والحقول */
         .form-group {
             margin-bottom: 14px;
@@ -374,7 +380,7 @@
         <h2 style="font-size: 19px; font-weight: 800;">بوابة الموزعين المعتمدين وطلبات التوريد</h2>
         <p style="color: var(--text-muted); font-size: 13px; margin-top: 6px;">سجل دخولك باستخدام حساب Google للمتابعة</p>
 
-        <button class="btn-google" onclick="signInWithGoogle()">
+        <button class="btn-google" id="google-login-btn" onclick="signInWithGoogle()">
             <svg width="20" height="20" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.15z"/>
                 <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.15C3.27 21.36 7.35 24 12 24z"/>
@@ -596,10 +602,22 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // تفعيل الحفظ الدائم للجلسة على الجهاز (Local Persistence)
-    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(err => {
-        console.warn("Auth persistence error:", err);
-    });
+    // 1. تفعيل الحفظ الدائم للجلسة في المتصفح والتطبيق (LOCAL Persistence)
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+        .then(() => {
+            // 2. معالجة التوكن ونتيجة التحويل فور عودة المتصفح
+            return auth.getRedirectResult();
+        })
+        .then((result) => {
+            if (result && result.user) {
+                console.log("Logged in successfully via redirect:", result.user.email);
+            }
+        })
+        .catch((error) => {
+            console.error("Auth redirect result error:", error);
+            const btn = document.getElementById('google-login-btn');
+            if (btn) btn.disabled = false;
+        });
 
     try {
         db.settings({ experimentalAutoDetectLongPolling: true, merge: true });
@@ -667,10 +685,16 @@
 
     window.alert = showAppAlert;
 
-    // تسجيل الدخول حصرياً عبر Google Redirect الآمن والموثق
+    // تسجيل الدخول مع حماية الزر من التجمد
     function signInWithGoogle() {
+        const btn = document.getElementById('google-login-btn');
+        if (btn) btn.disabled = true;
+
         const provider = new firebase.auth.GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+
         auth.signInWithRedirect(provider).catch(err => {
+            if (btn) btn.disabled = false;
             showAppAlert("خطأ في تسجيل الدخول: " + err.message);
         });
     }
@@ -693,16 +717,11 @@
         userData = null;
         auth.signOut().catch(() => {});
         showScreen('view-login');
+        const btn = document.getElementById('google-login-btn');
+        if (btn) btn.disabled = false;
     }
 
-    auth.getRedirectResult().then((result) => {
-        if (result.user) {
-            console.log("Driver logged in successfully:", result.user.email);
-        }
-    }).catch((error) => {
-        console.warn("Driver redirect error:", error.message);
-    });
-
+    // مراقبة الجلسة ونقل الموزع فوراً ودائماً عند الدخول
     auth.onAuthStateChanged(user => {
         if (user && user.email) {
             currentUser = user;
@@ -732,8 +751,17 @@
             currentUser = null;
             userData = null;
             showScreen('view-login');
+            const btn = document.getElementById('google-login-btn');
+            if (btn) btn.disabled = false;
         }
     });
+
+    function showScreen(screenId) {
+        ['view-login', 'view-register', 'view-app'].forEach(id => {
+            document.getElementById(id).classList.add('hidden');
+        });
+        document.getElementById(screenId).classList.remove('hidden');
+    }
 
     function skipReferralCode() {
         document.getElementById('cv-ref').value = "";
