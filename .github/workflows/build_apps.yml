@@ -6,9 +6,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  # ==============================
-  # 1. بناء ملفات أندرويد (APK)
-  # ==============================
   build-admin-apk:
     name: Build Admin APK
     runs-on: ubuntu-latest
@@ -32,7 +29,8 @@ jobs:
       - name: Prepare Android Project
         working-directory: ./admin_app
         run: |
-          flutter create . --platforms=android --org com.wakewake
+          rm -rf android
+          flutter create . --platforms=android --org com.wake.wake
           sed -i '/<application/i <uses-permission android:name="android.permission.INTERNET"/>' android/app/src/main/AndroidManifest.xml
           flutter pub get
 
@@ -70,7 +68,7 @@ jobs:
         working-directory: ./driver_app
         run: |
           rm -rf android
-          flutter create . --platforms=android --org com.wakewake
+          flutter create . --platforms=android --org com.wake.wake
           sed -i '/<application/i <uses-permission android:name="android.permission.INTERNET"/>\n<uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>' android/app/src/main/AndroidManifest.xml
           flutter pub get
 
@@ -84,9 +82,6 @@ jobs:
           name: WAKE-WAKE-Driver-APK
           path: driver_app/build/app/outputs/flutter-apk/app-release.apk
 
-  # ==============================
-  # 2. بناء ملفات آبل (IPA)
-  # ==============================
   build-admin-ipa:
     name: Build Admin IPA (iOS)
     runs-on: macos-14
@@ -104,7 +99,7 @@ jobs:
       - name: Build & Package Admin IPA
         working-directory: ./admin_app
         run: |
-          flutter create . --platforms=ios --org com.wakewake
+          flutter create . --platforms=ios --org com.wake.wake
           flutter pub get
           flutter build ios --release --no-codesign
           cd build/ios/iphoneos
@@ -135,7 +130,7 @@ jobs:
       - name: Build & Package Driver IPA
         working-directory: ./driver_app
         run: |
-          flutter create . --platforms=ios --org com.wakewake
+          flutter create . --platforms=ios --org com.wake.wake
           flutter pub get
           flutter build ios --release --no-codesign
           cd build/ios/iphoneos
