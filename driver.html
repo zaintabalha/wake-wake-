@@ -73,40 +73,40 @@
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
         }
 
-        /* زر جوجل */
-        .btn-google {
-            width: 100%;
-            background: #ffffff;
-            color: #1f2937;
-            border: none;
-            padding: 14px 20px;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 15px;
-            cursor: pointer;
+        /* تبويبات المصادقة الداخلية */
+        .auth-switcher {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            box-shadow: 0 4px 15px rgba(255,255,255,0.1);
-            margin-top: 20px;
-            transition: transform 0.2s;
+            background: var(--card);
+            padding: 5px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            margin: 18px 0;
+            gap: 6px;
         }
 
-        .btn-google:hover {
-            transform: translateY(-2px);
-            background: #f3f4f6;
+        .auth-tab-btn {
+            flex: 1;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s;
         }
 
-        .btn-google:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
+        .auth-tab-btn.active {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(67, 56, 202, 0.4);
         }
 
         /* الأزرار والحقول */
         .form-group {
             margin-bottom: 14px;
+            text-align: right;
         }
 
         label {
@@ -124,13 +124,86 @@
             border: 1px solid var(--border);
             background: var(--card);
             color: #fff;
-            font-size: 16px;
+            font-size: 15px;
             outline: none;
+            transition: border-color 0.2s;
         }
 
         input:focus, select:focus, textarea:focus {
             border-color: #6366f1;
         }
+
+        .input-with-icon {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-with-icon input {
+            padding-left: 44px;
+        }
+
+        .toggle-pass-btn {
+            position: absolute;
+            left: 10px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 16px;
+            cursor: pointer;
+            padding: 4px 8px;
+        }
+
+        .syria-phone-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .syria-flag-badge {
+            position: absolute;
+            left: 10px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid var(--border);
+            padding: 3px 8px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--gold);
+            pointer-events: none;
+            direction: ltr;
+        }
+
+        .syria-phone-wrap input {
+            padding-left: 85px;
+            direction: ltr;
+            text-align: right;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+
+        /* مؤشر قوة ومعايير كلمة المرور */
+        .security-checklist {
+            background: rgba(17, 24, 39, 0.85);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin-bottom: 14px;
+            text-align: right;
+            font-size: 12px;
+        }
+
+        .sec-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-muted);
+            margin: 4px 0;
+            font-weight: 600;
+        }
+
+        .sec-item.valid { color: var(--success); }
+        .sec-item.invalid { color: var(--danger); }
 
         .btn {
             padding: 12px 16px;
@@ -142,11 +215,28 @@
             transition: 0.2s;
         }
 
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
         .btn-primary { width: 100%; background: var(--primary); color: #fff; }
-        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
         .btn-secondary { background: #374151; color: #e5e7eb; }
         .btn-success { background: var(--success); color: #fff; }
         .btn-danger { background: var(--danger); color: #fff; }
+
+        .forgot-pass-link {
+            display: inline-block;
+            margin-top: 12px;
+            color: #a5b4fc;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: underline;
+            background: none;
+            border: none;
+        }
 
         /* الهيدر العلوي للموزع */
         .user-header {
@@ -345,7 +435,7 @@
             text-align: center;
         }
 
-        /* النوافذ المدمجة للنظام (بديل الـ Alert و Confirm في WebView) */
+        /* النوافذ المدمجة للنظام */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -373,25 +463,128 @@
 
 <div class="main-wrapper">
 
-    <!-- 1. شاشة تسجيل الدخول عبر Google -->
-    <div id="view-login" class="card" style="text-align: center; padding: 40px 24px; margin-top: 40px;">
-        <div style="font-size: 52px; margin-bottom: 8px;">☕</div>
-        <div class="brand-logo" style="margin-bottom: 6px;">WAKE, WAKE</div>
-        <h2 style="font-size: 19px; font-weight: 800;">بوابة الموزعين المعتمدين وطلبات التوريد</h2>
-        <p style="color: var(--text-muted); font-size: 13px; margin-top: 6px;">سجل دخولك باستخدام حساب Google للمتابعة</p>
+    <!-- 1. شاشة تسجيل الدخول وإنشاء الحساب الداخلية الآمنة للموزعين -->
+    <div id="view-login" class="card" style="text-align: center; padding: 30px 22px; margin-top: 24px;">
+        <div style="font-size: 48px; margin-bottom: 6px;">☕</div>
+        <div class="brand-logo" style="margin-bottom: 4px;">WAKE, WAKE</div>
+        <h2 style="font-size: 18px; font-weight: 800;">بوابة الموزعين المعتمدين وطلبات التوريد</h2>
+        <p style="color: var(--text-muted); font-size: 12px; margin-top: 4px;">نظام المصادقة الداخلي المشفر وعالي الأمان</p>
 
-        <button class="btn-google" id="driver-login-btn" onclick="signInWithGoogle()">
-            <svg width="20" height="20" viewBox="0 0 24 24">
-                <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.15z"/>
-                <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.15C3.27 21.36 7.35 24 12 24z"/>
-                <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.26C.46 8.16 0 9.94 0 12s.46 3.84 1.26 5.42l4.02-3.15z"/>
-                <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.35 0 3.27 2.64 1.26 6.58l4.02 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
-            </svg>
-            <span id="driver-login-text">تسجيل الدخول باستخدام Google</span>
-        </button>
+        <!-- شريط التبديل بين تسجيل الدخول وإنشاء حساب -->
+        <div class="auth-switcher">
+            <button type="button" id="tab-btn-login" class="auth-tab-btn active" onclick="switchAuthMode('login')">🔐 تسجيل الدخول</button>
+            <button type="button" id="tab-btn-signup" class="auth-tab-btn" onclick="switchAuthMode('signup')">📝 حساب موزع جديد</button>
+        </div>
+
+        <!-- أ) نموذج تسجيل الدخول للموزع المسجل -->
+        <div id="form-login-box">
+            <div class="form-group">
+                <label>البريد الإلكتروني</label>
+                <input type="email" id="login-email" placeholder="example@domain.com" dir="ltr" style="text-align: right;">
+            </div>
+
+            <div class="form-group">
+                <label>كلمة المرور</label>
+                <div class="input-with-icon">
+                    <input type="password" id="login-password" placeholder="أدخل كلمة المرور">
+                    <button type="button" class="toggle-pass-btn" onclick="togglePasswordVisibility('login-password', this)">👁️</button>
+                </div>
+            </div>
+
+            <button type="button" id="btn-do-login" class="btn btn-primary" style="padding: 14px; font-size: 15px; margin-top: 6px;" onclick="loginWithEmail()">
+                تسجيل الدخول إلى الحساب
+            </button>
+
+            <button type="button" class="forgot-pass-link" onclick="resetPasswordPrompt()">
+                نسيت كلمة المرور؟ إرسال رابط استعادة للبريد
+            </button>
+        </div>
+
+        <!-- ب) نموذج إنشاء حساب موزع جديد بمعايير التحقق الصارمة -->
+        <div id="form-signup-box" class="hidden">
+            <div class="form-group">
+                <label>الاسم الثلاثي الكامل</label>
+                <input type="text" id="sig-name" placeholder="مثال: محمد أحمد العلي">
+            </div>
+
+            <div class="form-group">
+                <label>البريد الإلكتروني الصحيح (يمنع تكراره)</label>
+                <input type="email" id="sig-email" placeholder="name@example.com" dir="ltr" style="text-align: right;" oninput="validateSignupLive()">
+            </div>
+
+            <div class="form-group">
+                <label>رقم الموبايل السوري حصراً (يمنع تكرار الرقم)</label>
+                <div class="syria-phone-wrap">
+                    <input type="tel" id="sig-phone" placeholder="09xxxxxxxx" maxlength="10" oninput="handlePhoneInput(this); validateSignupLive();">
+                    <span class="syria-flag-badge">🇸🇾 SY 09</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>كلمة المرور القوية (8 خانات على الأقل مع أرقام وحروف)</label>
+                <div class="input-with-icon">
+                    <input type="password" id="sig-pass" placeholder="أدخل كلمة مرور قوية" oninput="validateSignupLive()">
+                    <button type="button" class="toggle-pass-btn" onclick="togglePasswordVisibility('sig-pass', this)">👁️</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>تأكيد كلمة المرور (أعد كتابة كلمة السر مرة ثانية)</label>
+                <div class="input-with-icon">
+                    <input type="password" id="sig-pass-confirm" placeholder="أعد إدخال كلمة المرور للتأكيد" oninput="validateSignupLive()">
+                    <button type="button" class="toggle-pass-btn" onclick="togglePasswordVisibility('sig-pass-confirm', this)">👁️</button>
+                </div>
+            </div>
+
+            <!-- قائمة التحقق الفوري من المعايير الأمنية -->
+            <div class="security-checklist">
+                <div id="chk-email" class="sec-item">⚪ صيغة البريد الإلكتروني صحيحة وسليمة</div>
+                <div id="chk-phone" class="sec-item">⚪ رقم موبايل سوري صحيح (10 أرقام يبدأ بـ 09)</div>
+                <div id="chk-pass-len" class="sec-item">⚪ كلمة المرور 8 خانات على الأقل وتضم أحرفاً وأرقاماً</div>
+                <div id="chk-pass-match" class="sec-item">⚪ تطابق تام بين كلمة المرور وتأكيد كلمة المرور</div>
+            </div>
+
+            <div class="form-group">
+                <label>المنطقة الجغرافية وخط التوزيع المستهدف</label>
+                <input type="text" id="sig-area" placeholder="مثال: دمشق - المزة، الشعلان، أبو رمانة">
+            </div>
+
+            <div class="form-group">
+                <label>وسيلة النقل المتوفرة لديك</label>
+                <select id="sig-transport">
+                    <option value="سيارة خاصة">سيارة خاصة</option>
+                    <option value="فان توزيع بضائع">فان توزيع بضائع</option>
+                    <option value="دراجة نارية">دراجة نارية</option>
+                    <option value="مندوب مبيعات بدون مركبة">مندوب مبيعات بدون مركبة</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>عدد سنوات الخبرة في المبيعات والتوزيع</label>
+                <select id="sig-exp">
+                    <option value="أقل من سنة">مبتدئ / أقل من سنة</option>
+                    <option value="من 1 إلى 3 سنوات">من 1 إلى 3 سنوات</option>
+                    <option value="أكثر من 3 سنوات">أكثر من 3 سنوات (خبير)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>نبذة عنك وعن خبراتك السابقة (السيرة الذاتية CV)</label>
+                <textarea id="sig-bio" rows="3" placeholder="اذكر خبراتك السابقة، والشركات التي عملت بها، وعدد نقاط البيع التي يمكنك تغطيتها..."></textarea>
+            </div>
+
+            <div class="form-group" style="background: rgba(67, 56, 202, 0.12); border: 1px dashed #6366f1; padding: 12px; border-radius: 14px;">
+                <label style="color: #a5b4fc;">كود الداعي (اختياري - إذا انضممت عن طريق موزع آخر)</label>
+                <input type="text" id="sig-ref" placeholder="مثال: WAKE-1234" style="margin-bottom: 0;">
+            </div>
+
+            <button type="button" id="btn-do-signup" class="btn btn-success" style="width: 100%; padding: 14px; font-size: 15px;" onclick="registerNewDistributor()">
+                تأكيد وإنشاء الحساب وإرسال السيرة الذاتية ✓
+            </button>
+        </div>
     </div>
 
-    <!-- 2. استمارة السيرة الذاتية (CV) ومعلومات الموزع الجديد -->
+    <!-- 2. استمارة استكمال البيانات (للحسابات غير المكتملة) -->
     <div id="view-register" class="card hidden">
         <div class="user-header" style="background: var(--card);">
             <div class="user-info">
@@ -404,17 +597,20 @@
             <button class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;" onclick="logoutUser()">خروج</button>
         </div>
 
-        <h3 style="font-size: 18px; margin-bottom: 6px;">استمارة الانضمام إلى WAKE, WAKE والسيرة الذاتية (CV)</h3>
+        <h3 style="font-size: 18px; margin-bottom: 6px;">استكمال استمارة الانضمام والسيرة الذاتية (CV)</h3>
         <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 18px;">أكمل معلوماتك المهنية ليتم جدولة مقابلتك وتوثيق حسابك من قِبل الإدارة</p>
 
         <div class="form-group">
-            <label>الاسم الكامل</label>
+            <label>الاسم الثلاثي الكامل</label>
             <input type="text" id="cv-name" placeholder="الاسم الثلاثي">
         </div>
 
         <div class="form-group">
-            <label>رقم الهاتف (متاح للاتصال وواتساب)</label>
-            <input type="tel" id="cv-phone" placeholder="09xxxxxxxx">
+            <label>رقم الهاتف السوري حصراً (09xxxxxxxx)</label>
+            <div class="syria-phone-wrap">
+                <input type="tel" id="cv-phone" placeholder="09xxxxxxxx" maxlength="10" oninput="handlePhoneInput(this)">
+                <span class="syria-flag-badge">🇸🇾 SY 09</span>
+            </div>
         </div>
 
         <div class="form-group">
@@ -573,7 +769,7 @@
 
 </div>
 
-<!-- نافذة التنبيهات والتأكيد المدمجة للنظام (بديل alert و confirm) -->
+<!-- نافذة التنبيهات والتأكيد المدمجة للنظام -->
 <div id="sys-dialog-modal" class="modal-overlay hidden" style="z-index: 2000;">
     <div class="sys-dialog-box">
         <div id="sys-dialog-icon" style="font-size: 36px; margin-bottom: 10px;">🔔</div>
@@ -602,6 +798,9 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
+    // تفعيل الحفظ الدائم للجلسة داخل التطبيق والمتصفح
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(e => console.warn(e));
+
     try {
         db.settings({ experimentalAutoDetectLongPolling: true, merge: true });
     } catch (e) {}
@@ -611,6 +810,7 @@
     let userDocUnsub = null;
     let sharedUnsubs = [];
     let sharedListenersInitialized = false;
+    let isCreatingAccountFlow = false;
 
     let globalSettings = {
         rankS_pct: 10,
@@ -623,6 +823,26 @@
     let rawProducts = [];
     let rawAds = [];
     let rawNotifs = [];
+
+    // معايير التحقق الأمني الصارمة:
+    // 1. صيغة البريد الإلكتروني الصحيحة
+    const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    // 2. رقم موبايل سوري حصراً (10 أرقام يبدأ بـ 093, 094, 095, 096, 098, 099)
+    const SYRIAN_PHONE_REGEX = /^09[3-9][0-9]{7}$/;
+    // 3. كلمة مرور قوية (8 خانات على الأقل وتحتوي على حروف وأرقام)
+    const STRONG_PASS_REGEX = /^(?=.*[A-Za-z\u0600-\u06FF])(?=.*\d).{8,}$/;
+
+    // تحويل الأرقام العربية أو الهندية إلى إنجليزية تلقائياً
+    function normalizeDigits(str) {
+        return String(str || '')
+            .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+            .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
+            .replace(/[^0-9]/g, '');
+    }
+
+    function handlePhoneInput(inputEl) {
+        inputEl.value = normalizeDigits(inputEl.value).slice(0, 10);
+    }
 
     function showAppAlert(message) {
         const modal = document.getElementById('sys-dialog-modal');
@@ -664,58 +884,264 @@
 
     window.alert = showAppAlert;
 
-    function resetDriverLoginBtn() {
-        const btn = document.getElementById('driver-login-btn');
-        const txt = document.getElementById('driver-login-text');
-        if (btn) btn.disabled = false;
-        if (txt) txt.innerText = "تسجيل الدخول باستخدام Google";
+    function switchAuthMode(mode) {
+        const loginBtn = document.getElementById('tab-btn-login');
+        const signupBtn = document.getElementById('tab-btn-signup');
+        const loginBox = document.getElementById('form-login-box');
+        const signupBox = document.getElementById('form-signup-box');
+
+        if (mode === 'login') {
+            loginBtn.classList.add('active');
+            signupBtn.classList.remove('active');
+            loginBox.classList.remove('hidden');
+            signupBox.classList.add('hidden');
+        } else {
+            signupBtn.classList.add('active');
+            loginBtn.classList.remove('active');
+            signupBox.classList.remove('hidden');
+            loginBox.classList.add('hidden');
+        }
     }
 
-    // 1. تفعيل الحفظ الدائم والتقاط نتيجة العودة من جوجل فوراً
-    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-        .then(() => {
-            return auth.getRedirectResult();
-        })
-        .then((result) => {
-            if (result && result.user) {
-                console.log("Driver redirect login success:", result.user.email);
-            }
-        })
-        .catch((error) => {
-            console.error("Driver redirect error:", error);
-            showAppAlert("تنبيه أثناء استعادة الجلسة: " + error.message);
-            resetDriverLoginBtn();
-        });
+    function togglePasswordVisibility(inputId, btn) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+        if (input.type === 'password') {
+            input.type = 'text';
+            btn.innerText = '🙈';
+        } else {
+            input.type = 'password';
+            btn.innerText = '👁️';
+        }
+    }
 
-    // 2. دالة تسجيل الدخول الذكية (تحاول Popup أولاً ثم Redirect)
-    async function signInWithGoogle() {
-        const btn = document.getElementById('driver-login-btn');
-        const txt = document.getElementById('driver-login-text');
-        if (btn) btn.disabled = true;
-        if (txt) txt.innerText = "جاري الاتصال بحساب Google...";
+    function updateCheckItem(id, isValid, validText, invalidText) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (isValid) {
+            el.className = 'sec-item valid';
+            el.innerText = '✅ ' + validText;
+        } else {
+            el.className = 'sec-item invalid';
+            el.innerText = '❌ ' + invalidText;
+        }
+    }
 
-        const provider = new firebase.auth.GoogleAuthProvider();
-        provider.setCustomParameters({ prompt: 'select_account' });
+    function validateSignupLive() {
+        const email = document.getElementById('sig-email').value.trim().toLowerCase();
+        const phone = normalizeDigits(document.getElementById('sig-phone').value);
+        const pass = document.getElementById('sig-pass').value;
+        const passConfirm = document.getElementById('sig-pass-confirm').value;
+
+        const isEmailValid = EMAIL_REGEX.test(email);
+        const isPhoneValid = SYRIAN_PHONE_REGEX.test(phone);
+        const isPassStrong = STRONG_PASS_REGEX.test(pass);
+        const isPassMatch = pass.length > 0 && pass === passConfirm;
+
+        updateCheckItem('chk-email', isEmailValid, 'صيغة البريد الإلكتروني صحيحة وسليمة', 'يرجى كتابة بريد إلكتروني صحيح (name@domain.com)');
+        updateCheckItem('chk-phone', isPhoneValid, 'رقم موبايل سوري صحيح ومعتمد (10 أرقام)', 'الرقم يجب أن يكون سورياً (10 أرقام ويبدأ بـ 09)');
+        updateCheckItem('chk-pass-len', isPassStrong, 'كلمة المرور قوية وتضم أحرفاً وأرقاماً (8+)', 'كلمة المرور لا تقل عن 8 خانات وتضم أحرفاً وأرقاماً');
+        updateCheckItem('chk-pass-match', isPassMatch, 'كلمتا المرور متطابقتان تماماً', 'تأكيد كلمة المرور غير مطابق لكلمة المرور');
+
+        return isEmailValid && isPhoneValid && isPassStrong && isPassMatch;
+    }
+
+    function translateAuthError(error) {
+        const code = error.code || '';
+        if (code === 'auth/email-already-in-use') return 'عذراً، هذا البريد الإلكتروني مسجل مسبقاً في النظام! يمنع التسجيل بنفس الإيميل مرتين.';
+        if (code === 'auth/invalid-email') return 'صيغة البريد الإلكتروني غير صحيحة.';
+        if (code === 'auth/user-not-found' || code === 'auth/invalid-login-credentials' || code === 'auth/wrong-password') return 'البريد الإلكتروني أو كلمة المرور غير صحيحة.';
+        if (code === 'auth/weak-password') return 'كلمة المرور ضعيفة جداً، يجب أن تتكون من 8 خانات على الأقل.';
+        if (code === 'auth/operation-not-allowed') return 'يرجى تفعيل خيار البريد وكلمة المرور (Email/Password) من إعدادات Firebase Console > Authentication.';
+        if (code === 'auth/too-many-requests') return 'تم حظر المحاولات مؤقتاً لحماية الحساب من التكرار، يرجى المحاولة بعد قليل.';
+        return error.message || 'حدث خطأ غير متوقع في المصادقة.';
+    }
+
+    // 1. تسجيل الدخول بالبريد وكلمة المرور
+    async function loginWithEmail() {
+        const email = document.getElementById('login-email').value.trim().toLowerCase();
+        const pass = document.getElementById('login-password').value;
+
+        if (!EMAIL_REGEX.test(email)) {
+            showAppAlert('يرجى إدخال البريد الإلكتروني بصيغة صحيحة.');
+            return;
+        }
+        if (!pass || pass.length < 6) {
+            showAppAlert('يرجى إدخال كلمة المرور الخاصة بك.');
+            return;
+        }
+
+        const btn = document.getElementById('btn-do-login');
+        btn.disabled = true;
+        btn.innerText = 'جاري التحقق وتسجيل الدخول...';
 
         try {
             await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-            await auth.signInWithPopup(provider);
+            await auth.signInWithEmailAndPassword(email, pass);
         } catch (err) {
-            console.warn("Popup fallback to redirect:", err.code);
-            if (
-                err.code === 'auth/popup-blocked' ||
-                err.code === 'auth/cancelled-popup-request' ||
-                err.code === 'auth/operation-not-supported-in-this-environment' ||
-                err.code === 'auth/popup-closed-by-user'
-            ) {
-                auth.signInWithRedirect(provider).catch(redirectErr => {
-                    resetDriverLoginBtn();
-                    showAppAlert("تعذر فتح صفحة الدخول: " + redirectErr.message);
-                });
-            } else {
-                resetDriverLoginBtn();
-                showAppAlert("خطأ في المصادقة: " + err.message);
+            showAppAlert(translateAuthError(err));
+        } finally {
+            btn.disabled = false;
+            btn.innerText = 'تسجيل الدخول إلى الحساب';
+        }
+    }
+
+    // استعادة كلمة المرور عبر البريد
+    async function resetPasswordPrompt() {
+        const email = document.getElementById('login-email').value.trim().toLowerCase();
+        if (!EMAIL_REGEX.test(email)) {
+            showAppAlert('يرجى كتابة بريدك الإلكتروني الصحيح في خانة البريد أولاً، ثم الضغط على استعادة كلمة المرور.');
+            return;
+        }
+        const conf = await showAppConfirm(`هل تريد إرسال رابط إعادة تعيين كلمة المرور إلى البريد:\n${email} ؟`);
+        if (!conf) return;
+
+        try {
+            await auth.sendPasswordResetEmail(email);
+            showAppAlert('تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني بنجاح! يرجى تفقد صندوق الوارد أو الرسائل غير المرغوب فيها (Spam).');
+        } catch (err) {
+            showAppAlert(translateAuthError(err));
+        }
+    }
+
+    // 2. إنشاء حساب موزع جديد مع منع تكرار الإيميل أو الرقم السوري نهائياً
+    async function registerNewDistributor() {
+        const name = document.getElementById('sig-name').value.trim();
+        const email = document.getElementById('sig-email').value.trim().toLowerCase();
+        const phone = normalizeDigits(document.getElementById('sig-phone').value);
+        const pass = document.getElementById('sig-pass').value;
+        const passConfirm = document.getElementById('sig-pass-confirm').value;
+        const area = document.getElementById('sig-area').value.trim();
+        const transport = document.getElementById('sig-transport').value;
+        const exp = document.getElementById('sig-exp').value;
+        const bio = document.getElementById('sig-bio').value.trim();
+        const refCode = document.getElementById('sig-ref').value.trim().toUpperCase();
+
+        if (!name || name.length < 5) {
+            showAppAlert('يرجى إدخال الاسم الثلاثي الكامل بشكل صحيح.');
+            return;
+        }
+        if (!EMAIL_REGEX.test(email)) {
+            showAppAlert('يرجى كتابة البريد الإلكتروني بصيغة صحيحة وسليمة (مثال: name@gmail.com).');
+            return;
+        }
+        if (!SYRIAN_PHONE_REGEX.test(phone)) {
+            showAppAlert('يرجى إدخال رقم موبايل سوري صحيح حصراً (مكون من 10 أرقام ويبدأ بـ 09 مثل 093xxxxxxx أو 094xxxxxxx).');
+            return;
+        }
+        if (!STRONG_PASS_REGEX.test(pass)) {
+            showAppAlert('كلمة المرور يجب أن تتكون من 8 خانات على الأقل وتحتوي على أحرف وأرقام لرفع مستوى الأمان.');
+            return;
+        }
+        if (pass !== passConfirm) {
+            showAppAlert('كلمتا المرور غير متطابقتين! يرجى تأكيد كلمة السر بشكل مطابق في الخانتين.');
+            return;
+        }
+        if (!area || !bio) {
+            showAppAlert('يرجى إدخال المنطقة الجغرافية والنبذة الشخصية (السيرة الذاتية CV).');
+            return;
+        }
+
+        const btn = document.getElementById('btn-do-signup');
+        btn.disabled = true;
+        btn.innerText = 'جاري فحص عدم تكرار الرقم والإيميل وإنشاء الحساب...';
+        isCreatingAccountFlow = true;
+
+        try {
+            // فحص مسبق في سجل الأرقام الموحد والمستخدمين والمدراء لمنع أي تكرار
+            try {
+                const phoneLockDoc = await db.collection("phone_registry").doc(phone).get();
+                const phoneUsers = await db.collection("users").where("phone", "==", phone).limit(1).get();
+                const phoneAdmins = await db.collection("admins").where("phone", "==", phone).limit(1).get();
+                if (phoneLockDoc.exists || !phoneUsers.empty || !phoneAdmins.empty) {
+                    isCreatingAccountFlow = false;
+                    btn.disabled = false;
+                    btn.innerText = 'تأكيد وإنشاء الحساب وإرسال السيرة الذاتية ✓';
+                    showAppAlert('عذراً، رقم الموبايل السوري هذا مسجل مسبقاً في النظام! يمنع التسجيل بنفس الرقم مرتين.');
+                    return;
+                }
+
+                const emailUsers = await db.collection("users").where("email", "==", email).limit(1).get();
+                const emailAdmins = await db.collection("admins").where("email", "==", email).limit(1).get();
+                if (!emailUsers.empty || !emailAdmins.empty) {
+                    isCreatingAccountFlow = false;
+                    btn.disabled = false;
+                    btn.innerText = 'تأكيد وإنشاء الحساب وإرسال السيرة الذاتية ✓';
+                    showAppAlert('عذراً، هذا البريد الإلكتروني مسجل مسبقاً في النظام! يمنع التسجيل بنفس الإيميل مرتين.');
+                    return;
+                }
+            } catch (preCheckErr) {
+                console.log("Pre-auth check completed, proceeding to atomic verification.");
             }
+
+            await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+            const cred = await auth.createUserWithEmailAndPassword(email, pass);
+            const user = cred.user;
+
+            // فحص مؤكد وحاسم بعد المصادقة لضمان عدم تكرار الرقم السوري في أي حساب آخر
+            const postPhoneUsers = await db.collection("users").where("phone", "==", phone).get();
+            const postPhoneAdmins = await db.collection("admins").where("phone", "==", phone).get();
+            const postPhoneLock = await db.collection("phone_registry").doc(phone).get();
+
+            const isDupUser = postPhoneUsers.docs.some(d => d.id !== user.uid);
+            const isDupAdmin = postPhoneAdmins.docs.some(d => d.id !== user.uid);
+            const isDupLock = postPhoneLock.exists && postPhoneLock.data().uid !== user.uid;
+
+            if (isDupUser || isDupAdmin || isDupLock) {
+                await user.delete();
+                isCreatingAccountFlow = false;
+                btn.disabled = false;
+                btn.innerText = 'تأكيد وإنشاء الحساب وإرسال السيرة الذاتية ✓';
+                showAppAlert('عذراً، رقم الموبايل السوري هذا مسجل مسبقاً لحساب آخر! يمنع استخدام نفس الرقم مرتين نهائياً.');
+                return;
+            }
+
+            await user.updateProfile({ displayName: name });
+
+            // حجز الرقم السوري رسمياً في سجل الأرقام الموحد
+            await db.collection("phone_registry").doc(phone).set({
+                uid: user.uid,
+                email: email,
+                phone: phone,
+                role: "distributor",
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            const generatedCode = "WAKE-" + Math.floor(1000 + Math.random() * 9000);
+            const defaultAvatar = "https://ui-avatars.com/api/?name=" + encodeURIComponent(name) + "&background=4338ca&color=fff";
+
+            const newProfile = {
+                uid: user.uid,
+                name: name,
+                email: email,
+                photo: defaultAvatar,
+                phone: phone,
+                area: area,
+                transport: transport,
+                experience: exp,
+                bio: `الخبرة: ${exp} | ${bio}`,
+                referralCode: generatedCode,
+                referredBy: refCode || "NONE",
+                status: "pending",
+                verified: false,
+                rank: "C",
+                bonusProfitPct: 0,
+                teamCount: 0,
+                cashHeld: 0,
+                commissionBalance: 0,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            await db.collection("users").doc(user.uid).set(newProfile);
+            isCreatingAccountFlow = false;
+            subscribeToUserDoc(user);
+            showAppAlert('تم إنشاء حسابك بنجاح وإرسال سيرتك الذاتية للإدارة للمراجعة!');
+        } catch (err) {
+            isCreatingAccountFlow = false;
+            showAppAlert(translateAuthError(err));
+        } finally {
+            btn.disabled = false;
+            btn.innerText = 'تأكيد وإنشاء الحساب وإرسال السيرة الذاتية ✓';
         }
     }
 
@@ -746,41 +1172,43 @@
         userData = null;
         auth.signOut().then(() => {
             showScreen('view-login');
-            resetDriverLoginBtn();
         }).catch(err => showAppAlert("خطأ تسجيل الخروج: " + err.message));
     }
 
-    // 3. مراقبة حالة الجلسة لفتح حساب الموزع تلقائياً وبشكل دائم
+    function subscribeToUserDoc(user) {
+        if (typeof userDocUnsub === 'function') userDocUnsub();
+        const defaultAvatar = "https://ui-avatars.com/api/?name=" + encodeURIComponent(user.displayName || user.email || "U") + "&background=4338ca&color=fff";
+
+        userDocUnsub = db.collection("users").doc(user.uid).onSnapshot(doc => {
+            if (doc.exists) {
+                userData = doc.data();
+                showScreen('view-app');
+                renderDistributorApp(userData);
+                renderFilteredProducts();
+                renderFilteredAds();
+                renderFilteredNotifs();
+            } else if (!isCreatingAccountFlow) {
+                document.getElementById('reg-photo').src = user.photoURL || defaultAvatar;
+                document.getElementById('reg-google-name').innerText = user.displayName || "موزع جديد";
+                document.getElementById('reg-email').innerText = user.email;
+                document.getElementById('cv-name').value = user.displayName || "";
+                showScreen('view-register');
+            }
+        });
+    }
+
+    // مراقبة حالة الجلسة لفتح حساب الموزع تلقائياً وبشكل دائم
     auth.onAuthStateChanged(user => {
         if (user && user.email) {
             currentUser = user;
-            if (typeof userDocUnsub === 'function') userDocUnsub();
-
-            const defaultAvatar = "https://ui-avatars.com/api/?name=" + encodeURIComponent(user.displayName || "U") + "&background=4338ca&color=fff";
-
-            userDocUnsub = db.collection("users").doc(user.uid).onSnapshot(doc => {
-                if (doc.exists) {
-                    userData = doc.data();
-                    showScreen('view-app');
-                    renderDistributorApp(userData);
-                    renderFilteredProducts();
-                    renderFilteredAds();
-                    renderFilteredNotifs();
-                } else {
-                    document.getElementById('reg-photo').src = user.photoURL || defaultAvatar;
-                    document.getElementById('reg-google-name').innerText = user.displayName || "موزع جديد";
-                    document.getElementById('reg-email').innerText = user.email;
-                    document.getElementById('cv-name').value = user.displayName || "";
-                    showScreen('view-register');
-                }
-            });
-
+            if (!isCreatingAccountFlow) {
+                subscribeToUserDoc(user);
+            }
             initSharedListeners();
         } else {
             currentUser = null;
             userData = null;
             showScreen('view-login');
-            resetDriverLoginBtn();
         }
     });
 
@@ -791,44 +1219,73 @@
 
     async function submitRegistration() {
         const name = document.getElementById('cv-name').value.trim();
-        const phone = document.getElementById('cv-phone').value.trim();
+        const phone = normalizeDigits(document.getElementById('cv-phone').value);
         const area = document.getElementById('cv-area').value.trim();
         const transport = document.getElementById('cv-transport').value;
         const exp = document.getElementById('cv-exp').value;
         const bio = document.getElementById('cv-bio').value.trim();
         const refCode = document.getElementById('cv-ref').value.trim().toUpperCase();
 
-        if (!name || !phone || !area || !bio) {
-            showAppAlert("يرجى ملء الاسم، رقم الهاتف، المنطقة، والنبذة الشخصية (السيرة الذاتية).");
+        if (!name || name.length < 5) {
+            showAppAlert("يرجى إدخال الاسم الثلاثي الكامل.");
+            return;
+        }
+        if (!SYRIAN_PHONE_REGEX.test(phone)) {
+            showAppAlert("يرجى إدخال رقم موبايل سوري صحيح حصراً (10 أرقام يبدأ بـ 09).");
+            return;
+        }
+        if (!area || !bio) {
+            showAppAlert("يرجى ملء المنطقة الجغرافية والنبذة الشخصية (السيرة الذاتية).");
             return;
         }
 
-        const generatedCode = "WAKE-" + Math.floor(1000 + Math.random() * 9000);
-        const defaultAvatar = "https://ui-avatars.com/api/?name=" + encodeURIComponent(name) + "&background=4338ca&color=fff";
-
-        const newProfile = {
-            uid: currentUser.uid,
-            name: name,
-            email: currentUser.email,
-            photo: currentUser.photoURL || defaultAvatar,
-            phone: phone,
-            area: area,
-            transport: transport,
-            experience: exp,
-            bio: `الخبرة: ${exp} | ${bio}`,
-            referralCode: generatedCode,
-            referredBy: refCode || "NONE",
-            status: "pending",
-            verified: false,
-            rank: "C",
-            bonusProfitPct: 0,
-            teamCount: 0,
-            cashHeld: 0,
-            commissionBalance: 0,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
-
         try {
+            const phoneUsers = await db.collection("users").where("phone", "==", phone).get();
+            const phoneAdmins = await db.collection("admins").where("phone", "==", phone).get();
+            const phoneLock = await db.collection("phone_registry").doc(phone).get();
+
+            const duplicateUser = phoneUsers.docs.some(d => d.id !== currentUser.uid);
+            const duplicateAdmin = phoneAdmins.docs.some(d => d.id !== currentUser.uid);
+            const duplicateLock = phoneLock.exists && phoneLock.data().uid !== currentUser.uid;
+
+            if (duplicateUser || duplicateAdmin || duplicateLock) {
+                showAppAlert("عذراً، رقم الموبايل السوري هذا مسجل مسبقاً لحساب آخر! يمنع التسجيل بنفس الرقم مرتين.");
+                return;
+            }
+
+            await db.collection("phone_registry").doc(phone).set({
+                uid: currentUser.uid,
+                email: (currentUser.email || '').toLowerCase(),
+                phone: phone,
+                role: "distributor",
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            const generatedCode = "WAKE-" + Math.floor(1000 + Math.random() * 9000);
+            const defaultAvatar = "https://ui-avatars.com/api/?name=" + encodeURIComponent(name) + "&background=4338ca&color=fff";
+
+            const newProfile = {
+                uid: currentUser.uid,
+                name: name,
+                email: (currentUser.email || '').toLowerCase(),
+                photo: currentUser.photoURL || defaultAvatar,
+                phone: phone,
+                area: area,
+                transport: transport,
+                experience: exp,
+                bio: `الخبرة: ${exp} | ${bio}`,
+                referralCode: generatedCode,
+                referredBy: refCode || "NONE",
+                status: "pending",
+                verified: false,
+                rank: "C",
+                bonusProfitPct: 0,
+                teamCount: 0,
+                cashHeld: 0,
+                commissionBalance: 0,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
             await db.collection("users").doc(currentUser.uid).set(newProfile);
         } catch (e) {
             showAppAlert("حدث خطأ أثناء حفظ البيانات: " + e.message);
