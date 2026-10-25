@@ -1,1916 +1,1504 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>WAKE, WAKE - لوحة المدير العام</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    
-    <!-- مكتبة الرسوم والمخططات البيانية -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <style>
-        :root {
-            --primary: #4338ca;
-            --primary-hover: #3730a3;
-            --bg: #0b0f19;
-            --surface: #111827;
-            --card: #1f2937;
-            --border: #374151;
-            --text: #f9fafb;
-            --text-muted: #9ca3af;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --gold: #fbbf24;
-            --cyan: #06b6d4;
-            --rank-s: #f59e0b;
-            --rank-g: #ec4899;
-            --rank-e: #3b82f6;
-            --rank-c: #10b981;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Cairo', sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            background-color: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            overflow-x: hidden;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 1260px;
-        }
-
-        .hidden { display: none !important; }
-
-        .top-nav {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 18px;
-            padding: 16px 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .brand-logo {
-            font-size: 24px;
-            font-weight: 900;
-            letter-spacing: 1.5px;
-            color: var(--gold);
-        }
-
-        .user-tag {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .user-avatar {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            border: 2px solid var(--primary);
-            object-fit: cover;
-        }
-
-        /* تبويبات وحقول المصادقة الداخلية للمدير */
-        .auth-switcher {
-            display: flex;
-            background: var(--card);
-            padding: 5px;
-            border-radius: 14px;
-            border: 1px solid var(--border);
-            margin: 18px 0;
-            gap: 6px;
-        }
-
-        .auth-tab-btn {
-            flex: 1;
-            padding: 10px 14px;
-            border-radius: 10px;
-            border: none;
-            background: transparent;
-            color: var(--text-muted);
-            font-weight: 800;
-            font-size: 13px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .auth-tab-btn.active {
-            background: var(--primary);
-            color: #fff;
-            box-shadow: 0 4px 12px rgba(67, 56, 202, 0.4);
-        }
-
-        .form-group {
-            margin-bottom: 12px;
-            text-align: right;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--text-muted);
-        }
-
-        .input-with-icon {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .input-with-icon input {
-            padding-left: 44px;
-            margin-bottom: 0;
-        }
-
-        .toggle-pass-btn {
-            position: absolute;
-            left: 10px;
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            font-size: 16px;
-            cursor: pointer;
-            padding: 4px 8px;
-        }
-
-        .syria-phone-wrap {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .syria-flag-badge {
-            position: absolute;
-            left: 10px;
-            background: rgba(255,255,255,0.06);
-            border: 1px solid var(--border);
-            padding: 3px 8px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--gold);
-            pointer-events: none;
-            direction: ltr;
-        }
-
-        .syria-phone-wrap input {
-            padding-left: 85px;
-            direction: ltr;
-            text-align: right;
-            letter-spacing: 1px;
-            font-weight: 700;
-            margin-bottom: 0;
-        }
-
-        .security-checklist {
-            background: rgba(17, 24, 39, 0.85);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 10px 14px;
-            margin: 10px 0 14px 0;
-            text-align: right;
-            font-size: 12px;
-        }
-
-        .sec-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            color: var(--text-muted);
-            margin: 4px 0;
-            font-weight: 600;
-        }
-
-        .sec-item.valid { color: var(--success); }
-        .sec-item.invalid { color: var(--danger); }
-
-        .forgot-pass-link {
-            display: inline-block;
-            margin-top: 12px;
-            color: #a5b4fc;
-            font-size: 13px;
-            font-weight: 700;
-            cursor: pointer;
-            text-decoration: underline;
-            background: none;
-            border: none;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .stat-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-
-        .stat-card span {
-            font-size: 13px;
-            color: var(--text-muted);
-            font-weight: 600;
-        }
-
-        .stat-card h3 {
-            font-size: 22px;
-            font-weight: 800;
-            margin-top: 6px;
-        }
-
-        .nav-tabs {
-            display: flex;
-            gap: 8px;
-            background: var(--surface);
-            padding: 8px;
-            border-radius: 16px;
-            border: 1px solid var(--border);
-            margin-bottom: 24px;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .tab-btn {
-            flex: 1;
-            padding: 12px 14px;
-            border-radius: 12px;
-            border: none;
-            background: transparent;
-            color: var(--text-muted);
-            font-weight: 700;
-            font-size: 13px;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: 0.2s;
-        }
-
-        .tab-btn.active {
-            background: var(--card);
-            color: #fff;
-            border: 1px solid var(--border);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        }
-
-        .card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 18px;
-            padding: 24px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: right;
-            margin-top: 12px;
-        }
-
-        th, td {
-            padding: 14px 12px;
-            border-bottom: 1px solid var(--border);
-            font-size: 14px;
-        }
-
-        th {
-            color: var(--text-muted);
-            font-weight: 700;
-            background: var(--surface);
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 800;
-        }
-
-        .badge-ready { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid #3b82f6; }
-        .badge-pending { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
-        .badge-delivered { background: rgba(16, 185, 129, 0.2); color: #34d399; }
-
-        .rank-badge {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 34px;
-            height: 34px;
-            border-radius: 10px;
-            font-weight: 900;
-            font-size: 15px;
-        }
-        .rank-S { background: rgba(245, 158, 11, 0.2); color: var(--rank-s); border: 2px solid var(--rank-s); }
-        .rank-G { background: rgba(236, 72, 153, 0.2); color: var(--rank-g); border: 2px solid var(--rank-g); }
-        .rank-E { background: rgba(59, 130, 246, 0.2); color: var(--rank-e); border: 2px solid var(--rank-e); }
-        .rank-C { background: rgba(16, 185, 129, 0.2); color: var(--rank-c); border: 2px solid var(--rank-c); }
-
-        input, select, textarea {
-            width: 100%;
-            padding: 12px 14px;
-            border-radius: 10px;
-            border: 1px solid var(--border);
-            background: var(--card);
-            color: #fff;
-            outline: none;
-            font-size: 16px;
-            margin-bottom: 8px;
-            transition: border-color 0.2s;
-        }
-
-        input:focus, select:focus, textarea:focus {
-            border-color: #6366f1;
-        }
-
-        .btn {
-            padding: 10px 16px;
-            border-radius: 10px;
-            border: none;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.2s;
-            font-size: 13px;
-        }
-
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .btn-primary { background: var(--primary); color: #fff; }
-        .btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
-        .btn-success { background: var(--success); color: #fff; }
-        .btn-warning { background: var(--warning); color: #111827; }
-        .btn-danger { background: var(--danger); color: #fff; }
-        .btn-secondary { background: #374151; color: #fff; }
-
-        .grid-2 {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 14px;
-        }
-
-        .item-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 16px;
-            margin-bottom: 12px;
-        }
-
-        /* شريط اختيار الفئات المستهدفة */
-        .target-ranks-box {
-            background: #111827;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 12px 16px;
-            margin: 8px 0 14px 0;
-        }
-
-        .target-ranks-options {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 14px;
-            margin-top: 8px;
-        }
-
-        .rank-checkbox-label {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 13px;
-            font-weight: 700;
-            cursor: pointer;
-            background: var(--card);
-            padding: 6px 12px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-        }
-
-        .rank-checkbox-label input {
-            width: auto;
-            margin: 0;
-        }
-
-        .target-note {
-            display: inline-block;
-            margin-top: 8px;
-            padding: 4px 10px;
-            border-radius: 8px;
-            font-size: 11px;
-            font-weight: 800;
-            background: rgba(6, 182, 212, 0.15);
-            color: var(--cyan);
-            border: 1px solid rgba(6, 182, 212, 0.3);
-        }
-
-        /* نافذة بروفايل وإحصاءات الموزع (Modal) */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.82);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 16px;
-            overflow-y: auto;
-        }
-
-        .modal-content {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 22px;
-            width: 100%;
-            max-width: 850px;
-            padding: 26px;
-            max-height: 92vh;
-            overflow-y: auto;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
-        }
-
-        .period-selector {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
-            background: var(--card);
-            padding: 6px;
-            border-radius: 12px;
-            width: fit-content;
-        }
-
-        .period-btn {
-            padding: 8px 16px;
-            border-radius: 8px;
-            border: none;
-            background: transparent;
-            color: var(--text-muted);
-            font-weight: 700;
-            font-size: 12px;
-            cursor: pointer;
-        }
-
-        .period-btn.active {
-            background: var(--primary);
-            color: #fff;
-        }
-
-        .sys-dialog-box {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            width: 100%;
-            max-width: 420px;
-            padding: 24px;
-            text-align: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.75);
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>WAKE, WAKE - لوحة المدير العام الشاملة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<!-- مكتبة الرسوم والمخططات البيانية -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root {
+--primary: #4338ca;
+--primary-hover: #3730a3;
+--bg: #0b0f19;
+--surface: #111827;
+--card: #1f2937;
+--border: #374151;
+--text: #f9fafb;
+--text-muted: #9ca3af;
+--success: #10b981;
+--warning: #f59e0b;
+--danger: #ef4444;
+--gold: #fbbf24;
+--cyan: #06b6d4;
+--rank-s: #f59e0b;
+--rank-g: #ec4899;
+--rank-e: #3b82f6;
+--rank-c: #10b981;
+}
+* {
+box-sizing: border-box;
+margin: 0;
+padding: 0;
+font-family: 'Cairo', sans-serif;
+-webkit-tap-highlight-color: transparent;
+}
+body {
+background-color: var(--bg);
+color: var(--text);
+min-height: 100vh;
+padding: 20px;
+display: flex;
+justify-content: center;
+overflow-x: hidden;
+}
+.container {
+width: 100%;
+max-width: 1260px;
+}
+.hidden { display: none !important; }
+.top-nav {
+background: var(--surface);
+border: 1px solid var(--border);
+border-radius: 18px;
+padding: 16px 24px;
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 24px;
+box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+flex-wrap: wrap;
+gap: 12px;
+}
+.brand-logo {
+font-size: 24px;
+font-weight: 900;
+letter-spacing: 1.5px;
+color: var(--gold);
+}
+.user-tag {
+display: flex;
+align-items: center;
+gap: 12px;
+}
+.user-avatar {
+width: 44px;
+height: 44px;
+border-radius: 50%;
+border: 2px solid var(--primary);
+object-fit: cover;
+}
+.auth-switcher {
+display: flex;
+background: var(--card);
+padding: 5px;
+border-radius: 14px;
+border: 1px solid var(--border);
+margin: 18px 0;
+gap: 6px;
+}
+.auth-tab-btn {
+flex: 1;
+padding: 10px 14px;
+border-radius: 10px;
+border: none;
+background: transparent;
+color: var(--text-muted);
+font-weight: 800;
+font-size: 13px;
+cursor: pointer;
+transition: 0.2s;
+}
+.auth-tab-btn.active {
+background: var(--primary);
+color: #fff;
+box-shadow: 0 4px 12px rgba(67, 56, 202, 0.4);
+}
+.form-group {
+margin-bottom: 12px;
+text-align: right;
+}
+.form-group label {
+display: block;
+margin-bottom: 5px;
+font-size: 13px;
+font-weight: 700;
+color: var(--text-muted);
+}
+.input-with-icon {
+position: relative;
+display: flex;
+align-items: center;
+}
+.input-with-icon input {
+padding-left: 44px;
+margin-bottom: 0;
+}
+.toggle-pass-btn {
+position: absolute;
+left: 10px;
+background: transparent;
+border: none;
+color: var(--text-muted);
+font-size: 16px;
+cursor: pointer;
+padding: 4px 8px;
+}
+.syria-phone-wrap {
+position: relative;
+display: flex;
+align-items: center;
+}
+.syria-flag-badge {
+position: absolute;
+left: 10px;
+background: rgba(255,255,255,0.06);
+border: 1px solid var(--border);
+padding: 3px 8px;
+border-radius: 8px;
+font-size: 12px;
+font-weight: 700;
+color: var(--gold);
+pointer-events: none;
+direction: ltr;
+}
+.syria-phone-wrap input {
+padding-left: 85px;
+direction: ltr;
+text-align: right;
+letter-spacing: 1px;
+font-weight: 700;
+margin-bottom: 0;
+}
+.security-checklist {
+background: rgba(17, 24, 39, 0.85);
+border: 1px solid var(--border);
+border-radius: 12px;
+padding: 10px 14px;
+margin: 10px 0 14px 0;
+text-align: right;
+font-size: 12px;
+}
+.sec-item {
+display: flex;
+align-items: center;
+gap: 6px;
+color: var(--text-muted);
+margin: 4px 0;
+font-weight: 600;
+}
+.sec-item.valid { color: var(--success); }
+.sec-item.invalid { color: var(--danger); }
+.forgot-pass-link {
+display: inline-block;
+margin-top: 12px;
+color: #a5b4fc;
+font-size: 13px;
+font-weight: 700;
+cursor: pointer;
+text-decoration: underline;
+background: none;
+border: none;
+}
+.stats-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+gap: 16px;
+margin-bottom: 24px;
+}
+.stat-card {
+background: var(--surface);
+border: 1px solid var(--border);
+border-radius: 16px;
+padding: 20px;
+box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+.stat-card span {
+font-size: 13px;
+color: var(--text-muted);
+font-weight: 600;
+}
+.stat-card h3 {
+font-size: 22px;
+font-weight: 800;
+margin-top: 6px;
+}
+.nav-tabs {
+display: flex;
+gap: 8px;
+background: var(--surface);
+padding: 8px;
+border-radius: 16px;
+border: 1px solid var(--border);
+margin-bottom: 24px;
+overflow-x: auto;
+-webkit-overflow-scrolling: touch;
+}
+.tab-btn {
+flex: 1;
+padding: 12px 14px;
+border-radius: 12px;
+border: none;
+background: transparent;
+color: var(--text-muted);
+font-weight: 700;
+font-size: 13px;
+cursor: pointer;
+white-space: nowrap;
+transition: 0.2s;
+}
+.tab-btn.active {
+background: var(--card);
+color: #fff;
+border: 1px solid var(--border);
+box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.card {
+background: var(--surface);
+border: 1px solid var(--border);
+border-radius: 18px;
+padding: 24px;
+margin-bottom: 20px;
+box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+table {
+width: 100%;
+border-collapse: collapse;
+text-align: right;
+margin-top: 12px;
+}
+th, td {
+padding: 14px 12px;
+border-bottom: 1px solid var(--border);
+font-size: 14px;
+}
+th {
+color: var(--text-muted);
+font-weight: 700;
+background: var(--surface);
+}
+.badge {
+display: inline-block;
+padding: 4px 10px;
+border-radius: 20px;
+font-size: 11px;
+font-weight: 800;
+}
+.badge-ready { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid #3b82f6; }
+.badge-pending { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+.badge-delivered { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+.rank-badge {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+width: 34px;
+height: 34px;
+border-radius: 10px;
+font-weight: 900;
+font-size: 15px;
+}
+.rank-S { background: rgba(245, 158, 11, 0.2); color: var(--rank-s); border: 2px solid var(--rank-s); }
+.rank-G { background: rgba(236, 72, 153, 0.2); color: var(--rank-g); border: 2px solid var(--rank-g); }
+.rank-E { background: rgba(59, 130, 246, 0.2); color: var(--rank-e); border: 2px solid var(--rank-e); }
+.rank-C { background: rgba(16, 185, 129, 0.2); color: var(--rank-c); border: 2px solid var(--rank-c); }
+input, select, textarea {
+width: 100%;
+padding: 12px 14px;
+border-radius: 10px;
+border: 1px solid var(--border);
+background: var(--card);
+color: #fff;
+outline: none;
+font-size: 16px;
+margin-bottom: 8px;
+transition: border-color 0.2s;
+}
+input:focus, select:focus, textarea:focus {
+border-color: #6366f1;
+}
+.btn {
+padding: 10px 16px;
+border-radius: 10px;
+border: none;
+font-weight: 700;
+cursor: pointer;
+transition: 0.2s;
+font-size: 13px;
+}
+.btn:disabled {
+opacity: 0.6;
+cursor: not-allowed;
+}
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
+.btn-success { background: var(--success); color: #fff; }
+.btn-warning { background: var(--warning); color: #111827; }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-secondary { background: #374151; color: #fff; }
+.grid-2 {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+gap: 14px;
+}
+.item-card {
+background: var(--card);
+border: 1px solid var(--border);
+border-radius: 14px;
+padding: 16px;
+margin-bottom: 12px;
+}
+.target-ranks-box {
+background: #111827;
+border: 1px solid var(--border);
+border-radius: 12px;
+padding: 12px 16px;
+margin: 8px 0 14px 0;
+}
+.target-ranks-options {
+display: flex;
+flex-wrap: wrap;
+gap: 14px;
+margin-top: 8px;
+}
+.rank-checkbox-label {
+display: inline-flex;
+align-items: center;
+gap: 6px;
+font-size: 13px;
+font-weight: 700;
+cursor: pointer;
+background: var(--card);
+padding: 6px 12px;
+border-radius: 8px;
+border: 1px solid var(--border);
+}
+.rank-checkbox-label input {
+width: auto;
+margin: 0;
+}
+.target-note {
+display: inline-block;
+margin-top: 8px;
+padding: 4px 10px;
+border-radius: 8px;
+font-size: 11px;
+font-weight: 800;
+background: rgba(6, 182, 212, 0.15);
+color: var(--cyan);
+border: 1px solid rgba(6, 182, 212, 0.3);
+}
+.modal-overlay {
+position: fixed;
+top: 0; left: 0; right: 0; bottom: 0;
+background: rgba(0, 0, 0, 0.82);
+display: flex;
+align-items: center;
+justify-content: center;
+z-index: 1000;
+padding: 16px;
+overflow-y: auto;
+}
+.modal-content {
+background: var(--surface);
+border: 1px solid var(--border);
+border-radius: 22px;
+width: 100%;
+max-width: 850px;
+padding: 26px;
+max-height: 92vh;
+overflow-y: auto;
+box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+}
+.period-selector {
+display: flex;
+gap: 8px;
+margin-bottom: 16px;
+background: var(--card);
+padding: 6px;
+border-radius: 12px;
+width: fit-content;
+}
+.period-btn {
+padding: 8px 16px;
+border-radius: 8px;
+border: none;
+background: transparent;
+color: var(--text-muted);
+font-weight: 700;
+font-size: 12px;
+cursor: pointer;
+}
+.period-btn.active {
+background: var(--primary);
+color: #fff;
+}
+.sys-dialog-box {
+background: var(--surface);
+border: 1px solid var(--border);
+border-radius: 20px;
+width: 100%;
+max-width: 420px;
+padding: 24px;
+text-align: center;
+box-shadow: 0 20px 50px rgba(0,0,0,0.75);
+}
+</style>
 </head>
 <body>
-
 <div class="container">
-
-    <!-- 1. شاشة تسجيل الدخول الداخلي عالي الأمان للمدير العام -->
-    <div id="admin-auth" class="card" style="max-width: 480px; margin: 40px auto; text-align: center;">
-        <div style="font-size: 48px; margin-bottom: 8px;">☕</div>
-        <div class="brand-logo" style="margin-bottom: 4px;">WAKE, WAKE</div>
-        <h2 style="font-size: 20px; font-weight: 800;">بوابة المدير العام المركزية</h2>
-        <p style="color: var(--text-muted); font-size: 12px; margin-top: 4px;">نظام المصادقة الداخلي المشفر وعالي الأمان للإدارة</p>
-
-        <!-- التبديل بين دخول المدير وتسجيل حساب مدير جديد -->
-        <div class="auth-switcher">
-            <button type="button" id="adm-tab-login" class="auth-tab-btn active" onclick="switchAdminAuthMode('login')">🔐 دخول المدير</button>
-            <button type="button" id="adm-tab-signup" class="auth-tab-btn" onclick="switchAdminAuthMode('signup')">🛡️ تفعيل حساب مدير</button>
-        </div>
-
-        <!-- أ) نموذج تسجيل الدخول للمدير -->
-        <div id="adm-login-box">
-            <div class="form-group">
-                <label>البريد الإلكتروني للإدارة</label>
-                <input type="email" id="adm-login-email" placeholder="admin@wakewake.com" dir="ltr" style="text-align: right; margin-bottom: 0;">
-            </div>
-
-            <div class="form-group">
-                <label>كلمة المرور</label>
-                <div class="input-with-icon">
-                    <input type="password" id="adm-login-pass" placeholder="أدخل كلمة المرور">
-                    <button type="button" class="toggle-pass-btn" onclick="toggleAdminPass('adm-login-pass', this)">👁️</button>
-                </div>
-            </div>
-
-            <button type="button" id="btn-adm-login" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 15px; margin-top: 8px;" onclick="adminLoginInternal()">
-                تسجيل الدخول إلى لوحة التحكم
-            </button>
-
-            <button type="button" class="forgot-pass-link" onclick="adminResetPassword()">
-                نسيت كلمة المرور؟ إرسال رابط استعادة للبريد
-            </button>
-        </div>
-
-        <!-- ب) نموذج إنشاء/تفعيل حساب مدير بمعايير التحقق الصارمة -->
-        <div id="adm-signup-box" class="hidden">
-            <div class="form-group">
-                <label>الاسم الثلاثي الكامل للمدير</label>
-                <input type="text" id="adm-sig-name" placeholder="الاسم الثلاثي" style="margin-bottom: 0;">
-            </div>
-
-            <div class="form-group">
-                <label>البريد الإلكتروني الرسمي الصحيح (يمنع تكراره)</label>
-                <input type="email" id="adm-sig-email" placeholder="admin@example.com" dir="ltr" style="text-align: right; margin-bottom: 0;" oninput="validateAdminSignupLive()">
-            </div>
-
-            <div class="form-group">
-                <label>رقم الموبايل السوري حصراً (يمنع تكرار الرقم)</label>
-                <div class="syria-phone-wrap">
-                    <input type="tel" id="adm-sig-phone" placeholder="09xxxxxxxx" maxlength="10" oninput="handleAdminPhoneInput(this); validateAdminSignupLive();">
-                    <span class="syria-flag-badge">🇸🇾 SY 09</span>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>كلمة المرور القوية (8 خانات على الأقل مع أرقام وحروف)</label>
-                <div class="input-with-icon">
-                    <input type="password" id="adm-sig-pass" placeholder="أدخل كلمة مرور قوية" oninput="validateAdminSignupLive()">
-                    <button type="button" class="toggle-pass-btn" onclick="toggleAdminPass('adm-sig-pass', this)">👁️</button>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>تأكيد كلمة المرور (أعد كتابة كلمة السر مرة ثانية)</label>
-                <div class="input-with-icon">
-                    <input type="password" id="adm-sig-pass-confirm" placeholder="أعد كتابة كلمة المرور للتأكيد" oninput="validateAdminSignupLive()">
-                    <button type="button" class="toggle-pass-btn" onclick="toggleAdminPass('adm-sig-pass-confirm', this)">👁️</button>
-                </div>
-            </div>
-
-            <!-- قائمة التحقق الفوري للمعايير الأمنية -->
-            <div class="security-checklist">
-                <div id="adm-chk-email" class="sec-item">⚪ صيغة البريد الإلكتروني صحيحة وسليمة</div>
-                <div id="adm-chk-phone" class="sec-item">⚪ رقم موبايل سوري صحيح (10 أرقام يبدأ بـ 09)</div>
-                <div id="adm-chk-pass-len" class="sec-item">⚪ كلمة المرور 8 خانات على الأقل وتضم أحرفاً وأرقاماً</div>
-                <div id="adm-chk-pass-match" class="sec-item">⚪ تطابق تام بين كلمة المرور وتأكيد كلمة المرور</div>
-            </div>
-
-            <button type="button" id="btn-adm-signup" class="btn btn-success" style="width: 100%; padding: 14px; font-size: 15px;" onclick="adminRegisterInternal()">
-                تأكيد وإنشاء حساب المدير العام ✓
-            </button>
-        </div>
-    </div>
-
-    <!-- 2. لوحة التحكم المركزية -->
-    <div id="admin-panel" class="hidden">
-        
-        <header class="top-nav">
-            <div>
-                <div class="brand-logo">WAKE, WAKE</div>
-                <div style="font-size: 13px; color: var(--text-muted); font-weight: 600;">الإدارة المركزية - تحليلات المبيعات والموزعين والفئات</div>
-            </div>
-            <div class="user-tag">
-                <img id="admin-photo" class="user-avatar" src="https://ui-avatars.com/api/?name=Admin&background=4338ca&color=fff" alt="Admin">
-                <div>
-                    <strong id="admin-name" style="font-size: 13px;">-</strong>
-                    <div id="admin-email" style="font-size: 11px; color: var(--text-muted);">-</div>
-                </div>
-                <button class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;" onclick="adminLogout()">خروج</button>
-            </div>
-        </header>
-
-        <!-- الإحصائيات العامة -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <span>إجمالي الطلبيات</span>
-                <h3 id="stat-orders" style="color: #60a5fa;">0</h3>
-            </div>
-            <div class="stat-card">
-                <span>مقابلات بانتظار التوثيق</span>
-                <h3 id="stat-interviews" style="color: var(--warning);">0</h3>
-            </div>
-            <div class="stat-card">
-                <span>مبالغ بحوزة الموزعين</span>
-                <h3 id="stat-pending-cash" style="color: var(--danger);">0 ل.س</h3>
-            </div>
-            <div class="stat-card">
-                <span>صافي المقبوض للإدارة</span>
-                <h3 id="stat-collected-cash" style="color: var(--success);">0 ل.س</h3>
-            </div>
-        </div>
-
-        <!-- التبويبات الرئيسية -->
-        <div class="nav-tabs">
-            <button class="tab-btn active" onclick="switchTab('orders', this)">📦 متابعة الطلبات</button>
-            <button class="tab-btn" onclick="switchTab('analytics', this)">📊 إحصاءات وبروفايلات الموزعين</button>
-            <button class="tab-btn" onclick="switchTab('interviews', this)">👥 طلبات المقابلة والتوثيق</button>
-            <button class="tab-btn" onclick="switchTab('finance', this)">📒 دفتر الحسابات</button>
-            <button class="tab-btn" onclick="switchTab('products', this)">☕ أصناف WAKE, WAKE</button>
-            <button class="tab-btn" onclick="switchTab('ads', this)">📢 الإعلانات والعروض</button>
-            <button class="tab-btn" onclick="switchTab('notifs', this)">🔔 الإشعارات</button>
-            <button class="tab-btn" onclick="switchTab('settings', this)">⚙️ إعدادات الفئات والنسب</button>
-        </div>
-
-        <!-- 1. تبويب الطلبات -->
-        <div id="tab-orders">
-            <div class="card">
-                <h3 style="font-size: 16px; margin-bottom: 12px;">سجل الطلبيات وتعديل الحالات والقبض</h3>
-                <div style="overflow-x: auto;">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>رقم الطلب</th>
-                                <th>المنتج والكمية</th>
-                                <th>الموزع</th>
-                                <th>المبلغ</th>
-                                <th>حالة التجهيز</th>
-                                <th>قبض المبلغ من الموزع</th>
-                                <th>إجراءات الحالة</th>
-                            </tr>
-                        </thead>
-                        <tbody id="orders-tbody"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- 2. تبويب إحصاءات وبروفايلات الموزعين -->
-        <div id="tab-analytics" class="hidden">
-            <div class="card">
-                <h3 style="font-size: 16px; margin-bottom: 6px;">قائمة الموزعين المعتمدين وإحصاءات المبيعات</h3>
-                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">اضغط على "فتح البروفايل والمخطط" لأي موزع لاستعراض مخطط مبيعاته (يومي، أسبوعي، شهري، سنوي) وتعديل فئته (S, G, E, C) فوراً</p>
-                <div id="distributors-grid" class="grid-2"></div>
-            </div>
-        </div>
-
-        <!-- 3. تبويب المقابلات وتوثيق الموزعين -->
-        <div id="tab-interviews" class="hidden">
-            <div class="card">
-                <h3 style="font-size: 16px; margin-bottom: 6px;">طلبات المقابلة والتوثيق للموزعين الجدد</h3>
-                <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">مراجعة السيرة الذاتية ومعلومات المتقدم، واعتماد التوثيق مع رفع نسبة الداعي</p>
-                <div id="interviews-list"></div>
-            </div>
-        </div>
-
-        <!-- 4. تبويب دفتر الحسابات -->
-        <div id="tab-finance" class="hidden">
-            <div class="card">
-                <h3 style="font-size: 16px; margin-bottom: 12px;">دفتر حسابات ذمم الموزعين وتعديل الفئات المباشر</h3>
-                <div style="overflow-x: auto;">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>اسم الموزع</th>
-                                <th>الفئة الحالية</th>
-                                <th>تغيير الفئة فوري</th>
-                                <th>مبالغ بحوزته لم تورد</th>
-                                <th>أرباحه المستحقة</th>
-                                <th>الإجراء المالي / البروفايل</th>
-                            </tr>
-                        </thead>
-                        <tbody id="finance-tbody"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- 5. تبويب المنتجات والنسب وتخصيص الفئات -->
-        <div id="tab-products" class="hidden">
-            <div class="card">
-                <h3 style="font-size: 16px; margin-bottom: 14px;">إدراج صنف جديد في WAKE, WAKE وتحديد الفئات المسموح لها بطلبه</h3>
-                <div class="grid-2">
-                    <input type="text" id="prod-name" placeholder="اسم الصنف (مثال: WAKE, WAKE Gold Blend)">
-                    <input type="number" id="prod-price" placeholder="سعر الكيلو للمستهلك (ل.س)">
-                    <input type="number" id="prod-profit-pct" placeholder="نسبة الربح الأساسية من هذا الصنف % (مثال: 12)">
-                    <input type="url" id="prod-img" placeholder="رابط صورة الصنف (URL)">
-                </div>
-
-                <div class="target-ranks-box">
-                    <span style="font-size: 13px; font-weight: 700; color: var(--gold);">🎯 تخصيص ظهور الصنف للفئات:</span>
-                    <div class="target-ranks-options">
-                        <label class="rank-checkbox-label">
-                            <input type="checkbox" id="prod-rank-all" checked onchange="toggleAllRanks('prod', this)"> متاح للجميع (ALL)
-                        </label>
-                        <label class="rank-checkbox-label">
-                            <input type="checkbox" class="prod-rank-item" value="S" onchange="uncheckAllOption('prod')"> فئة S
-                        </label>
-                        <label class="rank-checkbox-label">
-                            <input type="checkbox" class="prod-rank-item" value="G" onchange="uncheckAllOption('prod')"> فئة G
-                        </label>
-                        <label class="rank-checkbox-label">
-                            <input type="checkbox" class="prod-rank-item" value="E" onchange="uncheckAllOption('prod')"> فئة E
-                        </label>
-                        <label class="rank-checkbox-label">
-                            <input type="checkbox" class="prod-rank-item" value="C" onchange="uncheckAllOption('prod')"> فئة C
-                        </label>
-                    </div>
-                </div>
-
-                <button class="btn btn-primary" style="width: 100%;" onclick="addProduct()">إدراج المنتج في القائمة</button>
-            </div>
-
-            <div class="card">
-                <h3 style="font-size: 16px; margin-bottom: 12px;">الأصناف المفعلة حالياً</h3>
-                <div id="products-list" class="grid-2"></div>
-            </div>
-        </div>
-
-        <!-- 6. تبويب الإعلانات والعروض وتخصيص الفئات -->
-        <div id="tab-ads" class="hidden">
-            <div class="card">
-                <h3 style="font-size: 16px; margin-bottom: 14px;">نشر إعلان / عرض ترويجي جديد وتحديد الفئات المستهدفة</h3>
-                <div class="grid-2">
-                    <input type="text" id="ad-title" placeholder="عنوان العرض أو الإعلان">
-                    <input type="url" id="ad-img" placeholder="رابط صورة العرض (URL)">
-                </div>
-                <textarea id="ad-caption" rows="3" placeholder="نص العرض الترويجي والتفاصيل..."></textarea>
-
-                <div class="target-ranks-box">
-                    <span style="font-size: 13px; font-weight: 700; color: var(--gold);">🎯 توجيه هذا الإعلان إلى:</span>
-                    <div class="target-ranks-options">
-                        <label class="rank-checkbox-label">
-                            <input type="checkbox" id="ad-rank-all" checked onchange="toggleAllRanks('ad', this)"> متاح للجميع (ALL)
-                        </label>
-                        <label class="rank-checkbox-label">
-                            <input type="checkbox" class="ad-rank-item" value="S" onchange="uncheckAllOption('ad')"> فئة S
-                        </label>
-                        <label class="rank-checkbox-label">
-                            <input type="checkbox" class="ad-rank-item" value="G" onchange="uncheckAllOption('ad')"> فئة G
-                        </label>
-                        <label class="rank-checkbox-label">
-                            <input type="checkbox" class="ad-rank-item" value="E" onchange="uncheckAllOption('ad')"> فئة E
-                        </label>
-                        <label class="rank-checkbox-label">
-                            <input type="checkbox" class="ad-rank-item" value="C" onchange="uncheckAllOption('ad')"> فئة C
-                        </label>
-                    </div>
-                </div>
-
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-                    <input type="checkbox" id="ad-pin" style="width: auto; margin-bottom: 0;">
-                    <label for="ad-pin" style="font-weight: 700; color: var(--gold); cursor: pointer;">📌 تثبيت هذا الإعلان في أعلى شاشة الموزعين</label>
-                </div>
-                <button class="btn btn-primary" style="width: 100%;" onclick="publishAd()">نشر الإعلان</button>
-            </div>
-
-            <div class="card">
-                <h3 style="font-size: 16px; margin-bottom: 12px;">الإعلانات المنشورة حالياً</h3>
-                <div id="ads-list"></div>
-            </div>
-        </div>
-
-        <!-- 7. تبويب الإشعارات وتخصيص الفئات -->
-        <div id="tab-notifs" class="hidden">
-            <div class="card">
-                <h3 style="font-size: 16px; margin-bottom: 14px;">إرسال تعميم / إشعار فوري للموزعين</h3>
-                <input type="text" id="notif-title" placeholder="عنوان التعميم">
-                <textarea id="notif-body" rows="3" placeholder="نص الإشعار الموجه للموزعين..."></textarea>
-
-                <div class="target-ranks-box">
-                    <span style="font-size: 13px; font-weight: 700; color: var(--gold);">🎯 تخصيص الإشعار للفئات:</span>
-                    <div class="target-ranks-options">
-                        <label class="rank-checkbox-label">
-                            <input type="checkbox" id="notif-rank-all" checked onchange="toggleAllRanks('notif', this)"> للجميع (ALL)
-                        </label>
-                        <label class="rank-checkbox-label">
-                            <input type="checkbox" class="notif-rank-item" value="S" onchange="uncheckAllOption('notif')"> فئة S
-                        </label>
-                        <label class="rank-checkbox-label">
-                            <input type="checkbox" class="notif-rank-item" value="G" onchange="uncheckAllOption('notif')"> فئة G
-                        </label>
-                        <label class="rank-checkbox-label">
-                            <input type="checkbox" class="notif-rank-item" value="E" onchange="uncheckAllOption('notif')"> فئة E
-                        </label>
-                        <label class="rank-checkbox-label">
-                            <input type="checkbox" class="notif-rank-item" value="C" onchange="uncheckAllOption('notif')"> فئة C
-                        </label>
-                    </div>
-                </div>
-
-                <button class="btn btn-primary" style="width: 100%;" onclick="sendNotification()">إرسال التعميم الفوري 🔔</button>
-            </div>
-
-            <div class="card">
-                <h3 style="font-size: 16px; margin-bottom: 12px;">أرشيف التعميمات المرسلة</h3>
-                <div id="notifs-archive"></div>
-            </div>
-        </div>
-
-        <!-- 8. تبويب إعدادات الفئات ونسب الأرباح (Settings) -->
-        <div id="tab-settings" class="hidden">
-            <div class="card">
-                <h3 style="font-size: 18px; margin-bottom: 6px;">⚙️ إعدادات نسب الأرباح للفئات (S, G, E, C) ومكافأة الداعي</h3>
-                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">
-                    حدد نسبة الربح الإضافية المخصصة لكل فئة؛ تُضاف هذه النسبة تلقائياً فوق نسبة ربح المنتج لكل موزع حسب فئته الحالية.
-                </p>
-
-                <div class="grid-2">
-                    <div class="item-card">
-                        <label style="font-size: 13px; font-weight: 700; color: var(--rank-s); display: block; margin-bottom: 8px;">نسبة أرباح الفئة S الإضافية (%)</label>
-                        <input type="number" id="set-rank-s" value="10" step="0.5">
-                        <small style="color: var(--text-muted); font-size: 11px;">تُمنح لموزعي النخبة من فئة S</small>
-                    </div>
-
-                    <div class="item-card">
-                        <label style="font-size: 13px; font-weight: 700; color: var(--rank-g); display: block; margin-bottom: 8px;">نسبة أرباح الفئة G الإضافية (%)</label>
-                        <input type="number" id="set-rank-g" value="7" step="0.5">
-                        <small style="color: var(--text-muted); font-size: 11px;">تُمنح للموزعين من فئة G</small>
-                    </div>
-
-                    <div class="item-card">
-                        <label style="font-size: 13px; font-weight: 700; color: var(--rank-e); display: block; margin-bottom: 8px;">نسبة أرباح الفئة E الإضافية (%)</label>
-                        <input type="number" id="set-rank-e" value="4" step="0.5">
-                        <small style="color: var(--text-muted); font-size: 11px;">تُمنح للموزعين من فئة E</small>
-                    </div>
-
-                    <div class="item-card">
-                        <label style="font-size: 13px; font-weight: 700; color: var(--rank-c); display: block; margin-bottom: 8px;">نسبة أرباح الفئة C الإضافية (%)</label>
-                        <input type="number" id="set-rank-c" value="0" step="0.5">
-                        <small style="color: var(--text-muted); font-size: 11px;">الفئة الأساسية الابتدائية للموزعين</small>
-                    </div>
-                </div>
-
-                <div class="item-card" style="margin-top: 8px; border-color: var(--gold);">
-                    <label style="font-size: 14px; font-weight: 800; color: var(--gold); display: block; margin-bottom: 8px;">🎁 نسبة مكافأة كود الداعي لكل موزع جديد موثق (%)</label>
-                    <input type="number" id="set-ref-bonus" value="2" step="0.5">
-                    <small style="color: var(--text-muted); font-size: 12px;">مقدار الزيادة في نسبة ربح الداعي عند توثيق حساب شخص مسجل بكود الدعوة الخاص به</small>
-                </div>
-
-                <button class="btn btn-success" style="width: 100%; padding: 14px; font-size: 15px; margin-top: 10px;" onclick="saveRankSettings()">حفظ وتطبيق إعدادات الفئات والنسب ✓</button>
-            </div>
-        </div>
-
-    </div>
-
+<!-- 1. شاشة تسجيل الدخول الداخلي عالي الأمان للمدير العام -->
+<div id="admin-auth" class="card" style="max-width: 480px; margin: 40px auto; text-align: center;">
+<div style="font-size: 48px; margin-bottom: 8px;">☕</div>
+<div class="brand-logo" style="margin-bottom: 4px;">WAKE, WAKE</div>
+<h2 style="font-size: 20px; font-weight: 800;">بوابة المدير العام المركزية</h2>
+<p style="color: var(--text-muted); font-size: 12px; margin-top: 4px;">نظام المصادقة الداخلي المشفر وعالي الأمان للإدارة</p>
+<div class="auth-switcher">
+<button type="button" id="adm-tab-login" class="auth-tab-btn active" onclick="switchAdminAuthMode('login')">🔐 دخول المدير</button>
+<button type="button" id="adm-tab-signup" class="auth-tab-btn" onclick="switchAdminAuthMode('signup')">🛡️ تفعيل حساب مدير</button>
 </div>
-
-<!-- نافذة بروفايل الموزع ومخطط المبيعات (Modal) -->
+<div id="adm-login-box">
+<div class="form-group">
+<label>البريد الإلكتروني للإدارة</label>
+<input type="email" id="adm-login-email" placeholder="admin@wakewake.com" dir="ltr" style="text-align: right; margin-bottom: 0;">
+</div>
+<div class="form-group">
+<label>كلمة المرور</label>
+<div class="input-with-icon">
+<input type="password" id="adm-login-pass" placeholder="أدخل كلمة المرور">
+<button type="button" class="toggle-pass-btn" onclick="toggleAdminPass('adm-login-pass', this)">👁️</button>
+</div>
+</div>
+<button type="button" id="btn-adm-login" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 15px; margin-top: 8px;" onclick="adminLoginInternal()">
+تسجيل الدخول إلى لوحة التحكم
+</button>
+<button type="button" class="forgot-pass-link" onclick="adminResetPassword()">
+نسيت كلمة المرور؟ إرسال رابط استعادة للبريد
+</button>
+</div>
+<div id="adm-signup-box" class="hidden">
+<div class="form-group">
+<label>الاسم الثلاثي الكامل للمدير</label>
+<input type="text" id="adm-sig-name" placeholder="الاسم الثلاثي" style="margin-bottom: 0;">
+</div>
+<div class="form-group">
+<label>البريد الإلكتروني الرسمي الصحيح (يمنع تكراره)</label>
+<input type="email" id="adm-sig-email" placeholder="admin@example.com" dir="ltr" style="text-align: right; margin-bottom: 0;" oninput="validateAdminSignupLive()">
+</div>
+<div class="form-group">
+<label>رقم الموبايل السوري حصراً (يمنع تكرار الرقم)</label>
+<div class="syria-phone-wrap">
+<input type="tel" id="adm-sig-phone" placeholder="09xxxxxxxx" maxlength="10" oninput="handleAdminPhoneInput(this); validateAdminSignupLive();">
+<span class="syria-flag-badge">🇸🇾 SY 09</span>
+</div>
+</div>
+<div class="form-group">
+<label>كلمة المرور القوية (8 خانات على الأقل مع أرقام وحروف)</label>
+<div class="input-with-icon">
+<input type="password" id="adm-sig-pass" placeholder="أدخل كلمة مرور قوية" oninput="validateAdminSignupLive()">
+<button type="button" class="toggle-pass-btn" onclick="toggleAdminPass('adm-sig-pass', this)">👁️</button>
+</div>
+</div>
+<div class="form-group">
+<label>تأكيد كلمة المرور (أعد كتابة كلمة السر مرة ثانية)</label>
+<div class="input-with-icon">
+<input type="password" id="adm-sig-pass-confirm" placeholder="أعد كتابة كلمة المرور للتأكيد" oninput="validateAdminSignupLive()">
+<button type="button" class="toggle-pass-btn" onclick="toggleAdminPass('adm-sig-pass-confirm', this)">👁️</button>
+</div>
+</div>
+<div class="security-checklist">
+<div id="adm-chk-email" class="sec-item">⚪ صيغة البريد الإلكتروني صحيحة وسليمة</div>
+<div id="adm-chk-phone" class="sec-item">⚪ رقم موبايل سوري صحيح (10 أرقام يبدأ بـ 09)</div>
+<div id="adm-chk-pass-len" class="sec-item">⚪ كلمة المرور 8 خانات على الأقل وتضم أحرفاً وأرقاماً</div>
+<div id="adm-chk-pass-match" class="sec-item">⚪ تطابق تام بين كلمة المرور وتأكيد كلمة المرور</div>
+</div>
+<button type="button" id="btn-adm-signup" class="btn btn-success" style="width: 100%; padding: 14px; font-size: 15px;" onclick="adminRegisterInternal()">
+تأكيد وإنشاء حساب المدير العام ✓
+</button>
+</div>
+</div>
+<!-- 2. لوحة التحكم المركزية -->
+<div id="admin-panel" class="hidden">
+<header class="top-nav">
+<div>
+<div class="brand-logo">WAKE, WAKE</div>
+<div style="font-size: 13px; color: var(--text-muted); font-weight: 600;">الإدارة المركزية - تحليلات المبيعات والموزعين والفئات</div>
+</div>
+<div class="user-tag">
+<img id="admin-photo" class="user-avatar" src="https://ui-avatars.com/api/?name=Admin&background=4338ca&color=fff" alt="Admin">
+<div>
+<strong id="admin-name" style="font-size: 13px;">-</strong>
+<div id="admin-email" style="font-size: 11px; color: var(--text-muted);">-</div>
+</div>
+<button class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;" onclick="adminLogout()">خروج</button>
+</div>
+</header>
+<div class="stats-grid">
+<div class="stat-card">
+<span>إجمالي الطلبيات</span>
+<h3 id="stat-orders" style="color: #60a5fa;">0</h3>
+</div>
+<div class="stat-card">
+<span>مقابلات بانتظار التوثيق</span>
+<h3 id="stat-interviews" style="color: var(--warning);">0</h3>
+</div>
+<div class="stat-card">
+<span>مبالغ بحوزة الموزعين</span>
+<h3 id="stat-pending-cash" style="color: var(--danger);">0 ل.س</h3>
+</div>
+<div class="stat-card">
+<span>صافي المقبوض للإدارة</span>
+<h3 id="stat-collected-cash" style="color: var(--success);">0 ل.س</h3>
+</div>
+</div>
+<div class="nav-tabs">
+<button class="tab-btn active" onclick="switchTab('orders', this)">📦 متابعة الطلبات</button>
+<button class="tab-btn" onclick="switchTab('analytics', this)">📊 إحصاءات وبروفايلات الموزعين</button>
+<button class="tab-btn" onclick="switchTab('interviews', this)">👥 طلبات المقابلة والتوثيق</button>
+<button class="tab-btn" onclick="switchTab('finance', this)">📒 دفتر الحسابات</button>
+<button class="tab-btn" onclick="switchTab('accounts', this)">🔐 إدارة الحسابات وكلمات السر</button>
+<button class="tab-btn" onclick="switchTab('products', this)">☕ أصناف WAKE, WAKE</button>
+<button class="tab-btn" onclick="switchTab('ads', this)">📢 الإعلانات والعروض</button>
+<button class="tab-btn" onclick="switchTab('notifs', this)">🔔 الإشعارات</button>
+<button class="tab-btn" onclick="switchTab('settings', this)">⚙️ إعدادات الفئات والترسيت</button>
+</div>
+<!-- 1. تبويب الطلبات -->
+<div id="tab-orders">
+<div class="card">
+<h3 style="font-size: 16px; margin-bottom: 12px;">سجل الطلبيات وتعديل الحالات والقبض</h3>
+<div style="overflow-x: auto;">
+<table>
+<thead>
+<tr>
+<th>رقم الطلب</th>
+<th>المنتج والكمية</th>
+<th>الموزع</th>
+<th>المبلغ</th>
+<th>حالة التجهيز</th>
+<th>قبض المبلغ من الموزع</th>
+<th>إجراءات الحالة</th>
+</tr>
+</thead>
+<tbody id="orders-tbody"></tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- 2. تبويب إحصاءات الموزعين -->
+<div id="tab-analytics" class="hidden">
+<div class="card">
+<h3 style="font-size: 16px; margin-bottom: 6px;">قائمة الموزعين المعتمدين وإحصاءات المبيعات</h3>
+<p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">اضغط على "فتح البروفايل والمخطط" لأي موزع لاستعراض مخطط مبيعاته وتعديل فئته أو فصل حسابه</p>
+<div id="distributors-grid" class="grid-2"></div>
+</div>
+</div>
+<!-- 3. تبويب المقابلات -->
+<div id="tab-interviews" class="hidden">
+<div class="card">
+<h3 style="font-size: 16px; margin-bottom: 6px;">طلبات المقابلة والتوثيق للموزعين الجدد</h3>
+<div id="interviews-list"></div>
+</div>
+</div>
+<!-- 4. تبويب دفتر الحسابات -->
+<div id="tab-finance" class="hidden">
+<div class="card">
+<h3 style="font-size: 16px; margin-bottom: 12px;">دفتر حسابات ذمم الموزعين وتعديل الفئات المباشر</h3>
+<div style="overflow-x: auto;">
+<table>
+<thead>
+<tr>
+<th>اسم الموزع</th>
+<th>الفئة الحالية</th>
+<th>تغيير الفئة فوري</th>
+<th>مبالغ بحوزته لم تورد</th>
+<th>أرباحه المستحقة</th>
+<th>الإجراء المالي / البروفايل</th>
+</tr>
+</thead>
+<tbody id="finance-tbody"></tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- 5. تبويب إدارة الحسابات وكلمات السر -->
+<div id="tab-accounts" class="hidden">
+<div class="card">
+<h3 style="font-size: 18px; margin-bottom: 6px;">🔐 إدارة الحسابات المسجلة وكلمات المرور وفصل الموزعين</h3>
+<p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+استعرض كافة الحسابات المسجلة في المنظومة، وتعرف على كلمات المرور المسجلة الخاصة بها، أو قم بفصل/تعليق حساب الموزع أو حذفه نهائياً بنقرة واحدة.
+</p>
+<div style="overflow-x: auto;">
+<table>
+<thead>
+<tr>
+<th>الاسم</th>
+<th>البريد الإلكتروني</th>
+<th>كلمة المرور المسجلة</th>
+<th>رقم الهاتف</th>
+<th>نوع الحساب / الحالة</th>
+<th>إجراءات الإدارة والفصل</th>
+</tr>
+</thead>
+<tbody id="all-accounts-tbody"></tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- 6. تبويب المنتجات والنسب -->
+<div id="tab-products" class="hidden">
+<div class="card">
+<h3 style="font-size: 16px; margin-bottom: 14px;">إدراج صنف جديد في WAKE, WAKE وتحديد الفئات المسموح لها بطلبه</h3>
+<div class="grid-2">
+<input type="text" id="prod-name" placeholder="اسم الصنف (مثال: WAKE, WAKE Gold Blend)">
+<input type="number" id="prod-price" placeholder="سعر الكيلو للمستهلك (ل.س)">
+<input type="number" id="prod-profit-pct" placeholder="نسبة الربح الأساسية من هذا الصنف % (مثال: 12)">
+<input type="url" id="prod-img" placeholder="رابط صورة الصنف (URL)">
+</div>
+<div class="target-ranks-box">
+<span style="font-size: 13px; font-weight: 700; color: var(--gold);">🎯 تخصيص ظهور الصنف للفئات:</span>
+<div class="target-ranks-options">
+<label class="rank-checkbox-label">
+<input type="checkbox" id="prod-rank-all" checked onchange="toggleAllRanks('prod', this)"> متاح للجميع (ALL)
+</label>
+<label class="rank-checkbox-label">
+<input type="checkbox" class="prod-rank-item" value="S" onchange="uncheckAllOption('prod')"> فئة S
+</label>
+<label class="rank-checkbox-label">
+<input type="checkbox" class="prod-rank-item" value="G" onchange="uncheckAllOption('prod')"> فئة G
+</label>
+<label class="rank-checkbox-label">
+<input type="checkbox" class="prod-rank-item" value="E" onchange="uncheckAllOption('prod')"> فئة E
+</label>
+<label class="rank-checkbox-label">
+<input type="checkbox" class="prod-rank-item" value="C" onchange="uncheckAllOption('prod')"> فئة C
+</label>
+</div>
+</div>
+<button class="btn btn-primary" style="width: 100%;" onclick="addProduct()">إدراج المنتج في القائمة</button>
+</div>
+<div class="card">
+<h3 style="font-size: 16px; margin-bottom: 12px;">الأصناف المفعلة حالياً</h3>
+<div id="products-list" class="grid-2"></div>
+</div>
+</div>
+<!-- 7. تبويب الإعلانات -->
+<div id="tab-ads" class="hidden">
+<div class="card">
+<h3 style="font-size: 16px; margin-bottom: 14px;">نشر إعلان / عرض ترويجي جديد وتحديد الفئات المستهدفة</h3>
+<div class="grid-2">
+<input type="text" id="ad-title" placeholder="عنوان العرض أو الإعلان">
+<input type="url" id="ad-img" placeholder="رابط صورة العرض (URL)">
+</div>
+<textarea id="ad-caption" rows="3" placeholder="نص العرض الترويجي والتفاصيل..."></textarea>
+<div class="target-ranks-box">
+<span style="font-size: 13px; font-weight: 700; color: var(--gold);">🎯 توجيه هذا الإعلان إلى:</span>
+<div class="target-ranks-options">
+<label class="rank-checkbox-label">
+<input type="checkbox" id="ad-rank-all" checked onchange="toggleAllRanks('ad', this)"> متاح للجميع (ALL)
+</label>
+<label class="rank-checkbox-label">
+<input type="checkbox" class="ad-rank-item" value="S" onchange="uncheckAllOption('ad')"> فئة S
+</label>
+<label class="rank-checkbox-label">
+<input type="checkbox" class="ad-rank-item" value="G" onchange="uncheckAllOption('ad')"> فئة G
+</label>
+<label class="rank-checkbox-label">
+<input type="checkbox" class="ad-rank-item" value="E" onchange="uncheckAllOption('ad')"> فئة E
+</label>
+<label class="rank-checkbox-label">
+<input type="checkbox" class="ad-rank-item" value="C" onchange="uncheckAllOption('ad')"> فئة C
+</label>
+</div>
+</div>
+<div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+<input type="checkbox" id="ad-pin" style="width: auto; margin-bottom: 0;">
+<label for="ad-pin" style="font-weight: 700; color: var(--gold); cursor: pointer;">📌 تثبيت هذا الإعلان في أعلى شاشة الموزعين</label>
+</div>
+<button class="btn btn-primary" style="width: 100%;" onclick="publishAd()">نشر الإعلان</button>
+</div>
+<div class="card">
+<h3 style="font-size: 16px; margin-bottom: 12px;">الإعلانات المنشورة حالياً</h3>
+<div id="ads-list"></div>
+</div>
+</div>
+<!-- 8. تبويب الإشعارات -->
+<div id="tab-notifs" class="hidden">
+<div class="card">
+<h3 style="font-size: 16px; margin-bottom: 14px;">إرسال تعميم / إشعار فوري للموزعين</h3>
+<input type="text" id="notif-title" placeholder="عنوان التعميم">
+<textarea id="notif-body" rows="3" placeholder="نص الإشعار الموجه للموزعين..."></textarea>
+<div class="target-ranks-box">
+<span style="font-size: 13px; font-weight: 700; color: var(--gold);">🎯 تخصيص الإشعار للفئات:</span>
+<div class="target-ranks-options">
+<label class="rank-checkbox-label">
+<input type="checkbox" id="notif-rank-all" checked onchange="toggleAllRanks('notif', this)"> للجميع (ALL)
+</label>
+<label class="rank-checkbox-label">
+<input type="checkbox" class="notif-rank-item" value="S" onchange="uncheckAllOption('notif')"> فئة S
+</label>
+<label class="rank-checkbox-label">
+<input type="checkbox" class="notif-rank-item" value="G" onchange="uncheckAllOption('notif')"> فئة G
+</label>
+<label class="rank-checkbox-label">
+<input type="checkbox" class="notif-rank-item" value="E" onchange="uncheckAllOption('notif')"> فئة E
+</label>
+<label class="rank-checkbox-label">
+<input type="checkbox" class="notif-rank-item" value="C" onchange="uncheckAllOption('notif')"> فئة C
+</label>
+</div>
+</div>
+<button class="btn btn-primary" style="width: 100%;" onclick="sendNotification()">إرسال التعميم الفوري 🔔</button>
+</div>
+<div class="card">
+<h3 style="font-size: 16px; margin-bottom: 12px;">أرشيف التعميمات المرسلة</h3>
+<div id="notifs-archive"></div>
+</div>
+</div>
+<!-- 9. تبويب إعدادات الفئات والترسيت (Reset Finance & Database) -->
+<div id="tab-settings" class="hidden">
+<div class="card">
+<h3 style="font-size: 18px; margin-bottom: 6px;">⚙️ إعدادات نسب أرباح الفئات ومكافأة الداعي</h3>
+<div class="grid-2">
+<div class="item-card">
+<label style="font-size: 13px; font-weight: 700; color: var(--rank-s); display: block; margin-bottom: 8px;">نسبة أرباح الفئة S الإضافية (%)</label>
+<input type="number" id="set-rank-s" value="10" step="0.5">
+</div>
+<div class="item-card">
+<label style="font-size: 13px; font-weight: 700; color: var(--rank-g); display: block; margin-bottom: 8px;">نسبة أرباح الفئة G الإضافية (%)</label>
+<input type="number" id="set-rank-g" value="7" step="0.5">
+</div>
+<div class="item-card">
+<label style="font-size: 13px; font-weight: 700; color: var(--rank-e); display: block; margin-bottom: 8px;">نسبة أرباح الفئة E الإضافية (%)</label>
+<input type="number" id="set-rank-e" value="4" step="0.5">
+</div>
+<div class="item-card">
+<label style="font-size: 13px; font-weight: 700; color: var(--rank-c); display: block; margin-bottom: 8px;">نسبة أرباح الفئة C الإضافية (%)</label>
+<input type="number" id="set-rank-c" value="0" step="0.5">
+</div>
+</div>
+<div class="item-card" style="margin-top: 8px; border-color: var(--gold);">
+<label style="font-size: 14px; font-weight: 800; color: var(--gold); display: block; margin-bottom: 8px;">🎁 نسبة مكافأة كود الداعي لكل موزع جديد موثق (%)</label>
+<input type="number" id="set-ref-bonus" value="2" step="0.5">
+</div>
+<button class="btn btn-success" style="width: 100%; padding: 14px; font-size: 15px; margin-top: 10px;" onclick="saveRankSettings()">حفظ وتطبيق إعدادات الفئات والنسب ✓</button>
+</div>
+<!-- بطاقة الترسيت المالي وإعادة تعيين المقبوضات -->
+<div class="card" style="border-color: var(--warning); background: rgba(245, 158, 11, 0.05);">
+<h3 style="font-size: 18px; color: var(--warning); margin-bottom: 6px;">📒 إعادة ضبط وترسيت الحسابات المالية ومقبوضات الإدارة</h3>
+<p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+يقوم هذا الزر بتصفية كافة الطلبيات السابقة وجعل (صافي المقبوض للإدارة) و(المبالغ بحوزة الموزعين) تبدأ من الصفر دون مسح الحسابات أو الأصناف.
+</p>
+<button class="btn btn-warning" style="width: 100%; padding: 14px; font-size: 15px; color: #111827;" onclick="triggerFinanceReset()">تصفية وترسيت الحسابات المالية والمقبوضات 🔄</button>
+</div>
+<!-- بطاقة ترسيت المنظومة بالكامل -->
+<div class="card" style="border-color: var(--danger); background: rgba(239, 68, 68, 0.05);">
+<h3 style="font-size: 18px; color: var(--danger); margin-bottom: 6px;">⚠️ منطقة الخطر - ترسيت وحذف كافة معلومات المنظومة في Firebase</h3>
+<p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+يقوم هذا الزر بحذف كافة الحسابات (ما عدا حسابك الحالي)، وسجل الأرقام، والطلبيات، والأصناف، والإعلانات، وتصفية قاعدة البيانات في فايربيس بالكامل للبدء من الصفر.
+</p>
+<button class="btn btn-danger" style="width: 100%; padding: 14px; font-size: 15px;" onclick="triggerSystemReset()">ترسيت وتصفية كافة بيانات وحسابات المنظومة في Firebase ⚠️</button>
+</div>
+</div>
+</div>
+</div>
+<!-- نافذة بروفايل الموزع ومخطط المبيعات وإمكانية الفصل (Modal) -->
 <div id="profile-modal" class="modal-overlay hidden">
-    <div class="modal-content">
-        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 14px; margin-bottom: 18px;">
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <img id="modal-avatar" src="https://ui-avatars.com/api/?name=User&background=374151&color=fff" style="width: 54px; height: 54px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover;">
-                <div>
-                    <h3 id="modal-name" style="font-size: 18px;">-</h3>
-                    <div id="modal-email" style="font-size: 12px; color: var(--text-muted);">-</div>
-                </div>
-            </div>
-            <button class="btn btn-danger" onclick="closeProfileModal()">إغلاق ✕</button>
-        </div>
-
-        <div class="grid-2" style="margin-bottom: 18px;">
-            <div class="item-card" style="margin-bottom: 0;">
-                <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">تعديل فئة الموزع فوراً (S, G, E, C):</div>
-                <div style="display: flex; gap: 8px; align-items: center;">
-                    <select id="modal-rank-select" style="margin-bottom: 0; flex: 1; font-weight: 800;">
-                        <option value="S">الفئة S (S-Class النخبة)</option>
-                        <option value="G">الفئة G (G-Class متقدم)</option>
-                        <option value="E">الفئة E (E-Class نشط)</option>
-                        <option value="C">الفئة C (C-Class أساسي)</option>
-                    </select>
-                    <button class="btn btn-success" onclick="saveModalRank()">حفظ الفئة ✓</button>
-                </div>
-                <div style="font-size: 12px; color: var(--gold); margin-top: 10px;">
-                    كود الداعي: <strong id="modal-ref-code">-</strong> | الفريق الموثق: <strong id="modal-team">0</strong>
-                </div>
-            </div>
-
-            <div class="item-card" style="margin-bottom: 0;">
-                <div style="font-size: 13px; margin-bottom: 4px;">📞 الهاتف: <strong id="modal-phone">-</strong></div>
-                <div style="font-size: 13px; margin-bottom: 4px;">📍 المنطقة: <strong id="modal-area">-</strong></div>
-                <div style="font-size: 13px; margin-bottom: 4px;">🛵 المركبة: <strong id="modal-transport">-</strong></div>
-                <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;" id="modal-bio">-</div>
-            </div>
-        </div>
-
-        <div class="stats-grid" style="margin-bottom: 18px;">
-            <div class="stat-card" style="padding: 14px;">
-                <span>إجمالي الكميات المسحوبة</span>
-                <h3 id="modal-total-kg" style="color: var(--cyan); font-size: 19px;">0 كغ</h3>
-            </div>
-            <div class="stat-card" style="padding: 14px;">
-                <span>إجمالي قيمة مبيعاته</span>
-                <h3 id="modal-total-sales" style="color: var(--gold); font-size: 19px;">0 ل.س</h3>
-            </div>
-            <div class="stat-card" style="padding: 14px;">
-                <span>أرباحه الصافية</span>
-                <h3 id="modal-total-profit" style="color: var(--success); font-size: 19px;">0 ل.س</h3>
-            </div>
-        </div>
-
-        <div class="item-card" style="background: #111827;">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 14px;">
-                <h4 style="font-size: 15px;">📈 مخطط مبيعات الموزع المقارن</h4>
-                <div class="period-selector" style="margin-bottom: 0;">
-                    <button class="period-btn active" onclick="updateChartPeriod('daily', this)">يومي</button>
-                    <button class="period-btn" onclick="updateChartPeriod('weekly', this)">أسبوعي</button>
-                    <button class="period-btn" onclick="updateChartPeriod('monthly', this)">شهري</button>
-                    <button class="period-btn" onclick="updateChartPeriod('yearly', this)">سنوي</button>
-                </div>
-            </div>
-            <div style="height: 280px; width: 100%;">
-                <canvas id="distributorSalesChart"></canvas>
-            </div>
-        </div>
-    </div>
+<div class="modal-content">
+<div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 14px; margin-bottom: 18px;">
+<div style="display: flex; align-items: center; gap: 12px;">
+<img id="modal-avatar" src="https://ui-avatars.com/api/?name=User&background=374151&color=fff" style="width: 54px; height: 54px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover;">
+<div>
+<h3 id="modal-name" style="font-size: 18px;">-</h3>
+<div id="modal-email" style="font-size: 12px; color: var(--text-muted);">-</div>
 </div>
-
+</div>
+<button class="btn btn-danger" onclick="closeProfileModal()">إغلاق ✕</button>
+</div>
+<div class="grid-2" style="margin-bottom: 18px;">
+<div class="item-card" style="margin-bottom: 0;">
+<div style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">تعديل فئة الموزع فوراً (S, G, E, C):</div>
+<div style="display: flex; gap: 8px; align-items: center;">
+<select id="modal-rank-select" style="margin-bottom: 0; flex: 1; font-weight: 800;">
+<option value="S">الفئة S (النخبة)</option>
+<option value="G">الفئة G (متقدم)</option>
+<option value="E">الفئة E (نشط)</option>
+<option value="C">الفئة C (أساسي)</option>
+</select>
+<button class="btn btn-success" onclick="saveModalRank()">حفظ ✓</button>
+</div>
+<!-- زر فصل الموظف/الموزع من داخل البروفايل مباشرة -->
+<div style="margin-top: 14px; border-top: 1px solid var(--border); pt-12px;">
+<button class="btn btn-danger" style="width: 100%; font-size: 13px;" onclick="disconnectCurrentModalDistributor()">⚠️ فصل وحذف الموظف من النظام نهائياً</button>
+</div>
+</div>
+<div class="item-card" style="margin-bottom: 0;">
+<div style="font-size: 13px; margin-bottom: 4px;">📞 الهاتف: <strong id="modal-phone">-</strong></div>
+<div style="font-size: 13px; margin-bottom: 4px;">📍 المنطقة: <strong id="modal-area">-</strong></div>
+<div style="font-size: 13px; margin-bottom: 4px;">🛵 المركبة: <strong id="modal-transport">-</strong></div>
+<div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;" id="modal-bio">-</div>
+</div>
+</div>
+<div class="stats-grid" style="margin-bottom: 18px;">
+<div class="stat-card" style="padding: 14px;">
+<span>إجمالي الكميات المسحوبة</span>
+<h3 id="modal-total-kg" style="color: var(--cyan); font-size: 19px;">0 كغ</h3>
+</div>
+<div class="stat-card" style="padding: 14px;">
+<span>إجمالي قيمة مبيعاته</span>
+<h3 id="modal-total-sales" style="color: var(--gold); font-size: 19px;">0 ل.س</h3>
+</div>
+<div class="stat-card" style="padding: 14px;">
+<span>أرباحه الصافية</span>
+<h3 id="modal-total-profit" style="color: var(--success); font-size: 19px;">0 ل.س</h3>
+</div>
+</div>
+<div class="item-card" style="background: #111827;">
+<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 14px;">
+<h4 style="font-size: 15px;">📈 مخطط مبيعات الموزع المقارن</h4>
+<div class="period-selector" style="margin-bottom: 0;">
+<button class="period-btn active" onclick="updateChartPeriod('daily', this)">يومي</button>
+<button class="period-btn" onclick="updateChartPeriod('weekly', this)">أسبوعي</button>
+<button class="period-btn" onclick="updateChartPeriod('monthly', this)">شهري</button>
+<button class="period-btn" onclick="updateChartPeriod('yearly', this)">سنوي</button>
+</div>
+</div>
+<div style="height: 280px; width: 100%;">
+<canvas id="distributorSalesChart"></canvas>
+</div>
+</div>
+</div>
+</div>
 <!-- نافذة التنبيهات والتأكيد المدمجة للنظام -->
 <div id="sys-dialog-modal" class="modal-overlay hidden" style="z-index: 2000;">
-    <div class="sys-dialog-box">
-        <div id="sys-dialog-icon" style="font-size: 36px; margin-bottom: 10px;">🔔</div>
-        <p id="sys-dialog-msg" style="font-size: 15px; font-weight: 700; line-height: 1.6; margin-bottom: 20px;">-</p>
-        <div id="sys-dialog-actions" style="display: flex; gap: 10px; justify-content: center;"></div>
-    </div>
+<div class="sys-dialog-box">
+<div id="sys-dialog-icon" style="font-size: 36px; margin-bottom: 10px;">🔔</div>
+<p id="sys-dialog-msg" style="font-size: 15px; font-weight: 700; line-height: 1.6; margin-bottom: 20px;">-</p>
+<div id="sys-dialog-actions" style="display: flex; gap: 10px; justify-content: center;"></div>
 </div>
-
+</div>
 <!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
 <script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyCmgHOmOuuAcgcMBLupnf39OeR45Spf8Mo",
-        authDomain: "wake-wake-6fb98.firebaseapp.com",
-        projectId: "wake-wake-6fb98",
-        storageBucket: "wake-wake-6fb98.firebasestorage.app",
-        messagingSenderId: "677970870264",
-        appId: "1:677970870264:web:36fc86c91d479c03fda00d",
-        measurementId: "G-LNFEM4MMTR"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-
-    // تفعيل الحفظ الدائم للجلسة في التطبيق والمتصفح
-    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(e => console.warn(e));
-
-    try {
-        db.settings({ experimentalAutoDetectLongPolling: true, merge: true });
-    } catch (e) {}
-
-    let allUsers = {};
-    let allOrders = [];
-    let selectedDistributorId = null;
-    let salesChartInstance = null;
-    let currentChartPeriod = 'daily';
-    let listenersInitialized = false;
-    let activeUnsubscribes = [];
-
-    let globalSettings = {
-        rankS_pct: 10,
-        rankG_pct: 7,
-        rankE_pct: 4,
-        rankC_pct: 0,
-        referralBonus_pct: 2
-    };
-
-    // معايير التحقق الصارمة:
-    // 1. صيغة بريد إلكتروني صحيحة
-    const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    // 2. رقم موبايل سوري حصراً (10 خانات يبدأ بـ 093, 094, 095, 096, 098, 099)
-    const SYRIAN_PHONE_REGEX = /^09[3-9][0-9]{7}$/;
-    // 3. كلمة مرور قوية (8 خانات على الأقل وتحتوي على أحرف وأرقام)
-    const STRONG_PASS_REGEX = /^(?=.*[A-Za-z\u0600-\u06FF])(?=.*\d).{8,}$/;
-
-    // تحويل الأرقام العربية أو الهندية إلى أرقام إنجليزية تلقائياً
-    function normalizeAdminDigits(str) {
-        return String(str || '')
-            .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
-            .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
-            .replace(/[^0-9]/g, '');
-    }
-
-    function handleAdminPhoneInput(inputEl) {
-        inputEl.value = normalizeAdminDigits(inputEl.value).slice(0, 10);
-    }
-
-    function showAppAlert(message) {
-        const modal = document.getElementById('sys-dialog-modal');
-        if (!modal) { alert(message); return; }
-        document.getElementById('sys-dialog-icon').innerText = '🔔';
-        document.getElementById('sys-dialog-msg').innerText = message;
-        document.getElementById('sys-dialog-actions').innerHTML = `
-            <button class="btn btn-primary" style="min-width: 120px; padding: 10px 24px;" onclick="document.getElementById('sys-dialog-modal').classList.add('hidden')">حسناً</button>
-        `;
-        modal.classList.remove('hidden');
-    }
-
-    function showAppConfirm(message) {
-        return new Promise((resolve) => {
-            const modal = document.getElementById('sys-dialog-modal');
-            if (!modal) { resolve(confirm(message)); return; }
-            document.getElementById('sys-dialog-icon').innerText = '⚠️';
-            document.getElementById('sys-dialog-msg').innerText = message;
-            const actions = document.getElementById('sys-dialog-actions');
-            actions.innerHTML = '';
-
-            const yesBtn = document.createElement('button');
-            yesBtn.className = 'btn btn-success';
-            yesBtn.style.minWidth = '110px';
-            yesBtn.innerText = 'نعم، تأكيد ✓';
-            yesBtn.onclick = () => { modal.classList.add('hidden'); resolve(true); };
-
-            const noBtn = document.createElement('button');
-            noBtn.className = 'btn btn-secondary';
-            noBtn.style.minWidth = '110px';
-            noBtn.innerText = 'إلغاء';
-            noBtn.onclick = () => { modal.classList.add('hidden'); resolve(false); };
-
-            actions.appendChild(yesBtn);
-            actions.appendChild(noBtn);
-            modal.classList.remove('hidden');
-        });
-    }
-
-    window.alert = showAppAlert;
-
-    function switchAdminAuthMode(mode) {
-        const loginBtn = document.getElementById('adm-tab-login');
-        const signupBtn = document.getElementById('adm-tab-signup');
-        const loginBox = document.getElementById('adm-login-box');
-        const signupBox = document.getElementById('adm-signup-box');
-
-        if (mode === 'login') {
-            loginBtn.classList.add('active');
-            signupBtn.classList.remove('active');
-            loginBox.classList.remove('hidden');
-            signupBox.classList.add('hidden');
-        } else {
-            signupBtn.classList.add('active');
-            loginBtn.classList.remove('active');
-            signupBox.classList.remove('hidden');
-            loginBox.classList.add('hidden');
-        }
-    }
-
-    function toggleAdminPass(inputId, btn) {
-        const input = document.getElementById(inputId);
-        if (!input) return;
-        if (input.type === 'password') {
-            input.type = 'text';
-            btn.innerText = '🙈';
-        } else {
-            input.type = 'password';
-            btn.innerText = '👁️';
-        }
-    }
-
-    function updateAdmCheckItem(id, isValid, validText, invalidText) {
-        const el = document.getElementById(id);
-        if (!el) return;
-        if (isValid) {
-            el.className = 'sec-item valid';
-            el.innerText = '✅ ' + validText;
-        } else {
-            el.className = 'sec-item invalid';
-            el.innerText = '❌ ' + invalidText;
-        }
-    }
-
-    function validateAdminSignupLive() {
-        const email = document.getElementById('adm-sig-email').value.trim().toLowerCase();
-        const phone = normalizeAdminDigits(document.getElementById('adm-sig-phone').value);
-        const pass = document.getElementById('adm-sig-pass').value;
-        const passConfirm = document.getElementById('adm-sig-pass-confirm').value;
-
-        const isEmailValid = EMAIL_REGEX.test(email);
-        const isPhoneValid = SYRIAN_PHONE_REGEX.test(phone);
-        const isPassStrong = STRONG_PASS_REGEX.test(pass);
-        const isPassMatch = pass.length > 0 && pass === passConfirm;
-
-        updateAdmCheckItem('adm-chk-email', isEmailValid, 'صيغة البريد الإلكتروني صحيحة وسليمة', 'يرجى كتابة بريد إلكتروني صحيح (name@domain.com)');
-        updateAdmCheckItem('adm-chk-phone', isPhoneValid, 'رقم موبايل سوري صحيح ومعتمد (10 أرقام)', 'الرقم يجب أن يكون سورياً (10 أرقام ويبدأ بـ 09)');
-        updateAdmCheckItem('adm-chk-pass-len', isPassStrong, 'كلمة المرور قوية وتضم أحرفاً وأرقاماً (8+)', 'كلمة المرور لا تقل عن 8 خانات وتضم أحرفاً وأرقاماً');
-        updateAdmCheckItem('adm-chk-pass-match', isPassMatch, 'كلمتا المرور متطابقتان تماماً', 'تأكيد كلمة المرور غير مطابق لكلمة المرور');
-
-        return isEmailValid && isPhoneValid && isPassStrong && isPassMatch;
-    }
-
-    function translateAdminAuthError(error) {
-        const code = error.code || '';
-        if (code === 'auth/email-already-in-use') return 'عذراً، هذا البريد الإلكتروني مسجل مسبقاً في النظام! يمنع التسجيل بنفس الإيميل مرتين.';
-        if (code === 'auth/invalid-email') return 'صيغة البريد الإلكتروني غير صحيحة.';
-        if (code === 'auth/user-not-found' || code === 'auth/invalid-login-credentials' || code === 'auth/wrong-password') return 'البريد الإلكتروني أو كلمة المرور غير صحيحة.';
-        if (code === 'auth/weak-password') return 'كلمة المرور ضعيفة، يجب أن لا تقل عن 8 خانات.';
-        if (code === 'auth/operation-not-allowed') return 'يرجى تفعيل خيار البريد وكلمة المرور (Email/Password) من إعدادات Firebase Console > Authentication.';
-        if (code === 'auth/too-many-requests') return 'تم إيقاف المحاولات مؤقتاً لحماية الحساب من التكرار، يرجى المحاولة بعد قليل.';
-        return error.message || 'حدث خطأ في المصادقة.';
-    }
-
-    // 1. تسجيل دخول المدير بالبريد وكلمة المرور
-    async function adminLoginInternal() {
-        const email = document.getElementById('adm-login-email').value.trim().toLowerCase();
-        const pass = document.getElementById('adm-login-pass').value;
-
-        if (!EMAIL_REGEX.test(email)) {
-            showAppAlert('يرجى إدخال البريد الإلكتروني للإدارة بصيغة صحيحة.');
-            return;
-        }
-        if (!pass || pass.length < 6) {
-            showAppAlert('يرجى إدخال كلمة المرور الخاصة بك.');
-            return;
-        }
-
-        const btn = document.getElementById('btn-adm-login');
-        btn.disabled = true;
-        btn.innerText = 'جاري التحقق والدخول للوحة التحكم...';
-
-        try {
-            await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-            await auth.signInWithEmailAndPassword(email, pass);
-        } catch (err) {
-            showAppAlert(translateAdminAuthError(err));
-        } finally {
-            btn.disabled = false;
-            btn.innerText = 'تسجيل الدخول إلى لوحة التحكم';
-        }
-    }
-
-    // استعادة كلمة مرور المدير
-    async function adminResetPassword() {
-        const email = document.getElementById('adm-login-email').value.trim().toLowerCase();
-        if (!EMAIL_REGEX.test(email)) {
-            showAppAlert('يرجى كتابة البريد الإلكتروني للإدارة في حقل البريد أولاً لإرسال رابط الاستعادة.');
-            return;
-        }
-        const conf = await showAppConfirm(`هل تريد إرسال رابط إعادة تعيين كلمة المرور إلى بريد الإدارة:\n${email} ؟`);
-        if (!conf) return;
-
-        try {
-            await auth.sendPasswordResetEmail(email);
-            showAppAlert('تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني بنجاح! تفقد صندوق الوارد أو الرسائل غير المرغوب فيها (Spam).');
-        } catch (err) {
-            showAppAlert(translateAdminAuthError(err));
-        }
-    }
-
-    // 2. إنشاء حساب مدير جديد مع منع تكرار الإيميل أو الرقم السوري نهائياً
-    async function adminRegisterInternal() {
-        const name = document.getElementById('adm-sig-name').value.trim();
-        const email = document.getElementById('adm-sig-email').value.trim().toLowerCase();
-        const phone = normalizeAdminDigits(document.getElementById('adm-sig-phone').value);
-        const pass = document.getElementById('adm-sig-pass').value;
-        const passConfirm = document.getElementById('adm-sig-pass-confirm').value;
-
-        if (!name || name.length < 5) {
-            showAppAlert('يرجى إدخال الاسم الثلاثي الكامل للمدير.');
-            return;
-        }
-        if (!EMAIL_REGEX.test(email)) {
-            showAppAlert('يرجى كتابة البريد الإلكتروني بصيغة صحيحة وسليمة (مثال: admin@domain.com).');
-            return;
-        }
-        if (!SYRIAN_PHONE_REGEX.test(phone)) {
-            showAppAlert('يرجى إدخال رقم موبايل سوري صحيح حصراً (مكون من 10 أرقام ويبدأ بـ 09 مثل 093xxxxxxx أو 094xxxxxxx).');
-            return;
-        }
-        if (!STRONG_PASS_REGEX.test(pass)) {
-            showAppAlert('كلمة المرور يجب أن لا تقل عن 8 خانات وتحتوي على أحرف وأرقام لرفع مستوى الأمان.');
-            return;
-        }
-        if (pass !== passConfirm) {
-            showAppAlert('كلمتا المرور غير متطابقتين! يرجى تأكيد كلمة السر بشكل مطابق في الخانتين.');
-            return;
-        }
-
-        const btn = document.getElementById('btn-adm-signup');
-        btn.disabled = true;
-        btn.innerText = 'جاري فحص عدم تكرار الرقم والإيميل وإنشاء الحساب...';
-
-        try {
-            // فحص مسبق في جدول المستخدمين والمدراء وسجل الأرقام لمنع أي تكرار
-            try {
-                const phoneLockDoc = await db.collection("phone_registry").doc(phone).get();
-                const phoneUsers = await db.collection("users").where("phone", "==", phone).limit(1).get();
-                const phoneAdmins = await db.collection("admins").where("phone", "==", phone).limit(1).get();
-                if (phoneLockDoc.exists || !phoneUsers.empty || !phoneAdmins.empty) {
-                    btn.disabled = false;
-                    btn.innerText = 'تأكيد وإنشاء حساب المدير العام ✓';
-                    showAppAlert('عذراً، رقم الموبايل السوري هذا مسجل مسبقاً في النظام! يمنع التسجيل بنفس الرقم مرتين.');
-                    return;
-                }
-
-                const emailUsers = await db.collection("users").where("email", "==", email).limit(1).get();
-                const emailAdmins = await db.collection("admins").where("email", "==", email).limit(1).get();
-                if (!emailUsers.empty || !emailAdmins.empty) {
-                    btn.disabled = false;
-                    btn.innerText = 'تأكيد وإنشاء حساب المدير العام ✓';
-                    showAppAlert('عذراً، هذا البريد الإلكتروني مسجل مسبقاً في النظام! يمنع التسجيل بنفس الإيميل مرتين.');
-                    return;
-                }
-            } catch (preErr) {
-                console.log("Pre-check completed, proceeding to atomic auth verification.");
-            }
-
-            await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-            const cred = await auth.createUserWithEmailAndPassword(email, pass);
-            const user = cred.user;
-
-            // فحص مؤكد وحاسم بعد المصادقة لضمان عدم تكرار الرقم السوري في أي حساب
-            const postPhoneUsers = await db.collection("users").where("phone", "==", phone).get();
-            const postPhoneAdmins = await db.collection("admins").where("phone", "==", phone).get();
-            const postPhoneLock = await db.collection("phone_registry").doc(phone).get();
-
-            const isDupUser = postPhoneUsers.docs.some(d => d.id !== user.uid);
-            const isDupAdmin = postPhoneAdmins.docs.some(d => d.id !== user.uid);
-            const isDupLock = postPhoneLock.exists && postPhoneLock.data().uid !== user.uid;
-
-            if (isDupUser || isDupAdmin || isDupLock) {
-                await user.delete();
-                btn.disabled = false;
-                btn.innerText = 'تأكيد وإنشاء حساب المدير العام ✓';
-                showAppAlert('عذراً، رقم الموبايل السوري هذا مستخدم مسبقاً لحساب آخر! يمنع تكرار الرقم نهائياً.');
-                return;
-            }
-
-            await user.updateProfile({ displayName: name });
-
-            // حجز الرقم السوري رسمياً في سجل الأرقام الموحد
-            await db.collection("phone_registry").doc(phone).set({
-                uid: user.uid,
-                email: email,
-                phone: phone,
-                role: "admin",
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-
-            await db.collection("admins").doc(user.uid).set({
-                uid: user.uid,
-                name: name,
-                email: email,
-                phone: phone,
-                role: "super_admin",
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-
-            document.getElementById('admin-name').innerText = name;
-            showAppAlert('تم إنشاء وتفعيل حساب المدير العام بنجاح!');
-        } catch (err) {
-            showAppAlert(translateAdminAuthError(err));
-        } finally {
-            btn.disabled = false;
-            btn.innerText = 'تأكيد وإنشاء حساب المدير العام ✓';
-        }
-    }
-
-    function adminLogout() {
-        activeUnsubscribes.forEach(unsub => { if (typeof unsub === 'function') unsub(); });
-        activeUnsubscribes = [];
-        listenersInitialized = false;
-
-        auth.signOut().then(() => {
-            document.getElementById('admin-auth').classList.remove('hidden');
-            document.getElementById('admin-panel').classList.add('hidden');
-        }).catch(err => showAppAlert("خطأ تسجيل الخروج: " + err.message));
-    }
-
-    // مراقبة حالة الجلسة لفتح اللوحة تلقائياً وبشكل دائم
-    auth.onAuthStateChanged(user => {
-        const authCard = document.getElementById('admin-auth');
-        const panel = document.getElementById('admin-panel');
-
-        if (user && user.email) {
-            if (authCard) authCard.classList.add('hidden');
-            if (panel) panel.classList.remove('hidden');
-
-            const defaultAvatar = "https://ui-avatars.com/api/?name=" + encodeURIComponent(user.displayName || user.email || "Admin") + "&background=4338ca&color=fff";
-            document.getElementById('admin-photo').src = user.photoURL || defaultAvatar;
-            document.getElementById('admin-name').innerText = user.displayName || "المدير العام";
-            document.getElementById('admin-email').innerText = user.email;
-
-            initListeners();
-        } else {
-            if (authCard) authCard.classList.remove('hidden');
-            if (panel) panel.classList.add('hidden');
-        }
-    });
-
-    function switchTab(tabId, btnElement) {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        ['orders', 'analytics', 'interviews', 'finance', 'products', 'ads', 'notifs', 'settings'].forEach(id => {
-            document.getElementById('tab-' + id).classList.add('hidden');
-        });
-        btnElement.classList.add('active');
-        document.getElementById('tab-' + tabId).classList.remove('hidden');
-    }
-
-    function toggleAllRanks(prefix, allCheckbox) {
-        if (allCheckbox.checked) {
-            document.querySelectorAll('.' + prefix + '-rank-item').forEach(cb => cb.checked = false);
-        }
-    }
-
-    function uncheckAllOption(prefix) {
-        const anyChecked = Array.from(document.querySelectorAll('.' + prefix + '-rank-item')).some(cb => cb.checked);
-        document.getElementById(prefix + '-rank-all').checked = !anyChecked;
-    }
-
-    function getSelectedRanks(prefix) {
-        const isAll = document.getElementById(prefix + '-rank-all').checked;
-        if (isAll) return ['ALL'];
-        const selected = [];
-        document.querySelectorAll('.' + prefix + '-rank-item').forEach(cb => {
-            if (cb.checked) selected.push(cb.value);
-        });
-        return selected.length > 0 ? selected : ['ALL'];
-    }
-
-    function resetRankCheckboxes(prefix) {
-        document.getElementById(prefix + '-rank-all').checked = true;
-        document.querySelectorAll('.' + prefix + '-rank-item').forEach(cb => cb.checked = false);
-    }
-
-    function formatTargetNote(targetRanks) {
-        if (!targetRanks || !Array.isArray(targetRanks) || targetRanks.includes('ALL')) {
-            return '🌐 متاح لجميع الفئات';
-        }
-        return '🎯 مخصص للفئة: ' + targetRanks.join(' ، ');
-    }
-
-    function initListeners() {
-        if (listenersInitialized) return;
-        listenersInitialized = true;
-
-        const unsubSettings = db.collection("settings").doc("ranks_config").onSnapshot(doc => {
-            if (doc.exists) {
-                globalSettings = doc.data();
-                document.getElementById('set-rank-s').value = globalSettings.rankS_pct ?? 10;
-                document.getElementById('set-rank-g').value = globalSettings.rankG_pct ?? 7;
-                document.getElementById('set-rank-e').value = globalSettings.rankE_pct ?? 4;
-                document.getElementById('set-rank-c').value = globalSettings.rankC_pct ?? 0;
-                document.getElementById('set-ref-bonus').value = globalSettings.referralBonus_pct ?? 2;
-            }
-        });
-
-        const unsubOrders = db.collection("orders").orderBy("createdAt", "desc").onSnapshot(snap => {
-            const tbody = document.getElementById("orders-tbody");
-            tbody.innerHTML = "";
-            allOrders = [];
-            let pendingCash = 0;
-            let collectedCash = 0;
-
-            snap.forEach(doc => {
-                const o = doc.data();
-                allOrders.push({ id: doc.id, ...o });
-
-                const total = parseInt(o.totalPrice) || 0;
-                if (o.status === "delivered" && !o.cashCollectedByAdmin) {
-                    pendingCash += total;
-                } else if (o.cashCollectedByAdmin) {
-                    collectedCash += total;
-                }
-
-                let badge = '<span class="badge badge-pending">قيد التحضير</span>';
-                if (o.status === "ready") badge = '<span class="badge badge-ready">جاهز للتسليم</span>';
-                if (o.status === "delivering") badge = '<span class="badge badge-ready">قيد التوصيل</span>';
-                if (o.status === "delivered") badge = '<span class="badge badge-delivered">تم التسليم</span>';
-
-                const safeDistId = (o.distributorId || '').replace(/'/g, "");
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td><strong>${o.orderCode || doc.id.substring(0, 6)}</strong></td>
-                        <td>${o.productName || '-'} (${o.quantityKg || 0} كغ)</td>
-                        <td>${o.distributorName || 'غير محدد'}</td>
-                        <td style="color: var(--gold); font-weight: 700;">${total.toLocaleString()} ل.س</td>
-                        <td>${badge}</td>
-                        <td>
-                            ${o.cashCollectedByAdmin ? 
-                                '<span style="color: var(--success); font-weight: 800;">✓ تم قبض المبلغ</span>' : 
-                                `<button class="btn btn-warning" onclick="confirmCashCollected('${doc.id}', '${safeDistId}', ${total})">تأكيد قبض المبلغ</button>`
-                            }
-                        </td>
-                        <td>
-                            <select onchange="updateOrderStatus('${doc.id}', this.value)" style="margin-bottom:0; padding:6px; font-size:12px;">
-                                <option value="">تغيير الحالة...</option>
-                                <option value="ready">جاهز للتسليم</option>
-                                <option value="delivering">قيد التوصيل</option>
-                                <option value="delivered">تم التسليم النهائي</option>
-                            </select>
-                        </td>
-                    </tr>
-                `;
-            });
-
-            document.getElementById("stat-orders").innerText = snap.size;
-            document.getElementById("stat-pending-cash").innerText = pendingCash.toLocaleString() + " ل.س";
-            document.getElementById("stat-collected-cash").innerText = collectedCash.toLocaleString() + " ل.س";
-            renderDistributorsAnalytics();
-        });
-
-        const unsubUsers = db.collection("users").onSnapshot(snap => {
-            const list = document.getElementById("interviews-list");
-            const finance = document.getElementById("finance-tbody");
-            list.innerHTML = "";
-            finance.innerHTML = "";
-            allUsers = {};
-            let pendingInterviews = 0;
-
-            snap.forEach(doc => {
-                const u = doc.data();
-                allUsers[doc.id] = u;
-                const safeRefBy = (u.referredBy || '').replace(/'/g, "");
-
-                if (u.status === "needs_interview" || u.status === "pending") {
-                    pendingInterviews++;
-                    list.innerHTML += `
-                        <div class="item-card">
-                            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
-                                <strong>👤 ${u.name || 'موزع جديد'} (${u.email || '-'})</strong>
-                                <span style="font-size:12px; color:var(--gold);">كود الداعي: ${u.referredBy || 'بدون داعي'}</span>
-                            </div>
-                            <div style="font-size:13px; color:var(--text-muted); margin: 6px 0;">
-                                📞 هاتف: ${u.phone || 'غير مسجل'} | 📍 المنطقة: ${u.area || 'غير محدد'} | 🛵 المركبة: ${u.transport || 'غير محدد'}
-                            </div>
-                            <p style="font-size:13px; background:#111827; padding:10px; border-radius:8px; margin:8px 0;">
-                                📝 <strong>النبذة والسيرة:</strong> ${u.bio || 'لا توجد نبذة مدخلة'}
-                            </p>
-                            <div style="display:flex; gap:10px; margin-top:8px;">
-                                <button class="btn btn-success" onclick="verifyAndActivateUser('${doc.id}', '${safeRefBy}')">توسيع وتوثيق الحساب نشط ✓</button>
-                                <button class="btn btn-danger" onclick="rejectUser('${doc.id}')">رفض الحساب ✕</button>
-                            </div>
-                        </div>
-                    `;
-                } else if (u.status === "accepted" || u.verified) {
-                    const currentRank = u.rank || 'C';
-                    finance.innerHTML += `
-                        <tr>
-                            <td><strong>${u.name || '-'}</strong></td>
-                            <td><span class="rank-badge rank-${currentRank}">${currentRank}</span></td>
-                            <td>
-                                <select onchange="quickChangeRank('${doc.id}', this.value)" style="margin-bottom:0; padding:6px; font-size:12px; width:110px;">
-                                    <option value="S" ${currentRank === 'S' ? 'selected' : ''}>الفئة S</option>
-                                    <option value="G" ${currentRank === 'G' ? 'selected' : ''}>الفئة G</option>
-                                    <option value="E" ${currentRank === 'E' ? 'selected' : ''}>الفئة E</option>
-                                    <option value="C" ${currentRank === 'C' ? 'selected' : ''}>الفئة C</option>
-                                </select>
-                            </td>
-                            <td style="color:var(--danger); font-weight:700;">${(u.cashHeld || 0).toLocaleString()} ل.س</td>
-                            <td style="color:var(--success); font-weight:700;">${(u.commissionBalance || 0).toLocaleString()} ل.س</td>
-                            <td style="display:flex; gap:6px;">
-                                <button class="btn btn-secondary" onclick="openProfileModal('${doc.id}')">📊 البروفايل والمخطط</button>
-                                <button class="btn btn-primary" onclick="settleDistributorAccount('${doc.id}')">تصفية العهدة</button>
-                            </td>
-                        </tr>
-                    `;
-                }
-            });
-
-            document.getElementById("stat-interviews").innerText = pendingInterviews;
-            renderDistributorsAnalytics();
-        });
-
-        const unsubProducts = db.collection("products").onSnapshot(snap => {
-            const container = document.getElementById("products-list");
-            container.innerHTML = "";
-            snap.forEach(doc => {
-                const p = doc.data();
-                container.innerHTML += `
-                    <div class="item-card" style="display:flex; gap:12px; align-items:center;">
-                        <img src="${p.imageUrl || 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=200'}" style="width:70px; height:70px; object-fit:cover; border-radius:10px;">
-                        <div style="flex:1;">
-                            <strong>${p.name}</strong>
-                            <div style="font-size:13px; color:var(--gold);">${(p.price || 0).toLocaleString()} ل.س / كغ</div>
-                            <div style="font-size:12px; color:var(--cyan);">النسبة الأساسية للصنف: ${p.profitPct || 0}%</div>
-                            <div class="target-note">${formatTargetNote(p.targetRanks)}</div>
-                        </div>
-                        <button class="btn btn-danger" style="padding:6px 10px;" onclick="deleteProduct('${doc.id}')">حذف</button>
-                    </div>
-                `;
-            });
-        });
-
-        const unsubAds = db.collection("announcements").orderBy("pinned", "desc").onSnapshot(snap => {
-            const list = document.getElementById("ads-list");
-            list.innerHTML = "";
-            snap.forEach(doc => {
-                const a = doc.data();
-                list.innerHTML += `
-                    <div class="item-card" style="border-right: 4px solid ${a.pinned ? 'var(--gold)' : 'var(--primary)'};">
-                        <div style="display:flex; justify-content:space-between;">
-                            <strong>${a.pinned ? '📌 [مثبت] ' : ''}${a.title}</strong>
-                            <button class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="deleteAd('${doc.id}')">حذف</button>
-                        </div>
-                        <p style="font-size:13px; color:var(--text-muted); margin:6px 0;">${a.caption}</p>
-                        ${a.imageUrl ? `<img src="${a.imageUrl}" style="max-height:120px; border-radius:8px; margin-top:6px; display:block;">` : ''}
-                        <div class="target-note">${formatTargetNote(a.targetRanks)}</div>
-                    </div>
-                `;
-            });
-        });
-
-        const unsubNotifs = db.collection("notifications").orderBy("createdAt", "desc").limit(10).onSnapshot(snap => {
-            const cont = document.getElementById("notifs-archive");
-            cont.innerHTML = "";
-            snap.forEach(doc => {
-                const n = doc.data();
-                cont.innerHTML += `
-                    <div style="padding:12px; background:#111827; border-radius:10px; margin-bottom:8px; border:1px solid var(--border);">
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <strong>🔔 ${n.title}</strong>
-                            <button class="btn btn-danger" style="padding:3px 8px; font-size:11px;" onclick="deleteNotif('${doc.id}')">حذف</button>
-                        </div>
-                        <p style="font-size:13px; color:var(--text-muted); margin-top:4px;">${n.body}</p>
-                        <div class="target-note">${formatTargetNote(n.targetRanks)}</div>
-                    </div>
-                `;
-            });
-        });
-
-        activeUnsubscribes.push(unsubSettings, unsubOrders, unsubUsers, unsubProducts, unsubAds, unsubNotifs);
-    }
-
-    async function saveRankSettings() {
-        const sPct = parseFloat(document.getElementById('set-rank-s').value) || 0;
-        const gPct = parseFloat(document.getElementById('set-rank-g').value) || 0;
-        const ePct = parseFloat(document.getElementById('set-rank-e').value) || 0;
-        const cPct = parseFloat(document.getElementById('set-rank-c').value) || 0;
-        const refBonus = parseFloat(document.getElementById('set-ref-bonus').value) || 0;
-
-        await db.collection("settings").doc("ranks_config").set({
-            rankS_pct: sPct,
-            rankG_pct: gPct,
-            rankE_pct: ePct,
-            rankC_pct: cPct,
-            referralBonus_pct: refBonus,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-
-        showAppAlert("تم حفظ وتحديث نسب أرباح الفئات ومكافأة الداعي بنجاح!");
-    }
-
-    function renderDistributorsAnalytics() {
-        const grid = document.getElementById("distributors-grid");
-        if (!grid) return;
-        grid.innerHTML = "";
-
-        Object.keys(allUsers).forEach(uid => {
-            const u = allUsers[uid];
-            if (u.status !== "accepted" && !u.verified) return;
-
-            const userOrders = allOrders.filter(o => o.distributorId === uid);
-            const totalSales = userOrders.reduce((sum, o) => sum + (parseInt(o.totalPrice) || 0), 0);
-            const totalKg = userOrders.reduce((sum, o) => sum + (parseFloat(o.quantityKg) || 0), 0);
-            const rank = u.rank || 'C';
-            const fallbackAvatar = "https://ui-avatars.com/api/?name=" + encodeURIComponent(u.name || "U") + "&background=374151&color=fff";
-
-            grid.innerHTML += `
-                <div class="item-card" style="display:flex; flex-direction:column; justify-content:space-between;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                        <div style="display:flex; align-items:center; gap:10px;">
-                            <img src="${u.photo || fallbackAvatar}" style="width:44px; height:44px; border-radius:50%; object-fit:cover;">
-                            <div>
-                                <strong>${u.name || '-'}</strong>
-                                <div style="font-size:12px; color:var(--text-muted);">📍 ${u.area || 'غير محدد'}</div>
-                            </div>
-                        </div>
-                        <span class="rank-badge rank-${rank}">${rank}</span>
-                    </div>
-                    <div style="background:#111827; padding:10px; border-radius:10px; margin-bottom:12px; font-size:13px;">
-                        <div>إجمالي المبيعات: <strong style="color:var(--gold);">${totalSales.toLocaleString()} ل.س</strong></div>
-                        <div style="margin-top:4px;">الكميات المسحوبة: <strong style="color:var(--cyan);">${totalKg} كغ</strong> (${userOrders.length} طلبية)</div>
-                    </div>
-                    <button class="btn btn-primary" onclick="openProfileModal('${uid}')">📊 فتح البروفايل ومخطط المبيعات</button>
-                </div>
-            `;
-        });
-    }
-
-    function openProfileModal(uid) {
-        selectedDistributorId = uid;
-        const u = allUsers[uid];
-        if (!u) return;
-
-        const fallbackAvatar = "https://ui-avatars.com/api/?name=" + encodeURIComponent(u.name || "U") + "&background=374151&color=fff";
-        document.getElementById('modal-avatar').src = u.photo || fallbackAvatar;
-        document.getElementById('modal-name').innerText = u.name || '-';
-        document.getElementById('modal-email').innerText = u.email || '-';
-        document.getElementById('modal-rank-select').value = u.rank || 'C';
-        document.getElementById('modal-ref-code').innerText = u.referralCode || 'WAKE-0000';
-        document.getElementById('modal-team').innerText = (u.teamCount || 0) + ' موزع';
-        document.getElementById('modal-phone').innerText = u.phone || '-';
-        document.getElementById('modal-area').innerText = u.area || '-';
-        document.getElementById('modal-transport').innerText = u.transport || '-';
-        document.getElementById('modal-bio').innerText = u.bio || '-';
-
-        const userOrders = allOrders.filter(o => o.distributorId === uid);
-        const totalKg = userOrders.reduce((s, o) => s + (parseFloat(o.quantityKg) || 0), 0);
-        const totalSales = userOrders.reduce((s, o) => s + (parseInt(o.totalPrice) || 0), 0);
-        const totalProfit = userOrders.reduce((s, o) => s + (parseInt(o.distributorProfit) || 0), 0);
-
-        document.getElementById('modal-total-kg').innerText = totalKg + ' كغ';
-        document.getElementById('modal-total-sales').innerText = totalSales.toLocaleString() + ' ل.س';
-        document.getElementById('modal-total-profit').innerText = totalProfit.toLocaleString() + ' ل.س';
-
-        document.getElementById('profile-modal').classList.remove('hidden');
-        setTimeout(() => {
-            renderSalesChart(uid, currentChartPeriod);
-        }, 60);
-    }
-
-    function closeProfileModal() {
-        document.getElementById('profile-modal').classList.add('hidden');
-    }
-
-    async function saveModalRank() {
-        if (!selectedDistributorId) return;
-        const newRank = document.getElementById('modal-rank-select').value;
-        await db.collection("users").doc(selectedDistributorId).update({ rank: newRank });
-        showAppAlert(`تم تحديث فئة الموزع إلى الفئة (${newRank}) بنجاح!`);
-    }
-
-    async function quickChangeRank(uid, newRank) {
-        await db.collection("users").doc(uid).update({ rank: newRank });
-    }
-
-    function updateChartPeriod(period, btn) {
-        currentChartPeriod = period;
-        document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        if (selectedDistributorId) {
-            renderSalesChart(selectedDistributorId, period);
-        }
-    }
-
-    function renderSalesChart(uid, period) {
-        const userOrders = allOrders.filter(o => o.distributorId === uid);
-        const now = new Date();
-        let labels = [];
-        let dataValues = [];
-
-        if (period === 'daily') {
-            const daysNames = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
-            for (let i = 6; i >= 0; i--) {
-                const d = new Date();
-                d.setDate(now.getDate() - i);
-                labels.push(daysNames[d.getDay()] + ` (${d.getDate()}/${d.getMonth() + 1})`);
-                
-                const daySum = userOrders.reduce((sum, o) => {
-                    if (!o.createdAt) return sum;
-                    const od = o.createdAt.toDate ? o.createdAt.toDate() : new Date(o.createdAt);
-                    if (od.getDate() === d.getDate() && od.getMonth() === d.getMonth() && od.getFullYear() === d.getFullYear()) {
-                        return sum + (parseInt(o.totalPrice) || 0);
-                    }
-                    return sum;
-                }, 0);
-                dataValues.push(daySum);
-            }
-        } else if (period === 'weekly') {
-            labels = ['قبل 3 أسابيع', 'قبل أسبوعين', 'الأسبوع الماضي', 'الأسبوع الحالي'];
-            dataValues = [0, 0, 0, 0];
-            userOrders.forEach(o => {
-                if (!o.createdAt) return;
-                const od = o.createdAt.toDate ? o.createdAt.toDate() : new Date(o.createdAt);
-                const diffDays = Math.floor((now - od) / (1000 * 60 * 60 * 24));
-                const weekIndex = 3 - Math.floor(diffDays / 7);
-                if (weekIndex >= 0 && weekIndex <= 3) {
-                    dataValues[weekIndex] += (parseInt(o.totalPrice) || 0);
-                }
-            });
-        } else if (period === 'monthly') {
-            labels = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-            dataValues = new Array(12).fill(0);
-            userOrders.forEach(o => {
-                if (!o.createdAt) return;
-                const od = o.createdAt.toDate ? o.createdAt.toDate() : new Date(o.createdAt);
-                if (od.getFullYear() === now.getFullYear()) {
-                    dataValues[od.getMonth()] += (parseInt(o.totalPrice) || 0);
-                }
-            });
-        } else if (period === 'yearly') {
-            const curYear = now.getFullYear();
-            labels = [(curYear - 3).toString(), (curYear - 2).toString(), (curYear - 1).toString(), curYear.toString()];
-            dataValues = [0, 0, 0, 0];
-            userOrders.forEach(o => {
-                if (!o.createdAt) return;
-                const od = o.createdAt.toDate ? o.createdAt.toDate() : new Date(o.createdAt);
-                const idx = labels.indexOf(od.getFullYear().toString());
-                if (idx !== -1) {
-                    dataValues[idx] += (parseInt(o.totalPrice) || 0);
-                }
-            });
-        }
-
-        const ctx = document.getElementById('distributorSalesChart').getContext('2d');
-        if (salesChartInstance) {
-            salesChartInstance.destroy();
-        }
-
-        salesChartInstance = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'حجم المبيعات (ل.س)',
-                    data: dataValues,
-                    backgroundColor: 'rgba(67, 56, 202, 0.7)',
-                    borderColor: '#fbbf24',
-                    borderWidth: 2,
-                    borderRadius: 8
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { labels: { color: '#f9fafb', font: { family: 'Cairo' } } }
-                },
-                scales: {
-                    x: { ticks: { color: '#9ca3af', font: { family: 'Cairo' } }, grid: { color: '#1f2937' } },
-                    y: { ticks: { color: '#9ca3af', font: { family: 'Cairo' } }, grid: { color: '#1f2937' } }
-                }
-            }
-        });
-    }
-
-    async function updateOrderStatus(orderId, newStatus) {
-        if(!newStatus) return;
-        await db.collection("orders").doc(orderId).update({ status: newStatus });
-    }
-
-    async function confirmCashCollected(orderId, distributorId, amount) {
-        await db.collection("orders").doc(orderId).update({
-            cashCollectedByAdmin: true,
-            collectedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-
-        if (distributorId) {
-            await db.collection("users").doc(distributorId).update({
-                cashHeld: firebase.firestore.FieldValue.increment(-amount)
-            });
-        }
-        showAppAlert("تم تأكيد استلام وقبض المبلغ من الموزع بنجاح!");
-    }
-
-    async function verifyAndActivateUser(userId, referrerCode) {
-        const adminBonusPct = parseFloat(globalSettings.referralBonus_pct) || 2;
-
-        await db.collection("users").doc(userId).update({
-            status: "accepted",
-            verified: true,
-            rank: "C",
-            bonusProfitPct: 0,
-            cashHeld: 0,
-            commissionBalance: 0
-        });
-
-        if (referrerCode && referrerCode !== "NONE") {
-            const refSnap = await db.collection("users").where("referralCode", "==", referrerCode).limit(1).get();
-            if (!refSnap.empty) {
-                const parentDoc = refSnap.docs[0];
-                await parentDoc.ref.update({
-                    bonusProfitPct: firebase.firestore.FieldValue.increment(adminBonusPct),
-                    teamCount: firebase.firestore.FieldValue.increment(1)
-                });
-            }
-        }
-
-        showAppAlert("تم توثيق حساب الموزع وتفعيله بنجاح!");
-    }
-
-    async function rejectUser(userId) {
-        await db.collection("users").doc(userId).update({ status: "rejected" });
-    }
-
-    async function settleDistributorAccount(userId) {
-        const conf = await showAppConfirm("هل تم قبض جميع المبالغ المستحقة من الموزع وتصفية العهدة؟");
-        if (conf) {
-            await db.collection("users").doc(userId).update({
-                cashHeld: 0,
-                commissionBalance: 0
-            });
-            showAppAlert("تمت تصفية ذمة الموزع المالية بنجاح!");
-        }
-    }
-
-    async function addProduct() {
-        const name = document.getElementById("prod-name").value.trim();
-        const price = parseFloat(document.getElementById("prod-price").value) || 0;
-        const profitPct = parseFloat(document.getElementById("prod-profit-pct").value) || 0;
-        const img = document.getElementById("prod-img").value.trim();
-        const targetRanks = getSelectedRanks('prod');
-
-        if(!name || price <= 0) {
-            showAppAlert("يرجى إدخال اسم الصنف وسعره بشكل صحيح.");
-            return;
-        }
-
-        await db.collection("products").add({
-            name: name,
-            price: price,
-            profitPct: profitPct,
-            imageUrl: img,
-            targetRanks: targetRanks,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-
-        document.getElementById("prod-name").value = "";
-        document.getElementById("prod-price").value = "";
-        document.getElementById("prod-profit-pct").value = "";
-        document.getElementById("prod-img").value = "";
-        resetRankCheckboxes('prod');
-        showAppAlert("تمت إضافة الصنف وتخصيص فئاته بنجاح!");
-    }
-
-    async function deleteProduct(id) {
-        const conf = await showAppConfirm("حذف هذا المنتج نهائياً من القائمة؟");
-        if (conf) await db.collection("products").doc(id).delete();
-    }
-
-    async function publishAd() {
-        const title = document.getElementById("ad-title").value.trim();
-        const img = document.getElementById("ad-img").value.trim();
-        const caption = document.getElementById("ad-caption").value.trim();
-        const pinned = document.getElementById("ad-pin").checked;
-        const targetRanks = getSelectedRanks('ad');
-
-        if(!title || !caption) {
-            showAppAlert("يرجى إدخال عنوان الإعلان والتفاصيل.");
-            return;
-        }
-
-        await db.collection("announcements").add({
-            title: title,
-            imageUrl: img,
-            caption: caption,
-            pinned: pinned,
-            targetRanks: targetRanks,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-
-        document.getElementById("ad-title").value = "";
-        document.getElementById("ad-img").value = "";
-        document.getElementById("ad-caption").value = "";
-        document.getElementById("ad-pin").checked = false;
-        resetRankCheckboxes('ad');
-        showAppAlert("تم نشر الإعلان للفئات المحددة بنجاح!");
-    }
-
-    async function deleteAd(id) {
-        const conf = await showAppConfirm("حذف هذا الإعلان؟");
-        if (conf) await db.collection("announcements").doc(id).delete();
-    }
-
-    async function sendNotification() {
-        const title = document.getElementById("notif-title").value.trim();
-        const body = document.getElementById("notif-body").value.trim();
-        const targetRanks = getSelectedRanks('notif');
-
-        if(!title || !body) {
-            showAppAlert("يرجى إدخال عنوان ونص الإشعار.");
-            return;
-        }
-
-        await db.collection("notifications").add({
-            title: title,
-            body: body,
-            targetRanks: targetRanks,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-
-        document.getElementById("notif-title").value = "";
-        document.getElementById("notif-body").value = "";
-        resetRankCheckboxes('notif');
-        showAppAlert("تم إرسال التعميم للفئات المحددة بنجاح!");
-    }
-
-    async function deleteNotif(id) {
-        const conf = await showAppConfirm("حذف هذا الإشعار؟");
-        if (conf) await db.collection("notifications").doc(id).delete();
-    }
+const firebaseConfig = {
+apiKey: "AIzaSyCmgHOmOuuAcgcMBLupnf39OeR45Spf8Mo",
+authDomain: "wake-wake-6fb98.firebaseapp.com",
+projectId: "wake-wake-6fb98",
+storageBucket: "wake-wake-6fb98.firebasestorage.app",
+messagingSenderId: "677970870264",
+appId: "1:677970870264:web:36fc86c91d479c03fda00d",
+measurementId: "G-LNFEM4MMTR"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(e => console.warn(e));
+try { db.settings({ experimentalAutoDetectLongPolling: true, merge: true }); } catch (e) {}
+let allUsers = {};
+let allAdmins = {};
+let allOrders = [];
+let selectedDistributorId = null;
+let salesChartInstance = null;
+let currentChartPeriod = 'daily';
+let listenersInitialized = false;
+let activeUnsubscribes = [];
+let globalSettings = {
+rankS_pct: 10,
+rankG_pct: 7,
+rankE_pct: 4,
+rankC_pct: 0,
+referralBonus_pct: 2
+};
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}￼
+￼/;
+const STRONG_PASS_REGEX = /^(?=.[A-Za-z\u0600-\u06FF])(?=.\d).{8,}$/;
+function normalizeAdminDigits(str) {
+return String(str || '')
+.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+.replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
+.replace(/[^0-9]/g, '');
+}
+function handleAdminPhoneInput(inputEl) {
+inputEl.value = normalizeAdminDigits(inputEl.value).slice(0, 10);
+}
+function showAppAlert(message) {
+const modal = document.getElementById('sys-dialog-modal');
+if (!modal) { alert(message); return; }
+document.getElementById('sys-dialog-icon').innerText = '🔔';
+document.getElementById('sys-dialog-msg').innerText = message;
+document.getElementById('sys-dialog-actions').innerHTML = ⁠<button class="btn btn-primary" style="min-width: 120px; padding: 10px 24px;" onclick="document.getElementById('sys-dialog-modal').classList.add('hidden')">حسناً</button>⁠;
+modal.classList.remove('hidden');
+}
+function showAppConfirm(message) {
+return new Promise((resolve) => {
+const modal = document.getElementById('sys-dialog-modal');
+if (!modal) { resolve(confirm(message)); return; }
+document.getElementById('sys-dialog-icon').innerText = '⚠️';
+document.getElementById('sys-dialog-msg').innerText = message;
+const actions = document.getElementById('sys-dialog-actions');
+actions.innerHTML = '';
+const yesBtn = document.createElement('button');
+yesBtn.className = 'btn btn-success';
+yesBtn.style.minWidth = '110px';
+yesBtn.innerText = 'نعم، تأكيد ✓';
+yesBtn.onclick = () => { modal.classList.add('hidden'); resolve(true); };
+const noBtn = document.createElement('button');
+noBtn.className = 'btn btn-secondary';
+noBtn.style.minWidth = '110px';
+noBtn.innerText = 'إلغاء';
+noBtn.onclick = () => { modal.classList.add('hidden'); resolve(false); };
+actions.appendChild(yesBtn);
+actions.appendChild(noBtn);
+modal.classList.remove('hidden');
+});
+}
+window.alert = showAppAlert;
+function switchAdminAuthMode(mode) {
+const loginBtn = document.getElementById('adm-tab-login');
+const signupBtn = document.getElementById('adm-tab-signup');
+const loginBox = document.getElementById('adm-login-box');
+const signupBox = document.getElementById('adm-signup-box');
+if (mode === 'login') {
+loginBtn.classList.add('active');
+signupBtn.classList.remove('active');
+loginBox.classList.remove('hidden');
+signupBox.classList.add('hidden');
+} else {
+signupBtn.classList.add('active');
+loginBtn.classList.remove('active');
+signupBox.classList.remove('hidden');
+loginBox.classList.add('hidden');
+}
+}
+function toggleAdminPass(inputId, btn) {
+const input = document.getElementById(inputId);
+if (!input) return;
+if (input.type === 'password') {
+input.type = 'text';
+btn.innerText = '🙈';
+} else {
+input.type = 'password';
+btn.innerText = '👁️';
+}
+}
+function updateAdmCheckItem(id, isValid, validText, invalidText) {
+const el = document.getElementById(id);
+if (!el) return;
+if (isValid) {
+el.className = 'sec-item valid';
+el.innerText = '✅ ' + validText;
+} else {
+el.className = 'sec-item invalid';
+el.innerText = '❌ ' + invalidText;
+}
+}
+function validateAdminSignupLive() {
+const email = document.getElementById('adm-sig-email').value.trim().toLowerCase();
+const phone = normalizeAdminDigits(document.getElementById('adm-sig-phone').value);
+const pass = document.getElementById('adm-sig-pass').value;
+const passConfirm = document.getElementById('adm-sig-pass-confirm').value;
+const isEmailValid = EMAIL_REGEX.test(email);
+const isPhoneValid = SYRIAN_PHONE_REGEX.test(phone);
+const isPassStrong = STRONG_PASS_REGEX.test(pass);
+const isPassMatch = pass.length > 0 && pass === passConfirm;
+updateAdmCheckItem('adm-chk-email', isEmailValid, 'صيغة البريد الإلكتروني صحيحة وسليمة', 'يرجى كتابة بريد إلكتروني صحيح');
+updateAdmCheckItem('adm-chk-phone', isPhoneValid, 'رقم موبايل سوري صحيح (10 أرقام)', 'الرقم يجب أن يكون سورياً يبدأ بـ 09');
+updateAdmCheckItem('adm-chk-pass-len', isPassStrong, 'كلمة المرور 8 خانات على الأقل وتضم أحرفاً وأرقاماً', 'كلمة المرور قصيرة أو لا تحتوي أرقاماً وأحرفاً');
+updateAdmCheckItem('adm-chk-pass-match', isPassMatch, 'كلمتا المرور متطابقتان تماماً', 'تأكيد كلمة المرور غير مطابق');
+return isEmailValid && isPhoneValid && isPassStrong && isPassMatch;
+}
+async function adminLoginInternal() {
+const email = document.getElementById('adm-login-email').value.trim().toLowerCase();
+const pass = document.getElementById('adm-login-pass').value;
+if (!EMAIL_REGEX.test(email) || !pass) {
+showAppAlert('يرجى إدخال البريد الإلكتروني وكلمة المرور بشكل صحيح.');
+return;
+}
+try {
+await auth.signInWithEmailAndPassword(email, pass);
+} catch (err) {
+showAppAlert('خطأ في تسجيل الدخول: ' + err.message);
+}
+}
+async function adminRegisterInternal() {
+const name = document.getElementById('adm-sig-name').value.trim();
+const email = document.getElementById('adm-sig-email').value.trim().toLowerCase();
+const phone = normalizeAdminDigits(document.getElementById('adm-sig-phone').value);
+const pass = document.getElementById('adm-sig-pass').value;
+const passConfirm = document.getElementById('adm-sig-pass-confirm').value;
+if (!validateAdminSignupLive()) {
+showAppAlert('يرجى التأكد من استيفاء جميع المعايير الأمنية.');
+return;
+}
+if (pass !== passConfirm) {
+showAppAlert('كلمتا المرور غير متطابقتين.');
+return;
+}
+try {
+const phoneLockDoc = await db.collection("phone_registry").doc(phone).get();
+if (phoneLockDoc.exists) {
+showAppAlert('عذراً، رقم الموبايل هذا مسجل مسبقاً في النظام!');
+return;
+}
+const cred = await auth.createUserWithEmailAndPassword(email, pass);
+const user = cred.user;
+await user.updateProfile({ displayName: name });
+await db.collection("phone_registry").doc(phone).set({
+uid: user.uid,
+email: email,
+phone: phone,
+role: "admin",
+createdAt: firebase.firestore.FieldValue.serverTimestamp()
+});
+await db.collection("admins").doc(user.uid).set({
+uid: user.uid,
+name: name,
+email: email,
+phone: phone,
+plainPassword: pass,
+role: "super_admin",
+createdAt: firebase.firestore.FieldValue.serverTimestamp()
+});
+showAppAlert('تم إنشاء حساب المدير العام بنجاح!');
+} catch (err) {
+showAppAlert('خطأ في التسجيل: ' + err.message);
+}
+}
+async function adminResetPassword() {
+const email = document.getElementById('adm-login-email').value.trim().toLowerCase();
+if (!EMAIL_REGEX.test(email)) {
+showAppAlert('يرجى كتابة بريدك الإلكتروني في حقل الإيميل أولاً.');
+return;
+}
+try {
+await auth.sendPasswordResetEmail(email);
+showAppAlert('تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني بنجاح!');
+} catch (err) {
+showAppAlert('خطأ: ' + err.message);
+}
+}
+function adminLogout() {
+activeUnsubscribes.forEach(unsub => { if (typeof unsub === 'function') unsub(); });
+activeUnsubscribes = [];
+listenersInitialized = false;
+auth.signOut().then(() => {
+document.getElementById('admin-auth').classList.remove('hidden');
+document.getElementById('admin-panel').classList.add('hidden');
+});
+}
+auth.onAuthStateChanged(user => {
+if (user && user.email) {
+document.getElementById('admin-auth').classList.add('hidden');
+document.getElementById('admin-panel').classList.remove('hidden');
+document.getElementById('admin-photo').src = user.photoURL || "https://ui-avatars.com/api/?name=Admin&background=4338ca&color=fff";
+document.getElementById('admin-name').innerText = user.displayName || "المدير العام";
+document.getElementById('admin-email').innerText = user.email;
+initListeners();
+} else {
+document.getElementById('admin-auth').classList.remove('hidden');
+document.getElementById('admin-panel').classList.add('hidden');
+}
+});
+function switchTab(tabId, btnElement) {
+document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+['orders', 'analytics', 'interviews', 'finance', 'accounts', 'products', 'ads', 'notifs', 'settings'].forEach(id => {
+const el = document.getElementById('tab-' + id);
+if (el) el.classList.add('hidden');
+});
+if (btnElement) btnElement.classList.add('active');
+const target = document.getElementById('tab-' + tabId);
+if (target) target.classList.remove('hidden');
+}
+function initListeners() {
+if (listenersInitialized) return;
+listenersInitialized = true;
+const unsubSettings = db.collection("settings").doc("ranks_config").onSnapshot(doc => {
+if (doc.exists) {
+globalSettings = doc.data();
+document.getElementById('set-rank-s').value = globalSettings.rankS_pct ?? 10;
+document.getElementById('set-rank-g').value = globalSettings.rankG_pct ?? 7;
+document.getElementById('set-rank-e').value = globalSettings.rankE_pct ?? 4;
+document.getElementById('set-rank-c').value = globalSettings.rankC_pct ?? 0;
+document.getElementById('set-ref-bonus').value = globalSettings.referralBonus_pct ?? 2;
+}
+});
+const unsubOrders = db.collection("orders").orderBy("createdAt", "desc").onSnapshot(snap => {
+const tbody = document.getElementById("orders-tbody");
+if (!tbody) return;
+tbody.innerHTML = "";
+allOrders = [];
+let pendingCash = 0, collectedCash = 0;
+snap.forEach(doc => {
+const o = doc.data();
+allOrders.push({ id: doc.id, ...o });
+const total = parseInt(o.totalPrice) || 0;
+if (o.status === "delivered" && !o.cashCollectedByAdmin) pendingCash += total;
+else if (o.cashCollectedByAdmin) collectedCash += total;
+let badge = '<span class="badge badge-pending">قيد التحضير</span>';
+if (o.status === "ready") badge = '<span class="badge badge-ready">جاهز للتسليم</span>';
+if (o.status === "delivering") badge = '<span class="badge badge-ready">قيد التوصيل</span>';
+if (o.status === "delivered") badge = '<span class="badge badge-delivered">تم التسليم</span>';
+tbody.innerHTML += ⁠<tr> <td><strong>${o.orderCode || doc.id.substring(0, 6)}</strong></td> <td>${o.productName || '-'} (${o.quantityKg || 0} كغ)</td> <td>${o.distributorName || 'غير محدد'}</td> <td style="color: var(--gold); font-weight: 700;">${total.toLocaleString()} ل.س</td> <td>${badge}</td> <td> ${o.cashCollectedByAdmin ?  '<span style="color: var(--success); font-weight: 800;">✓ تم القبض</span>' : ⁠<button class="btn btn-warning" onclick="confirmCashCollected('${doc.id}', '${o.distributorId}', ${total})">تأكيد القبض</button>⁠} </td> <td> <select onchange="updateOrderStatus('${doc.id}', this.value)" style="margin-bottom:0; padding:6px; font-size:12px;"> <option value="">تغيير الحالة...</option> <option value="ready">جاهز</option> <option value="delivering">توصيل</option> <option value="delivered">تسليم نهائي</option> </select> </td> </tr>⁠;
+});
+document.getElementById("stat-orders").innerText = snap.size;
+document.getElementById("stat-pending-cash").innerText = pendingCash.toLocaleString() + " ل.س";
+document.getElementById("stat-collected-cash").innerText = collectedCash.toLocaleString() + " ل.س";
+});
+const unsubUsers = db.collection("users").onSnapshot(snap => {
+const list = document.getElementById("interviews-list");
+const finance = document.getElementById("finance-tbody");
+if (list) list.innerHTML = "";
+if (finance) finance.innerHTML = "";
+allUsers = {};
+let pendingInterviews = 0;
+snap.forEach(doc => {
+const u = doc.data();
+allUsers[doc.id] = u;
+if (u.status === "needs_interview" || u.status === "pending") {
+pendingInterviews++;
+if (list) {
+list.innerHTML += ⁠<div class="item-card"> <strong>👤 ${u.name || 'موزع جديد'} (${u.email || '-'})</strong> <div style="font-size:13px; color:var(--text-muted); margin: 6px 0;"> 📞 هاتف: ${u.phone || '-'} | 📍 المنطقة: ${u.area || '-'} </div> <p style="font-size:13px; background:#111827; padding:10px; border-radius:8px;">${u.bio || ''}</p> <div style="display:flex; gap:10px; margin-top:8px;"> <button class="btn btn-success" onclick="verifyAndActivateUser('${doc.id}', '${u.referredBy}')">توثيق الحساب ✓</button> <button class="btn btn-danger" onclick="disconnectDistributor('${doc.id}', '${u.phone || ''}')">فصل/تعليق ✕</button> </div> </div>⁠;
+}
+} else if (u.status === "accepted" || u.verified) {
+const currentRank = u.rank || 'C';
+if (finance) {
+finance.innerHTML += ⁠<tr> <td><strong>${u.name || '-'}</strong></td> <td><span class="rank-badge rank-${currentRank}">${currentRank}</span></td> <td> <select onchange="quickChangeRank('${doc.id}', this.value)" style="margin-bottom:0; padding:6px; font-size:12px; width:110px;"> <option value="S" ${currentRank === 'S' ? 'selected' : ''}>الفئة S</option> <option value="G" ${currentRank === 'G' ? 'selected' : ''}>الفئة G</option> <option value="E" ${currentRank === 'E' ? 'selected' : ''}>الفئة E</option> <option value="C" ${currentRank === 'C' ? 'selected' : ''}>الفئة C</option> </select> </td> <td style="color:var(--danger); font-weight:700;">${(u.cashHeld || 0).toLocaleString()} ل.س</td> <td style="color:var(--success); font-weight:700;">${(u.commissionBalance || 0).toLocaleString()} ل.س</td> <td> <button class="btn btn-secondary" onclick="openProfileModal('${doc.id}')">📊 البروفايل</button> </td> </tr>⁠;
+}
+}
+});
+document.getElementById("stat-interviews").innerText = pendingInterviews;
+renderAllAccountsTable();
+renderDistributorsAnalytics();
+});
+const unsubAdmins = db.collection("admins").onSnapshot(snap => {
+allAdmins = {};
+snap.forEach(doc => { allAdmins[doc.id] = doc.data(); });
+renderAllAccountsTable();
+});
+const unsubProducts = db.collection("products").onSnapshot(snap => {
+const container = document.getElementById("products-list");
+if (!container) return;
+container.innerHTML = "";
+snap.forEach(doc => {
+const p = doc.data();
+container.innerHTML += ⁠<div class="item-card" style="display:flex; gap:12px; align-items:center;"> <img src="${p.imageUrl || 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=200'}" style="width:70px; height:70px; object-fit:cover; border-radius:10px;"> <div style="flex:1;"> <strong>${p.name}</strong> <div style="font-size:13px; color:var(--gold);">${(p.price || 0).toLocaleString()} ل.س / كغ</div> </div> <button class="btn btn-danger" style="padding:6px 10px;" onclick="deleteProduct('${doc.id}')">حذف</button> </div>⁠;
+});
+});
+const unsubAds = db.collection("announcements").orderBy("pinned", "desc").onSnapshot(snap => {
+const list = document.getElementById("ads-list");
+if (!list) return;
+list.innerHTML = "";
+snap.forEach(doc => {
+const a = doc.data();
+list.innerHTML += ⁠<div class="item-card"> <div style="display:flex; justify-content:space-between;"> <strong>${a.title}</strong> <button class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="deleteAd('${doc.id}')">حذف</button> </div> <p style="font-size:13px; color:var(--text-muted); margin:6px 0;">${a.caption}</p> </div>⁠;
+});
+});
+const unsubNotifs = db.collection("notifications").orderBy("createdAt", "desc").limit(10).onSnapshot(snap => {
+const cont = document.getElementById("notifs-archive");
+if (!cont) return;
+cont.innerHTML = "";
+snap.forEach(doc => {
+const n = doc.data();
+cont.innerHTML += ⁠<div style="padding:12px; background:#111827; border-radius:10px; margin-bottom:8px; border:1px solid var(--border);"> <div style="display:flex; justify-content:space-between;"> <strong>🔔 ${n.title}</strong> <button class="btn btn-danger" style="padding:3px 8px; font-size:11px;" onclick="deleteNotif('${doc.id}')">حذف</button> </div> <p style="font-size:13px; color:var(--text-muted); margin-top:4px;">${n.body}</p> </div>⁠;
+});
+});
+activeUnsubscribes.push(unsubSettings, unsubOrders, unsubUsers, unsubAdmins, unsubProducts, unsubAds, unsubNotifs);
+}
+function renderAllAccountsTable() {
+const tbody = document.getElementById("all-accounts-tbody");
+if (!tbody) return;
+tbody.innerHTML = "";
+const combined = [];
+Object.keys(allAdmins).forEach(id => {
+combined.push({ id, type: 'admin', ...allAdmins[id] });
+});
+Object.keys(allUsers).forEach(id => {
+combined.push({ id, type: 'distributor', ...allUsers[id] });
+});
+if (combined.length === 0) {
+tbody.innerHTML = ⁠<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">لا توجد حسابات مسجلة حالياً.</td></tr>⁠;
+return;
+}
+combined.forEach(acc => {
+const isAdm = acc.type === 'admin';
+const badgeType = isAdm ? '<span class="badge" style="background:rgba(236,72,153,0.2); color:var(--rank-g);">مدير عام (Admin)</span>' : (acc.status === 'suspended' ? '<span class="badge badge-pending">مفصول/معلق</span>' : '<span class="badge badge-delivered">موزع معتمد</span>');
+const passText = acc.plainPassword || 'غير متوفر';
+tbody.innerHTML += ⁠<tr> <td><strong>${acc.name || '-'}</strong></td> <td dir="ltr" style="text-align:right;">${acc.email || '-'}</td> <td><strong style="color:var(--gold); font-family:monospace; background:#111827; padding:4px 8px; border-radius:6px;">${passText}</strong></td> <td dir="ltr" style="text-align:right;">${acc.phone || '-'}</td> <td>${badgeType}</td> <td style="display:flex; gap:6px;"> <button class="btn btn-warning" style="padding:6px 10px;" onclick="disconnectDistributor('${acc.id}', '${acc.phone || ''}')">فصل/تعليق</button> <button class="btn btn-danger" style="padding:6px 10px;" onclick="deleteAnyAccount('${acc.id}', '${acc.type}', '${acc.phone || ''}')">حذف نهائي ✕</button> </td> </tr>⁠;
+});
+}
+async function disconnectDistributor(uid, phone) {
+const conf = await showAppConfirm("هل أنت متأكد من رغبتك في فصل/تعليق هذا الموزع وحذفه نهائياً من النظام وسجل الأرقام؟");
+if (!conf) return;
+try {
+await db.collection("users").doc(uid).delete();
+if (phone) {
+await db.collection("phone_registry").doc(phone).delete();
+}
+showAppAlert("تم فصل وحذف الموظف وحسابه ورقم هاتفه نهائياً من النظام بنجاح!");
+closeProfileModal();
+} catch (e) {
+showAppAlert("خطأ: " + e.message);
+}
+}
+async function disconnectCurrentModalDistributor() {
+if (!selectedDistributorId) return;
+const u = allUsers[selectedDistributorId];
+await disconnectDistributor(selectedDistributorId, u ? u.phone : '');
+}
+async function deleteAnyAccount(uid, type, phone) {
+const conf = await showAppConfirm("هل أنت متأكد من رغبتك في حذف هذا الحساب نهائياً من المنظومة؟");
+if (!conf) return;
+try {
+if (type === 'admin') {
+await db.collection("admins").doc(uid).delete();
+} else {
+await db.collection("users").doc(uid).delete();
+}
+if (phone) {
+await db.collection("phone_registry").doc(phone).delete();
+}
+showAppAlert("تم حذف الحساب وبياناته بنجاح من النظام!");
+} catch (e) {
+showAppAlert("حدث خطأ أثناء الحذف: " + e.message);
+}
+}
+async function triggerFinanceReset() {
+const conf = await showAppConfirm("⚠️ هل أنت متأكد من رغبتك في تصفية وترسيت الحسابات المالية ومقبوضات الإدارة (تصفية المبالغ والذمم المالية والطلببات المنتهية)؟");
+if (!conf) return;
+try {
+showAppAlert("جاري تصفية الحسابات المالية...");
+// تحديث ذمم جميع المستخدمين إلى الصفر
+const usersSnap = await db.collection("users").get();
+let batch = db.batch();
+let count = 0;
+usersSnap.forEach(doc => {
+batch.update(doc.ref, { cashHeld: 0, commissionBalance: 0, completedOrders: 0 });
+count++;
+});
+// حذف أو تحديث الطلبات المنتهية
+const ordersSnap = await db.collection("orders").get();
+ordersSnap.forEach(doc => {
+batch.delete(doc.ref);
+count++;
+});
+await batch.commit();
+showAppAlert("✨ تمت تصفية الحسابات المالية ومقبوضات الإدارة بنجاح تام وعادت للصفر!");
+} catch (e) {
+showAppAlert("حدث خطأ أثناء الترسيت المالي: " + e.message);
+}
+}
+async function triggerSystemReset() {
+const conf1 = await showAppConfirm("⚠️ تحذير خطير: هل أنت متأكد تماماً من رغبتك في ترسيت كافة معلومات وحسابات المنظومة في Firebase؟");
+if (!conf1) return;
+const conf2 = await showAppConfirm("🚨 تأكيد أخير: سيتم مسح جميع الطلبات والموزعين وسجل الأرقام والأصناف بالكامل! هل تستمر؟");
+if (!conf2) return;
+try {
+showAppAlert("جاري ترسيت وتصفية قاعدة بيانات المنظومة...");
+const batchLimit = 400;
+const wipeCollection = async (collName) => {
+const snap = await db.collection(collName).get();
+let batch = db.batch();
+let count = 0;
+for (const doc of snap.docs) {
+batch.delete(doc.ref);
+count++;
+if (count >= batchLimit) {
+await batch.commit();
+batch = db.batch();
+count = 0;
+}
+}
+if (count > 0) await batch.commit();
+};
+await wipeCollection("orders");
+await wipeCollection("users");
+await wipeCollection("phone_registry");
+await wipeCollection("products");
+await wipeCollection("announcements");
+await wipeCollection("notifications");
+showAppAlert("✨ تم ترسيت وتصفية المنظومة بالكامل بنجاح! تم البدء من الصفر.");
+setTimeout(() => { location.reload(); }, 2000);
+} catch (e) {
+showAppAlert("حدث خطأ أثناء الترسيت: " + e.message);
+}
+}
+async function saveRankSettings() {
+const sPct = parseFloat(document.getElementById('set-rank-s').value) || 0;
+const gPct = parseFloat(document.getElementById('set-rank-g').value) || 0;
+const ePct = parseFloat(document.getElementById('set-rank-e').value) || 0;
+const cPct = parseFloat(document.getElementById('set-rank-c').value) || 0;
+const refBonus = parseFloat(document.getElementById('set-ref-bonus').value) || 0;
+await db.collection("settings").doc("ranks_config").set({
+rankS_pct: sPct, rankG_pct: gPct, rankE_pct: ePct, rankC_pct: cPct, referralBonus_pct: refBonus,
+updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+});
+showAppAlert("تم حفظ وتحديث نسب أرباح الفئات ومكافأة الداعي بنجاح!");
+}
+function renderDistributorsAnalytics() {
+const grid = document.getElementById("distributors-grid");
+if (!grid) return;
+grid.innerHTML = "";
+Object.keys(allUsers).forEach(uid => {
+const u = allUsers[uid];
+if (u.status !== "accepted" && !u.verified) return;
+const userOrders = allOrders.filter(o => o.distributorId === uid);
+const totalSales = userOrders.reduce((sum, o) => sum + (parseInt(o.totalPrice) || 0), 0);
+const totalKg = userOrders.reduce((sum, o) => sum + (parseFloat(o.quantityKg) || 0), 0);
+const rank = u.rank || 'C';
+const fallbackAvatar = "https://ui-avatars.com/api/?name=" + encodeURIComponent(u.name || "U") + "&background=374151&color=fff";
+grid.innerHTML += ⁠<div class="item-card" style="display:flex; flex-direction:column; justify-content:space-between;"> <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;"> <div style="display:flex; align-items:center; gap:10px;"> <img src="${u.photo || fallbackAvatar}" style="width:44px; height:44px; border-radius:50%; object-fit:cover;"> <div> <strong>${u.name || '-'}</strong> <div style="font-size:12px; color:var(--text-muted);">📍 ${u.area || '-'}</div> </div> </div> <span class="rank-badge rank-${rank}">${rank}</span> </div> <div style="background:#111827; padding:10px; border-radius:10px; margin-bottom:12px; font-size:13px;"> <div>إجمالي المبيعات: <strong style="color:var(--gold);">${totalSales.toLocaleString()} ل.س</strong></div> <div style="margin-top:4px;">الكميات: <strong style="color:var(--cyan);">${totalKg} كغ</strong></div> </div> <div style="display:flex; gap:6px;"> <button class="btn btn-primary" style="flex:1;" onclick="openProfileModal('${uid}')">📊 البروفايل</button> <button class="btn btn-danger" onclick="disconnectDistributor('${uid}', '${u.phone || ''}')">فصل</button> </div> </div>⁠;
+});
+}
+function openProfileModal(uid) {
+selectedDistributorId = uid;
+const u = allUsers[uid];
+if (!u) return;
+document.getElementById('modal-avatar').src = u.photo || "https://ui-avatars.com/api/?name=User&background=374151&color=fff";
+document.getElementById('modal-name').innerText = u.name || '-';
+document.getElementById('modal-email').innerText = u.email || '-';
+document.getElementById('modal-rank-select').value = u.rank || 'C';
+document.getElementById('modal-phone').innerText = u.phone || '-';
+document.getElementById('modal-area').innerText = u.area || '-';
+document.getElementById('modal-transport').innerText = u.transport || '-';
+document.getElementById('modal-bio').innerText = u.bio || '-';
+const userOrders = allOrders.filter(o => o.distributorId === uid);
+const totalKg = userOrders.reduce((s, o) => s + (parseFloat(o.quantityKg) || 0), 0);
+const totalSales = userOrders.reduce((s, o) => s + (parseInt(o.totalPrice) || 0), 0);
+const totalProfit = userOrders.reduce((s, o) => s + (parseInt(o.distributorProfit) || 0), 0);
+document.getElementById('modal-total-kg').innerText = totalKg + ' كغ';
+document.getElementById('modal-total-sales').innerText = totalSales.toLocaleString() + ' ل.س';
+document.getElementById('modal-total-profit').innerText = totalProfit.toLocaleString() + ' ل.س';
+document.getElementById('profile-modal').classList.remove('hidden');
+setTimeout(() => { renderSalesChart(uid, currentChartPeriod); }, 60);
+}
+function closeProfileModal() { document.getElementById('profile-modal').classList.add('hidden'); }
+async function saveModalRank() {
+if (!selectedDistributorId) return;
+const newRank = document.getElementById('modal-rank-select').value;
+await db.collection("users").doc(selectedDistributorId).update({ rank: newRank });
+showAppAlert(⁠تم تحديث فئة الموزع إلى الفئة (${newRank}) بنجاح!⁠);
+}
+function updateChartPeriod(period, btn) {
+currentChartPeriod = period;
+document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+btn.classList.add('active');
+if (selectedDistributorId) renderSalesChart(selectedDistributorId, period);
+}
+function renderSalesChart(uid, period) {
+const userOrders = allOrders.filter(o => o.distributorId === uid);
+const now = new Date();
+let labels = [], dataValues = [];
+if (period === 'daily') {
+const daysNames = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+for (let i = 6; i >= 0; i--) {
+const d = new Date();
+d.setDate(now.getDate() - i);
+labels.push(daysNames[d.getDay()] + ⁠ (${d.getDate()}/${d.getMonth() + 1})⁠);
+const daySum = userOrders.reduce((sum, o) => {
+if (!o.createdAt) return sum;
+const od = o.createdAt.toDate ? o.createdAt.toDate() : new Date(o.createdAt);
+if (od.getDate() === d.getDate() && od.getMonth() === d.getMonth() && od.getFullYear() === d.getFullYear()) {
+return sum + (parseInt(o.totalPrice) || 0);
+}
+return sum;
+}, 0);
+dataValues.push(daySum);
+}
+} else if (period === 'weekly') {
+labels = ['قبل 3 أسابيع', 'قبل أسبوعين', 'الأسبوع الماضي', 'الأسبوع الحالي'];
+dataValues = [0, 0, 0, 0];
+userOrders.forEach(o => {
+if (!o.createdAt) return;
+const od = o.createdAt.toDate ? o.createdAt.toDate() : new Date(o.createdAt);
+const diffDays = Math.floor((now - od) / (1000 * 60 * 60 * 24));
+const weekIndex = 3 - Math.floor(diffDays / 7);
+if (weekIndex >= 0 && weekIndex <= 3) dataValues[weekIndex] += (parseInt(o.totalPrice) || 0);
+});
+} else if (period === 'monthly') {
+labels = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+dataValues = new Array(12).fill(0);
+userOrders.forEach(o => {
+if (!o.createdAt) return;
+const od = o.createdAt.toDate ? o.createdAt.toDate() : new Date(o.createdAt);
+if (od.getFullYear() === now.getFullYear()) dataValues[od.getMonth()] += (parseInt(o.totalPrice) || 0);
+});
+} else if (period === 'yearly') {
+const curYear = now.getFullYear();
+labels = [(curYear - 3).toString(), (curYear - 2).toString(), (curYear - 1).toString(), curYear.toString()];
+dataValues = [0, 0, 0, 0];
+userOrders.forEach(o => {
+if (!o.createdAt) return;
+const od = o.createdAt.toDate ? o.createdAt.toDate() : new Date(o.createdAt);
+const idx = labels.indexOf(od.getFullYear().toString());
+if (idx !== -1) dataValues[idx] += (parseInt(o.totalPrice) || 0);
+});
+}
+const ctx = document.getElementById('distributorSalesChart').getContext('2d');
+if (salesChartInstance) salesChartInstance.destroy();
+salesChartInstance = new Chart(ctx, {
+type: 'bar',
+data: {
+labels: labels,
+datasets: [{ label: 'حجم المبيعات (ل.س)', data: dataValues, backgroundColor: 'rgba(67, 56, 202, 0.7)', borderColor: '#fbbf24', borderWidth: 2, borderRadius: 8 }]
+},
+options: {
+responsive: true, maintainAspectRatio: false,
+plugins: { legend: { labels: { color: '#f9fafb', font: { family: 'Cairo' } } } },
+scales: {
+x: { ticks: { color: '#9ca3af', font: { family: 'Cairo' } }, grid: { color: '#1f2937' } },
+y: { ticks: { color: '#9ca3af', font: { family: 'Cairo' } }, grid: { color: '#1f2937' } }
+}
+}
+});
+}
+async function updateOrderStatus(orderId, newStatus) {
+if(!newStatus) return;
+await db.collection("orders").doc(orderId).update({ status: newStatus });
+}
+async function confirmCashCollected(orderId, distributorId, amount) {
+await db.collection("orders").doc(orderId).update({ cashCollectedByAdmin: true, collectedAt: firebase.firestore.FieldValue.serverTimestamp() });
+if (distributorId) {
+await db.collection("users").doc(distributorId).update({ cashHeld: firebase.firestore.FieldValue.increment(-amount) });
+}
+showAppAlert("تم تأكيد استلام وقبض المبلغ من الموزع بنجاح!");
+}
+async function verifyAndActivateUser(userId, referrerCode) {
+await db.collection("users").doc(userId).update({ status: "accepted", verified: true, rank: "C", bonusProfitPct: 0 });
+showAppAlert("تم توثيق حساب الموزع وتفعيله بنجاح!");
+}
+async function rejectUser(userId) { await db.collection("users").doc(userId).update({ status: "rejected" }); }
+async function addProduct() {
+const name = document.getElementById("prod-name").value.trim();
+const price = parseFloat(document.getElementById("prod-price").value) || 0;
+const profitPct = parseFloat(document.getElementById("prod-profit-pct").value) || 0;
+const img = document.getElementById("prod-img").value.trim();
+const targetRanks = getSelectedRanks('prod');
+if(!name || price <= 0) { showAppAlert("يرجى إدخال اسم الصنف وسعره."); return; }
+await db.collection("products").add({ name, price, profitPct, imageUrl: img, targetRanks, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+showAppAlert("تمت إضافة الصنف بنجاح!");
+}
+async function deleteProduct(id) {
+if (await showAppConfirm("حذف هذا المنتج؟")) await db.collection("products").doc(id).delete();
+}
+async function publishAd() {
+const title = document.getElementById("ad-title").value.trim();
+const img = document.getElementById("ad-img").value.trim();
+const caption = document.getElementById("ad-caption").value.trim();
+const pinned = document.getElementById("ad-pin").checked;
+const targetRanks = getSelectedRanks('ad');
+if(!title || !caption) { showAppAlert("أدخل العنوان والتفاصيل."); return; }
+await db.collection("announcements").add({ title, imageUrl: img, caption, pinned, targetRanks, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+showAppAlert("تم نشر الإعلان بنجاح!");
+}
+async function deleteAd(id) {
+if (await showAppConfirm("حذف هذا الإعلان؟")) await db.collection("announcements").doc(id).delete();
+}
+async function sendNotification() {
+const title = document.getElementById("notif-title").value.trim();
+const body = document.getElementById("notif-body").value.trim();
+const targetRanks = getSelectedRanks('notif');
+if(!title || !body) { showAppAlert("أدخل العنوان والنص."); return; }
+await db.collection("notifications").add({ title, body, targetRanks, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+showAppAlert("تم إرسال التعميم بنجاح!");
+}
+async function deleteNotif(id) {
+if (await showAppConfirm("حذف هذا الإشعار؟")) await db.collection("notifications").doc(id).delete();
+}
 </script>
 </body>
 </html>
