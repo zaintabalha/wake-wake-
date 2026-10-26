@@ -74,13 +74,12 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
             setState(() => _isLoading = false);
           },
           onNavigationRequest: (NavigationRequest request) {
-            // السماح بجميع الروابط الخاصة بغوغل والمصادقة لتعمل بسلاسة
             return NavigationDecision.navigate;
           },
         ),
       )
       ..setUserAgent("Mozilla/5.0 (iPad; CPU OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1")
-      ..loadRequest(Uri.parse('https://zaintabalha.github.io/wake-wake-/index.html'));
+      ..loadRequest(Uri.parse('https://zaintabalha.github.io/wake-wake-/wake-admin-hq-9x8k2m7p4q1z5w.html'));
 
     if (controller.platform is WebKitWebViewController) {
       (controller.platform as WebKitWebViewController)
