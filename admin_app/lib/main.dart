@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,20 +48,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   void initState() {
     super.initState();
 
-    late final PlatformWebViewControllerCreationParams params;
-    if (WebViewPlatform.instance is WebKitWebViewPlatform) {
-      params = WebKitWebViewControllerCreationParams(
-        allowsInlineMediaPlayback: true,
-        mediaTypesRequiringUserAction: const <PlaybackMediaTypes>{},
-      );
-    } else {
-      params = const PlatformWebViewControllerCreationParams();
-    }
-
-    final WebViewController controller =
-        WebViewController.fromPlatformCreationParams(params);
-
-    controller
+    final WebViewController controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(const Color(0xFF0B0F19))
       ..setNavigationDelegate(
@@ -78,13 +64,11 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           },
         ),
       )
-      ..setUserAgent("Mozilla/5.0 (iPad; CPU OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1")
-      ..loadRequest(Uri.parse('https://zaintabalha.github.io/wake-wake-/wake-admin-hq-9x8k2m7p4q1z5w.html'));
-
-    if (controller.platform is WebKitWebViewController) {
-      (controller.platform as WebKitWebViewController)
-          .setInspectable(true);
-    }
+      ..loadRequest(
+        Uri.parse(
+          'https://zaintabalha.github.io/wake-wake-/wake-admin-hq-9x8k2m7p4q1z5w.html',
+        ),
+      );
 
     _controller = controller;
   }
